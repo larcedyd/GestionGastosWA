@@ -47,6 +47,25 @@ namespace CheckIn.API.Controllers
             }
         }
 
+        internal void CerrarConexionAPP( ModelCliente db)
+        {
+            try
+            {
+
+
+
+
+                db.Database.Connection.Close();
+                db.Database.Connection.Dispose();
+
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         public static string ObtenerConfig(string v)
         {

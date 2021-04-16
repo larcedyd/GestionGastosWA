@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1500
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckIn.Domain", "CheckIn.Domain\CheckIn.Domain.csproj", "{7062F9CA-2250-43A5-B744-C2ABE6FE584C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PosSicWA", "CheckIn.API\PosSicWA.csproj", "{4CDD6ABF-94DB-4CC2-87DA-D76D0D326864}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionGastosWA", "CheckIn.API\GestionGastosWA.csproj", "{4CDD6ABF-94DB-4CC2-87DA-D76D0D326864}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendGridEmail", "SendGridEmail\SendGridEmail.csproj", "{01203794-ED38-4EE6-BA30-7B784803FE6E}"
 EndProject
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7062F9CA-2250-43A5-B744-C2ABE6FE584C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7062F9CA-2250-43A5-B744-C2ABE6FE584C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7062F9CA-2250-43A5-B744-C2ABE6FE584C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7062F9CA-2250-43A5-B744-C2ABE6FE584C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4CDD6ABF-94DB-4CC2-87DA-D76D0D326864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4CDD6ABF-94DB-4CC2-87DA-D76D0D326864}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CDD6ABF-94DB-4CC2-87DA-D76D0D326864}.Release|Any CPU.ActiveCfg = Release|Any CPU

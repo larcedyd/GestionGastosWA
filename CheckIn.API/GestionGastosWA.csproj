@@ -46,9 +46,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>libs\BouncyCastle.Crypto.dll</HintPath>
+    <Reference Include="BCrypt.Net, Version=0.1.4141.31969, Culture=neutral, PublicKeyToken=f3bc8f8c31beeb49, processorArchitecture=MSIL">
+      <HintPath>..\packages\BCrypt.Net.0.1.0\lib\net35\BCrypt.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="DevOne.Security.Cryptography.BCrypt, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BCrypt.1.0.0.0\lib\DevOne.Security.Cryptography.BCrypt.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
@@ -234,46 +239,13 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
-    <Compile Include="Controllers\AbonosController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\BancosController.cs" />
-    <Compile Include="Controllers\CabysController.cs" />
-    <Compile Include="Controllers\CajasController.cs" />
-    <Compile Include="Controllers\CajerosController.cs" />
-    <Compile Include="Controllers\CedulasController.cs" />
-    <Compile Include="Controllers\CierreCajaController.cs" />
-    <Compile Include="Controllers\ClientesController.cs" />
-    <Compile Include="Controllers\CodigosTarifaImpuestosController.cs" />
-    <Compile Include="Controllers\ComprasController.cs" />
-    <Compile Include="Controllers\DetComprasController.cs" />
-    <Compile Include="Controllers\DetMovInController.cs" />
-    <Compile Include="Controllers\EncAptoController.cs" />
-    <Compile Include="Controllers\EncComprasController.cs" />
-    <Compile Include="Controllers\EncMovInvController.cs" />
-    <Compile Include="Controllers\EncPedidosController.cs" />
-    <Compile Include="Controllers\EncVtasController.cs" />
     <Compile Include="Controllers\G.cs" />
-    <Compile Include="Controllers\LineasController.cs" />
-    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\MovimientoInventarioController.cs" />
-    <Compile Include="Controllers\NotasCreditoController.cs" />
-    <Compile Include="Controllers\ParametrosController.cs" />
-    <Compile Include="Controllers\ProductosController.cs" />
-    <Compile Include="Controllers\ProveedoresController.cs" />
-    <Compile Include="Controllers\SeguridadModulosController.cs" />
-    <Compile Include="Controllers\SeguridadRolesController.cs" />
-    <Compile Include="Controllers\SeguridadRolesModulosController.cs" />
-    <Compile Include="Controllers\SeguridadUsuariosController.cs" />
-    <Compile Include="Controllers\TarjetasController.cs" />
-    <Compile Include="Controllers\TiposMovimientosController.cs" />
-    <Compile Include="Controllers\TiposPagosController.cs" />
-    <Compile Include="Controllers\TiposPreciosController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\TokenGenerator.cs" />
     <Compile Include="Controllers\TokenValidationHandler.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
-    <Compile Include="Controllers\VendedoresController.cs" />
-    <Compile Include="Controllers\VentasController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -283,95 +255,26 @@
     <Compile Include="Helpers\UsersHelper.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\AESCounter.cs" />
-    <Compile Include="Models\AESKey.cs" />
-    <Compile Include="Models\AESPair.cs" />
-    <Compile Include="Models\ComprasViewModel.cs" />
     <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\ModelCabys\Codigos.cs" />
-    <Compile Include="Models\ModelCabys\ModelCabys.cs" />
-    <Compile Include="Models\ModelCedulas\ContribuyentesCR.cs" />
-    <Compile Include="Models\ModelCedulas\Fisicas.cs" />
-    <Compile Include="Models\ModelCedulas\ModelCedulas.cs" />
-    <Compile Include="Models\ModelCedulas\Sociedades.cs" />
-    <Compile Include="Models\ModelCliente\Abonos.cs" />
-    <Compile Include="Models\ModelCliente\ActividadesEconomicas.cs" />
-    <Compile Include="Models\ModelCliente\Bancos.cs" />
-    <Compile Include="Models\ModelCliente\Bitacora.cs" />
-    <Compile Include="Models\ModelCliente\Bodegas.cs" />
-    <Compile Include="Models\ModelCliente\Cajas.cs" />
-    <Compile Include="Models\ModelCliente\Cajeros.cs" />
-    <Compile Include="Models\ModelCliente\CierreCaja.cs" />
-    <Compile Include="Models\ModelCliente\Clientes.cs" />
-    <Compile Include="Models\ModelCliente\CodigosTarifaImpuestos.cs" />
-    <Compile Include="Models\ModelCliente\Colores.cs" />
-    <Compile Include="Models\ModelCliente\Corridas.cs" />
-    <Compile Include="Models\ModelCliente\Departamentos.cs" />
-    <Compile Include="Models\ModelCliente\DetApartado.cs" />
+    <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\ModelCliente\CuentasContables.cs" />
     <Compile Include="Models\ModelCliente\DetCompras.cs" />
-    <Compile Include="Models\ModelCliente\DetIngMercaderia.cs" />
-    <Compile Include="Models\ModelCliente\DetIngTiendas.cs" />
-    <Compile Include="Models\ModelCliente\DetMovInv.cs" />
-    <Compile Include="Models\ModelCliente\DetPedidos.cs" />
-    <Compile Include="Models\ModelCliente\DetVtas.cs" />
-    <Compile Include="Models\ModelCliente\EncApartado.cs" />
+    <Compile Include="Models\ModelCliente\EncCierre.cs" />
     <Compile Include="Models\ModelCliente\EncCompras.cs" />
-    <Compile Include="Models\ModelCliente\EncIngTiendas.cs" />
-    <Compile Include="Models\ModelCliente\EncMovInv.cs" />
-    <Compile Include="Models\ModelCliente\EncPedidos.cs" />
-    <Compile Include="Models\ModelCliente\EncVtas.cs" />
-    <Compile Include="Models\ModelCliente\HistInv.cs" />
-    <Compile Include="Models\ModelCliente\HistProductos.cs" />
-    <Compile Include="Models\ModelCliente\HistVentas.cs" />
-    <Compile Include="Models\ModelCliente\ImprimirFacturas.cs" />
-    <Compile Include="Models\ModelCliente\LECTURAMENSAJESPANTALLA.cs" />
-    <Compile Include="Models\ModelCliente\Lineas.cs" />
-    <Compile Include="Models\ModelCliente\Marcas.cs" />
+    <Compile Include="Models\ModelCliente\Gastos.cs" />
+    <Compile Include="Models\ModelCliente\Login.cs" />
     <Compile Include="Models\ModelCliente\ModelCliente.cs" />
-    <Compile Include="Models\ModelCliente\NotasCredito.cs" />
-    <Compile Include="Models\ModelCliente\OrdenesExpress.cs" />
+    <Compile Include="Models\ModelCliente\NormasReparto.cs" />
     <Compile Include="Models\ModelCliente\Parametros.cs" />
-    <Compile Include="Models\ModelCliente\Parqueo.cs" />
-    <Compile Include="Models\ModelCliente\Precios.cs" />
-    <Compile Include="Models\ModelCliente\Productos.cs" />
-    <Compile Include="Models\ModelCliente\ProductosPrecios.cs" />
-    <Compile Include="Models\ModelCliente\ProductosPreciosClientes.cs" />
-    <Compile Include="Models\ModelCliente\ProductosPreciosLista.cs" />
-    <Compile Include="Models\ModelCliente\Proveedores.cs" />
-    <Compile Include="Models\ModelCliente\SeguridadModulos.cs" />
-    <Compile Include="Models\ModelCliente\SeguridadRoles.cs" />
-    <Compile Include="Models\ModelCliente\SeguridadRolesModulos.cs" />
-    <Compile Include="Models\ModelCliente\SeguridadUsuarios.cs" />
-    <Compile Include="Models\ModelCliente\Supervisor.cs" />
-    <Compile Include="Models\ModelCliente\sysdiagrams.cs" />
-    <Compile Include="Models\ModelCliente\Tallas.cs" />
-    <Compile Include="Models\ModelCliente\Tarifas.cs" />
-    <Compile Include="Models\ModelCliente\Tarjetas.cs" />
-    <Compile Include="Models\ModelCliente\Tiendas.cs" />
-    <Compile Include="Models\ModelCliente\TipoCambio.cs" />
-    <Compile Include="Models\ModelCliente\TipoPagos.cs" />
-    <Compile Include="Models\ModelCliente\TiposMovimientos.cs" />
-    <Compile Include="Models\ModelCliente\TomaFisica.cs" />
-    <Compile Include="Models\ModelCliente\Usuarios.cs" />
-    <Compile Include="Models\ModelCliente\Vendedores.cs" />
-    <Compile Include="Models\ModelCliente\ZVentasxVendedor.cs" />
-    <Compile Include="Models\ModelMain\Cajeros.cs" />
-    <Compile Include="Models\ModelMain\Companias.cs" />
-    <Compile Include="Models\ModelMain\LECTURAMENSAJESPANTALLA.cs" />
-    <Compile Include="Models\ModelMain\MensajesPantalla.cs" />
-    <Compile Include="Models\ModelMain\ModelMain.cs" />
-    <Compile Include="Models\MovimientoInventariosViewModel.cs" />
-    <Compile Include="Models\SeguridadRol.cs" />
-    <Compile Include="Models\VentasViewModel.cs" />
+    <Compile Include="Models\ModelCliente\Roles.cs" />
+    <Compile Include="Models\ModelMain\LicEmpresas.cs" />
+    <Compile Include="Models\ModelMain\LicUsuarios.cs" />
+    <Compile Include="Models\ModelMain\ModelLicencias.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
-    <Compile Include="RSA\RSABouncyCastle.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="Utils\CipherUtils.cs" />
-    <Compile Include="Utils\EncriptadorAEScs.cs" />
-    <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="ViewModels\Constantes.cs" />
     <Compile Include="ViewModels\Session.cs" />
   </ItemGroup>
@@ -519,10 +422,6 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CheckIn.Domain\CheckIn.Domain.csproj">
-      <Project>{7062f9ca-2250-43a5-b744-c2abe6fe584c}</Project>
-      <Name>CheckIn.Domain</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SendGridEmail\SendGridEmail.csproj">
       <Project>{01203794-ED38-4EE6-BA30-7B784803FE6E}</Project>
       <Name>SendGridEmail</Name>
