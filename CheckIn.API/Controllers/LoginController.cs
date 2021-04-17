@@ -55,7 +55,7 @@ namespace CheckIn.API.Controllers
                 var BD = Licencia.CadenaConexionBD;
 
                 db = new ModelCliente(BD);
-                var token = TokenGenerator.GenerateTokenJwt(Licencia.NombreEmpresa, BD);
+                var token = TokenGenerator.GenerateTokenJwt(Licencia.CedulaJuridica, BD);
 
                 DevolucionLogin de = new DevolucionLogin();
                 de.NombreUsuario = LicenciaUsuarios.Nombre;

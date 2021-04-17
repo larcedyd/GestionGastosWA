@@ -31,7 +31,8 @@ namespace CheckIn.API.Controllers
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] {
                 new Claim(ClaimTypes.Name, role),
                 new Claim(ClaimTypes.Role, username),
-                new Claim(ClaimTypes.Actor, role)
+                new Claim(ClaimTypes.Actor, username),
+                new Claim("Compania",username)
        
             });
 

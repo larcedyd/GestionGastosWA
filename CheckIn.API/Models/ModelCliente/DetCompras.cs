@@ -8,6 +8,8 @@ namespace CheckIn.API.Models.ModelCliente
 
     public partial class DetCompras
     {
+        [Key]
+        public int id { get; set; }
         [StringLength(20)]
         public string CodEmpresa { get; set; }
 
@@ -20,8 +22,7 @@ namespace CheckIn.API.Models.ModelCliente
         [StringLength(500)]
         public string NomProveedor { get; set; }
 
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+         
         public int NumFactura { get; set; }
 
         public int? NumLinea { get; set; }

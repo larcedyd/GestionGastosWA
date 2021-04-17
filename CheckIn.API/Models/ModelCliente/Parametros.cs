@@ -21,6 +21,8 @@ namespace CheckIn.API.Models.ModelCliente
 
         public bool? RecepcionUseSSL { get; set; }
 
+        public int RecepcionPort { get; set; }
+
         public DateTime? RecepcionUltimaLecturaImap { get; set; }
     }
 }

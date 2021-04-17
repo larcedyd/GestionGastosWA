@@ -148,7 +148,7 @@ namespace SendGridEmail
                 return true;
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -233,7 +233,7 @@ namespace SendGridEmail
                 return true;
 
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return false;
             }
