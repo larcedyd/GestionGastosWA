@@ -99,6 +99,17 @@ namespace CheckIn.API.Controllers
             }
         }
 
+        public void GuardarTxt(string nombreArchivo, string texto)
+        {
+            try
+            {
+                texto = (DateTime.Now.ToString("dd/MM/yyyy HH:mm") + " " + texto + Environment.NewLine + "------------------------------------------" + Environment.NewLine);
+                System.IO.File.AppendAllText(HttpContext.Current.Server.MapPath("~") + @"\Bitacora\" + nombreArchivo, texto);
+
+
+            }
+            catch { }
+        }
 
         public static string ObtenerConfig(string v)
         {

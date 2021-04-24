@@ -29,6 +29,10 @@ namespace CheckIn.API.Controllers
             try
             {
                 var LicenciaUsuarios = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(email.ToUpper())).FirstOrDefault();
+                if(LicenciaUsuarios == null)
+                {
+                    throw new Exception("Usuario no existe");
+                }
                 var Licencia = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == LicenciaUsuarios.CedulaJuridica).FirstOrDefault();
 
                 if(Licencia == null)
@@ -58,12 +62,19 @@ namespace CheckIn.API.Controllers
                 var token = TokenGenerator.GenerateTokenJwt(Licencia.CedulaJuridica, BD);
 
                 DevolucionLogin de = new DevolucionLogin();
+                var user = db.Login.Where(a => a.Email.ToUpper().Contains(LicenciaUsuarios.Email.ToUpper())).FirstOrDefault();
+
+                if(user == null)
+                {
+                    throw new Exception("Usuario no existe");
+                }
+                de.idLogin = user.id ;
                 de.NombreUsuario = LicenciaUsuarios.Nombre;
                 de.Email = LicenciaUsuarios.Email;
                 de.CedulaJuridica = LicenciaUsuarios.CedulaJuridica;
                 de.FechaVencimiento = Licencia.FechaVencimiento.Value;
                 de.token = token;
-
+                de.idRol = user.idRol.Value;
 
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
@@ -72,9 +83,34 @@ namespace CheckIn.API.Controllers
             {
 
 
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        public async Task<HttpResponseMessage> Get([FromUri] Filtros filtro)
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var Login = db.Login.ToList();
+
+                if (!string.IsNullOrEmpty(filtro.Texto))
+                {
+                    Login = Login.Where(a => a.Nombre.ToUpper().Contains(filtro.Texto.ToUpper()) ).ToList();
+                }
+                
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, Login);
+
+            }
+            catch (Exception ex)
+            {
+                G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
         [HttpPost]
         public HttpResponseMessage Post([FromBody] LoginViewModel usuario)
         {
@@ -257,11 +293,12 @@ namespace CheckIn.API.Controllers
         public DevolucionLogin()
         {
         }
-
+        public int idLogin { get; set; }
         public string NombreUsuario { get; set; }
         public string CedulaJuridica { get; set; }
         public string Email { get; set; }
         public DateTime FechaVencimiento { get; set; }
+        public int idRol { get; set; }
         public string token { get; set; }
 
     }

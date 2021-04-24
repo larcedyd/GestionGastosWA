@@ -62,7 +62,7 @@ namespace CheckIn.API.Controllers
                     throw new Exception("Este gasto no se encuentra registrado");
                 }
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, Gasto);
             }
             catch (Exception ex)
             {

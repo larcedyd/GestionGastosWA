@@ -18,6 +18,11 @@ namespace CheckIn.API.Models.ModelCliente
 
         [StringLength(2)]
         public string TipoDocumento { get; set; }
+        [StringLength(50)]
+        public string ClaveHacienda { get; set; }
+
+        [StringLength(20)]
+        public string ConsecutivoHacienda { get; set; }
 
         [StringLength(500)]
         public string NomProveedor { get; set; }
@@ -69,14 +74,6 @@ namespace CheckIn.API.Models.ModelCliente
 
         [StringLength(500)]
         public string Observacion { get; set; }
-
-        public int? idLoginAsignado { get; set; }
-
-        public DateTime? FecAsignado { get; set; }
-
-        public int? idLoginAceptacion { get; set; }
-
-        public int? idNormaReparto { get; set; }
 
         public int? idTipoGasto { get; set; }
 

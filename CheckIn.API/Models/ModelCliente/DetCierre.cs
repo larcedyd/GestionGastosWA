@@ -1,3 +1,5 @@
+﻿ 
+
 namespace CheckIn.API.Models.ModelCliente
 {
     using System;
@@ -6,14 +8,16 @@ namespace CheckIn.API.Models.ModelCliente
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class CuentasContables
+    [Table("DetCierre")]
+    public class DetCierre
     {
         [Key]
-        public int idCuentaContable { get; set; }
+        public int id { get; set; }
 
-        [StringLength(50)]
-        public string CodSAP { get; set; }
-        [StringLength(50)]
-        public string Nombre { get; set; }
+        public int idCierre { get; set; }
+
+        public int NumLinea { get; set; }
+
+        public int idFactura { get; set; }
     }
 }

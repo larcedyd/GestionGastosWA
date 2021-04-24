@@ -59,7 +59,7 @@ namespace CheckIn.API.Controllers
                     throw new Exception("Esta cuenta no se encuentra registrada");
                 }
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, Cuentas);
             }
             catch (Exception ex)
             {
@@ -78,11 +78,12 @@ namespace CheckIn.API.Controllers
 
                 if (Cuenta == null)
                 {
-                    cuenta = new CuentasContables();
-                    cuenta.Nombre = cuenta.Nombre;
+                    Cuenta = new CuentasContables();
+                    Cuenta.CodSAP = cuenta.CodSAP;
+                    Cuenta.Nombre = cuenta.Nombre;
              
 
-                    db.CuentasContables.Add(cuenta);
+                    db.CuentasContables.Add(Cuenta);
                     db.SaveChanges();
 
                 }
@@ -114,6 +115,7 @@ namespace CheckIn.API.Controllers
                 if (Cuenta != null)
                 {
                     db.Entry(Cuenta).State = EntityState.Modified;
+                    Cuenta.CodSAP = cuenta.CodSAP;
                     Cuenta.Nombre = cuenta.Nombre;
                     db.SaveChanges();
 

@@ -12,6 +12,14 @@ namespace CheckIn.API.Models.ModelCliente
         [Key]
         public int idCierre { get; set; }
 
+        public string Periodo { get; set; }
+
+        public DateTime FechaInicial { get; set; }
+
+        public DateTime FechaFinal { get; set; }
+
+        public int idLogin { get; set; }
+
         [Column(TypeName = "money")]
         public decimal? SubTotal { get; set; }
 
@@ -21,8 +29,25 @@ namespace CheckIn.API.Models.ModelCliente
         [Column(TypeName = "money")]
         public decimal? Impuestos { get; set; }
 
+
+        [Column(TypeName = "money")]
+        public decimal? Total { get; set; }
+
+       
+
+        public decimal Impuesto1 { get; set; }
+        public decimal Impuesto2 { get; set; }
+        public decimal Impuesto4 { get; set; }
+        public decimal Impuesto8 { get; set; }
+        public decimal Impuesto13 { get; set; }
         public int? CantidadRegistros { get; set; }
 
         public DateTime? FechaCierre { get; set; }
+        public int? idLoginAceptacion { get; set; }
+        [StringLength(1)]
+        public string Estado { get; set; }
+
+        [StringLength(500)]
+        public string Observacion { get; set; }
     }
 }

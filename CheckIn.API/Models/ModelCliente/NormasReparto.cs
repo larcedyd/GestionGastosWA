@@ -13,6 +13,9 @@ namespace CheckIn.API.Models.ModelCliente
 
         public int idLogin { get; set; }
 
+        [StringLength(4)]
+        public string CodSAP { get; set; }
+
         [StringLength(100)]
         public string Nombre { get; set; }
     }

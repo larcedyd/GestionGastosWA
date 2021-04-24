@@ -62,7 +62,7 @@ namespace CheckIn.API.Controllers
                     throw new Exception("Esta norma no se encuentra registrada");
                 }
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK,Norma);
             }
             catch (Exception ex)
             {
@@ -84,6 +84,7 @@ namespace CheckIn.API.Controllers
                 {
                     Norma = new NormasReparto();
                     Norma.idLogin = norma.idLogin;
+                    Norma.CodSAP = norma.CodSAP;
                     Norma.Nombre = norma.Nombre;
 
 
@@ -119,6 +120,7 @@ namespace CheckIn.API.Controllers
                 if (Normas != null)
                 {
                     db.Entry(Normas).State = EntityState.Modified;
+                    Normas.CodSAP = norma.CodSAP;
                     Normas.Nombre = norma.Nombre;
                     db.SaveChanges();
 

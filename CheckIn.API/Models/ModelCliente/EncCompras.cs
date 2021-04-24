@@ -8,6 +8,8 @@ namespace CheckIn.API.Models.ModelCliente
 
     public partial class EncCompras
     {
+        [Key]
+        public int id { get; set; }
         [Required]
         [StringLength(20)]
         public string CodEmpresa { get; set; }
@@ -16,11 +18,13 @@ namespace CheckIn.API.Models.ModelCliente
         [StringLength(20)]
         public string CodProveedor { get; set; }
 
+        public string NomProveedor { get; set; }
+
         [Required]
         [StringLength(10)]
         public string TipoDocumento { get; set; }
 
-        [Key]
+       
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int NumFactura { get; set; }
 
@@ -89,11 +93,7 @@ namespace CheckIn.API.Models.ModelCliente
 
         public string XmlFacturaRecibida { get; set; }
 
-        [StringLength(1)]
-        public string Estado { get; set; }
 
-        [StringLength(500)]
-        public string Observacion { get; set; }
 
         public DateTime? FechaGravado { get; set; }
 
@@ -119,7 +119,7 @@ namespace CheckIn.API.Models.ModelCliente
 
         public DateTime? FecAsignado { get; set; }
 
-        public int? idLoginAceptacion { get; set; }
+       
 
         public string PdfFactura { get; set; }
 
@@ -128,5 +128,10 @@ namespace CheckIn.API.Models.ModelCliente
         public int? idTipoGasto { get; set; }
 
         public int? idCierre { get; set; }
+        public decimal Impuesto1 { get; set; }
+	public decimal Impuesto2 { get; set; }
+	public decimal Impuesto4 { get; set; }
+	public decimal Impuesto8 { get; set; }
+	public decimal Impuesto13 { get; set; }
     }
 }

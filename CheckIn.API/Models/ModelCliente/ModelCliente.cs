@@ -22,6 +22,7 @@ namespace CheckIn.API.Models.ModelCliente
         public virtual DbSet<CuentasContables> CuentasContables { get; set; }
         public virtual DbSet<DetCompras> DetCompras { get; set; }
         public virtual DbSet<EncCierre> EncCierre { get; set; }
+        public virtual DbSet<DetCierre> DetCierre { get; set; }
         public virtual DbSet<EncCompras> EncCompras { get; set; }
         public virtual DbSet<Gastos> Gastos { get; set; }
         public virtual DbSet<Login> Login { get; set; }
@@ -217,16 +218,7 @@ namespace CheckIn.API.Models.ModelCliente
             modelBuilder.Entity<EncCompras>()
                 .Property(e => e.XmlFacturaRecibida)
                 .IsUnicode(false);
-
-            modelBuilder.Entity<EncCompras>()
-                .Property(e => e.Estado)
-                .IsFixedLength()
-                .IsUnicode(false);
-
-            modelBuilder.Entity<EncCompras>()
-                .Property(e => e.Observacion)
-                .IsUnicode(false);
-
+ 
             modelBuilder.Entity<EncCompras>()
                 .Property(e => e.TotalServExonerado)
                 .HasPrecision(19, 4);
