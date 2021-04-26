@@ -77,6 +77,11 @@ namespace CheckIn.API.Controllers
                     EncCierre = EncCierre.Where(a => a.Estado == filtro.Estado).ToList();
                 }
                 
+                if(filtro.Codigo1 > 0)
+                {
+                    EncCierre = EncCierre.Where(a => a.idLogin == filtro.Codigo1).ToList();
+                }
+
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, EncCierre);
 
@@ -126,7 +131,7 @@ namespace CheckIn.API.Controllers
 
 
         [Route("api/Cierre/Estado")]
-        public HttpResponseMessage GetEstado([FromUri]int id, string Estado, string comentario = "")
+        public HttpResponseMessage GetEstado([FromUri]int id, string Estado, string comentario = "", int idLoginAceptacion = 0)
         {
             try
             {
@@ -142,6 +147,7 @@ namespace CheckIn.API.Controllers
 
                     EncCierre.Observacion = comentario;
                 }
+                EncCierre.idLoginAceptacion = idLoginAceptacion;
                
                 db.SaveChanges();
                 G.CerrarConexionAPP(db);

@@ -102,9 +102,33 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                    Login = Login.Where(a => a.Nombre.ToUpper().Contains(filtro.Texto.ToUpper()) ).ToList();
+                    Login = Login.Where(a => a.Nombre.ToUpper().Contains(filtro.Texto.ToUpper()) || a.Email.ToUpper().Contains(filtro.Texto.ToUpper())).ToList();
                 }
                 
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, Login);
+
+            }
+            catch (Exception ex)
+            {
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+        [Route("api/Login/Consultar")]
+        public async Task<HttpResponseMessage> GetOne([FromUri] int id)
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var Login = db.Login.Where(a => a.id == id).FirstOrDefault();
+
+                if(Login == null)
+                {
+                    throw new Exception("Usuario no existe");
+                }
+
 
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, Login);
