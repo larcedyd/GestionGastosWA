@@ -68,6 +68,12 @@ namespace CheckIn.API.Controllers
                 {
                     throw new Exception("Usuario no existe");
                 }
+
+
+                var SeguridadModulos = db.SeguridadRolesModulos.Where(a => a.CodRol == user.idRol).ToList();
+               
+
+
                 de.idLogin = user.id ;
                 de.NombreUsuario = LicenciaUsuarios.Nombre;
                 de.Email = LicenciaUsuarios.Email;
@@ -75,7 +81,7 @@ namespace CheckIn.API.Controllers
                 de.FechaVencimiento = Licencia.FechaVencimiento.Value;
                 de.token = token;
                 de.idRol = user.idRol.Value;
-
+                de.Seguridad = SeguridadModulos;
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
             }
@@ -300,6 +306,6 @@ namespace CheckIn.API.Controllers
         public DateTime FechaVencimiento { get; set; }
         public int idRol { get; set; }
         public string token { get; set; }
-
+        public List<SeguridadRolesModulos> Seguridad { get; set; }
     }
 }

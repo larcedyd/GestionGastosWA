@@ -30,6 +30,10 @@ namespace CheckIn.API.Models.ModelCliente
         public virtual DbSet<Parametros> Parametros { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<BandejaEntrada> BandejaEntrada { get; set; }
+        public virtual DbSet<SeguridadModulos> SeguridadModulos { get; set; }
+        public virtual DbSet<SeguridadRolesModulos> SeguridadRolesModulos { get; set; }
+
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CuentasContables>()

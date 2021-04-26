@@ -252,6 +252,8 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\NormasRepartoController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
+    <Compile Include="Controllers\SeguridadModulosController.cs" />
+    <Compile Include="Controllers\SeguridadRolesModulosController.cs" />
     <Compile Include="Controllers\TokenGenerator.cs" />
     <Compile Include="Controllers\TokenValidationHandler.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -281,6 +283,8 @@
     <Compile Include="Models\ModelCliente\NormasReparto.cs" />
     <Compile Include="Models\ModelCliente\Parametros.cs" />
     <Compile Include="Models\ModelCliente\Roles.cs" />
+    <Compile Include="Models\ModelCliente\SeguridadModulos.cs" />
+    <Compile Include="Models\ModelCliente\SeguridadRolesModulos.cs" />
     <Compile Include="Models\ModelMain\LicEmpresas.cs" />
     <Compile Include="Models\ModelMain\LicUsuarios.cs" />
     <Compile Include="Models\ModelMain\ModelLicencias.cs" />
