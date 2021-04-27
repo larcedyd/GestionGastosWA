@@ -51,15 +51,25 @@ namespace CheckIn.API.Controllers
                         {
                             try
                             {
+                                byte[] ByteArrayPDF = null;
+
                                 foreach (var attachment in message.Attachments)
                                 {
                                     try
                                     {
                                         System.IO.StreamReader sr = new System.IO.StreamReader(attachment.ContentStream);
+                                        
                                         string texto = sr.ReadToEnd();
 
                                         if (texto.Substring(0, 3) == "???")
                                             texto = texto.Substring(3);
+
+                                        if(texto.Contains("PDF"))
+                                        {
+                                             ByteArrayPDF = G.Zip(texto);
+
+                                        }
+                                        
 
                                         if (texto.Contains("FacturaElectronica")
                                                 && !texto.Contains("TiqueteElectronico")
@@ -68,11 +78,12 @@ namespace CheckIn.API.Controllers
                                         {
                                             var emailByteArray = G.Zip(texto);
 
-                                            decimal id = db.Database.SqlQuery<decimal>("Insert Into BandejaEntrada(XmlFactura, Procesado, Asunto, Remitente) " +
-                                                    " VALUES (@EmailJson, 0, @Asunto, @Remitente); SELECT SCOPE_IDENTITY(); ",
+                                            decimal id = db.Database.SqlQuery<decimal>("Insert Into BandejaEntrada(XmlFactura, Procesado, Asunto, Remitente,Pdf) " +
+                                                    " VALUES (@EmailJson, 0, @Asunto, @Remitente, @Pdf); SELECT SCOPE_IDENTITY(); ",
                                                     new SqlParameter("@EmailJson", emailByteArray),
                                                     new SqlParameter("@Asunto", message.Subject),
-                                                    new SqlParameter("@Remitente", message.From.ToString())).First();
+                                                    new SqlParameter("@Remitente", message.From.ToString()),
+                                                    new SqlParameter("@Pdf",ByteArrayPDF)).First();
 
                                             try
                                             {
@@ -146,9 +157,13 @@ namespace CheckIn.API.Controllers
                         EncCompras factura = new EncCompras();
                         string xmlBase64 = attachmentBody;
 
+                        var BodyPdf = G.Unzip(item.Pdf);
+                        string pdfBase64 = BodyPdf;
+
 
 
                         var xml = G.ConvertirArchivoaXElement(xmlBase64, G.ObtenerCedulaJuridia());
+                       
 
                         if (!xmlBase64.Contains("FacturaElectronica")
                             && !xmlBase64.Contains("TiqueteElectronico")
@@ -172,7 +187,7 @@ namespace CheckIn.API.Controllers
                             factura.NumFactura = int.Parse(factura.ConsecutivoHacienda.Substring(11, 9));
 
                         }
-
+                       
                         factura.TipoDocumento = factura.ConsecutivoHacienda.Substring(8, 2);
                         if (factura.TipoDocumento == "04")
                             throw new Exception($"El documento es un Tiquete Electrónico, que no puede ser utilizado como gasto deducible. Debe solicitar al proveedor que genere una Factura Electrónica.");
@@ -250,7 +265,10 @@ namespace CheckIn.API.Controllers
                         var NomProveedor = G.ExtraerValorDeNodoXml(xml, "Emisor/Nombre");
                         factura.XmlFacturaRecibida = G.StringToBase64(xmlBase64);
                         factura.NomProveedor = NomProveedor;
+                        var pdfResp = G.GuardarPDF(item.Pdf, G.ObtenerCedulaJuridia(), factura.NumFactura);
 
+                        factura.PdfFactura = pdfResp;
+                        factura.PdfFac = item.Pdf;
                         decimal iva1 = 0;
                         decimal iva2 = 0;
                         decimal iva4 = 0;
@@ -283,6 +301,7 @@ namespace CheckIn.API.Controllers
                             }
 
                             det.NomPro = G.ExtraerValorDeNodoXml(item2, "Detalle");
+                            det.CodCabys = G.ExtraerValorDeNodoXml(item2, "Codigo");
                             if (det.NomPro.Length > 60)
                                 det.NomPro = det.NomPro.Substring(0, 60);
 
@@ -312,10 +331,12 @@ namespace CheckIn.API.Controllers
                             //    det.ExoneracionPorcentajeCompra = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/PorcentajeCompra", true));
                             //}
 
-                            det.idTipoGasto = EncontrarGasto(db, det.NomPro);
+                            det.idTipoGasto = EncontrarGasto(db, det.CodCabys);
 
 
                             det.MontoTotalLinea = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "MontoTotalLinea", true));
+                            
+
                            var ExoneracionPorcentajeCompra = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/PorcentajeCompra", true));
 
                             int opcion = Convert.ToInt32(det.ImpuestoTarifa);
@@ -553,7 +574,7 @@ namespace CheckIn.API.Controllers
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-
+                    a.PdfFac,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).ToList();
@@ -618,7 +639,7 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
 
 
-                var Cuentas = db.EncCompras.Where(a => a.NumFactura == id).Select(a => new
+                var Cuentas = db.EncCompras.Where(a => a.id == id).Select(a => new
                 {
                     a.id,
                     a.CodEmpresa
@@ -710,6 +731,8 @@ namespace CheckIn.API.Controllers
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
+                    a.PdfFac,
+             
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura)
 
                 }).FirstOrDefault();

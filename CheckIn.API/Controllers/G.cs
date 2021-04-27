@@ -178,6 +178,7 @@ namespace CheckIn.API.Controllers
                 return mso.ToArray();
             }
         }
+        
         public XElement ConvertirArchivoaXElement(string result, string CodEmpresa)
         {
             string codEmpresa = CodEmpresa;
@@ -219,6 +220,38 @@ namespace CheckIn.API.Controllers
 
             return xml;
         }
+
+        public string GuardarPDF(byte[] result, string CodEmpresa, int idFac)
+        {
+            string codEmpresa = CodEmpresa;
+          
+            try
+            {
+                byte[] bytes = result;
+
+                string path = HttpContext.Current.Server.MapPath("~") + $"\\Temp\\{codEmpresa}\\{idFac}.pdf";
+                //System.IO.FileStream stream = new FileStream(path, FileMode.CreateNew);
+                //System.IO.BinaryWriter writer =
+                //    new BinaryWriter(stream);
+                //writer.Write(bytes, 0, bytes.Length);
+                //writer.Close();
+
+
+                System.IO.File.WriteAllBytes(path, bytes);
+              
+                
+                 return path;
+
+            }
+
+            catch (Exception e)
+            {
+                return "";
+            }
+
+        }
+
+
         public string TimeStamp(DateTime fechaActual)
         {
             long ticks = fechaActual.Ticks - DateTime.Parse("01/01/1970 00:00:00").Ticks;

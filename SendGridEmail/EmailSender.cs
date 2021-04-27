@@ -207,15 +207,7 @@ namespace SendGridEmail
                                 mail.Attachments.Add(new Attachment(archivo));
                         }
                     }
-                    //if (ArchivosAdjuntos != null)
-                    //{
-                    //    foreach (var archivo in ArchivosAdjuntos)
-                    //    {
-                    //        //if (!string.IsNullOrEmpty(archivo))
-                    //        System.Net.Mail.Attachment Data = new System.Net.Mail.Attachment(archivo);
-                    //        mail.Attachments.Add(Data);
-                    //    }
-                    //}
+                
 
 
                     SmtpClient client = new SmtpClient();

@@ -147,6 +147,37 @@ namespace CheckIn.API.Controllers
 
                     EncCierre.Observacion = comentario;
                 }
+
+                if(Estado == "E")
+                {
+                    SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                    var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+
+                    var Login = db.Login.Where(a => a.idRol == Roles.idRol).ToList();
+                    var AsignadoCierre = db.Login.Where(a => a.id == EncCierre.idLogin).FirstOrDefault();
+                    var parametros = db.Parametros.FirstOrDefault();
+
+                    var html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n pendiente de revisi&oacute;n</strong></h3>";
+                    html += "<p style='text-align: justify; '>Se ha recibido una nueva liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                    html += "<ul>";
+                    html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + EncCierre.idCierre + "</li>";
+                    html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                    html += "<li style='text-align: justify; '><strong>Periodo</strong>: "+EncCierre.Periodo+"</li>";
+                    html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + EncCierre.CantidadRegistros+"</li>";
+                    html += "<li style='text-align: justify; '><strong>Total</strong>: "+decimal.Round(EncCierre.Total.Value,2)+"</li>";
+                    html += "</ul><p></p> ";
+                    html += "<p>Favor revisar en la plataforma <a href='"+parametros.UrlSitioPublicado+"'>"+ parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
+                   
+                    foreach(var item in Login)
+                    {
+
+
+                        emailsender.SendV2(item.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+                    }
+
+
+                }
+
                 EncCierre.idLoginAceptacion = idLoginAceptacion;
                
                 db.SaveChanges();
@@ -186,7 +217,7 @@ namespace CheckIn.API.Controllers
                 Cierre.Impuesto8 = gastos.EncCierre.Impuesto8;
                 Cierre.Impuesto13 = gastos.EncCierre.Impuesto13;
                 Cierre.idLoginAceptacion = 0;
-                Cierre.Estado = "P";
+                Cierre.Estado = gastos.EncCierre.Estado;
                 Cierre.Observacion = "";
 
                 db.EncCierre.Add(Cierre);
@@ -228,8 +259,38 @@ namespace CheckIn.API.Controllers
                 Cierre.CantidadRegistros = i - 1;
                 db.SaveChanges();
 
-               
-              
+
+                if (gastos.EncCierre.Estado == "E")
+                {
+                    SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                    var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+
+                    var Login = db.Login.Where(a => a.idRol == Roles.idRol).ToList();
+                    var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
+                    var parametros = db.Parametros.FirstOrDefault();
+
+                    var html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n pendiente de revisi&oacute;n</strong></h3>";
+                    html += "<p style='text-align: justify; '>Se ha recibido una nueva liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                    html += "<ul>";
+                    html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + Cierre.idCierre + "</li>";
+                    html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                    html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + Cierre.Periodo + "</li>";
+                    html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + Cierre.CantidadRegistros + "</li>";
+                    html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(Cierre.Total.Value, 2) + "</li>";
+                    html += "</ul><p></p> ";
+                    html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
+
+                    foreach (var item in Login)
+                    {
+
+
+                        emailsender.SendV2(item.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+                    }
+
+
+                }
+
+
 
                 t.Commit();
                 G.CerrarConexionAPP(db);
@@ -279,7 +340,7 @@ namespace CheckIn.API.Controllers
                         Cierre.Impuesto8 = gastos.EncCierre.Impuesto8;
                         Cierre.Impuesto13 = gastos.EncCierre.Impuesto13;
                         Cierre.idLoginAceptacion = 0;
-                        Cierre.Estado = "P";
+                        Cierre.Estado = gastos.EncCierre.Estado;
                         Cierre.Observacion = Cierre.Observacion;
 
                         
@@ -341,9 +402,37 @@ namespace CheckIn.API.Controllers
                         db.Entry(Cierre).State = EntityState.Modified;
                         Cierre.CantidadRegistros = i - 1;
                         db.SaveChanges();
-                
 
-                    
+
+                    if (gastos.EncCierre.Estado == "E")
+                    {
+                        SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                        var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+
+                        var Login = db.Login.Where(a => a.idRol == Roles.idRol).ToList();
+                        var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
+                        var parametros = db.Parametros.FirstOrDefault();
+
+                        var html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n pendiente de revisi&oacute;n</strong></h3>";
+                        html += "<p style='text-align: justify; '>Se ha recibido una nueva liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                        html += "<ul>";
+                        html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + Cierre.idCierre + "</li>";
+                        html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + Cierre.Periodo + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + Cierre.CantidadRegistros + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(Cierre.Total.Value, 2) + "</li>";
+                        html += "</ul><p></p> ";
+                        html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
+
+                        foreach (var item in Login)
+                        {
+
+
+                            emailsender.SendV2(item.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+                        }
+
+
+                    }
 
 
 

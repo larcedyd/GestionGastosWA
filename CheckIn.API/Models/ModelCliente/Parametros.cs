@@ -24,5 +24,7 @@ namespace CheckIn.API.Models.ModelCliente
         public int RecepcionPort { get; set; }
 
         public DateTime? RecepcionUltimaLecturaImap { get; set; }
+        public string UrlSitioPublicado { get; set; }
+        public int EnvioPort { get; set; }
     }
 }

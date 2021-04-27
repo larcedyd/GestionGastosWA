@@ -78,5 +78,7 @@ namespace CheckIn.API.Models.ModelCliente
         public int? idTipoGasto { get; set; }
 
         public int? idCierre { get; set; }
+        [StringLength(50)]
+        public string CodCabys { get; set; }
     }
 }
