@@ -268,6 +268,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AsignacionViewModel.cs" />
     <Compile Include="Models\CierreViewModel.cs" />
+    <Compile Include="Models\ComprasViewModel.cs" />
     <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
@@ -277,6 +278,7 @@
     <Compile Include="Models\ModelCliente\DetCompras.cs" />
     <Compile Include="Models\ModelCliente\EncCierre.cs" />
     <Compile Include="Models\ModelCliente\EncCompras.cs" />
+    <Compile Include="Models\ModelCliente\EncComprasViewModel.cs" />
     <Compile Include="Models\ModelCliente\Gastos.cs" />
     <Compile Include="Models\ModelCliente\Login.cs" />
     <Compile Include="Models\ModelCliente\ModelCliente.cs" />
@@ -302,28 +304,6 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\Images\Habitaciones\01-20191106 MensajeHtmlImg01.png" />
-    <Content Include="Content\Images\Habitaciones\01-AFICEH DE PRECIOS HORIZONTAL.png" />
-    <Content Include="Content\Images\Habitaciones\01-FacturaClickIcono.png" />
-    <Content Include="Content\Images\Habitaciones\20191106 MensajeHtmlImg01.png" />
-    <Content Include="Content\Images\Habitaciones\40-20191106 MensajeHtmlImg01.png" />
-    <Content Include="Content\Images\Habitaciones\40-AFICEH DE PRECIOS HORIZONTAL.png" />
-    <Content Include="Content\Images\Habitaciones\40-FacturaClickIcono.png" />
-    <Content Include="Content\Images\Habitaciones\AFICEH DE PRECIOS HORIZONTAL.png" />
-    <Content Include="Content\Images\Habitaciones\FacturaClickIcono.png" />
-    <Content Include="Content\Images\HomeBannersSecundario\BannerSecundario1.1.png" />
-    <Content Include="Content\Images\HomeBannersSecundario\BannerSecundario1.2.png" />
-    <Content Include="Content\Images\HomeBanners\16bfde54-3fdd-4bb5-a6dd-f4237f9b9fdc.jpg" />
-    <Content Include="Content\Images\HomeBanners\8ea0a78a-10f1-46bf-8562-dde3b0e512ab.jpg" />
-    <Content Include="Content\Images\HomeBanners\Banner1.png" />
-    <Content Include="Content\Images\HomeBanners\e156f0d7-761e-4446-acf7-38181b5da1d1.jpg" />
-    <Content Include="Content\Images\HomeBanners\e6c99b8f-9439-47b7-8341-7d34d05132ee.jpg" />
-    <Content Include="Content\Images\HomeServicios\Servicio1.png" />
-    <Content Include="Content\Images\HomeServicios\Servicio2.png" />
-    <Content Include="Content\Images\HomeVideos\38f1028a-43ee-424b-b0e0-75be42cb4222.jpg" />
-    <Content Include="Content\Images\HomeVideos\4a84849f-c677-4dc6-bfb8-507b4546dc5d.jpg" />
-    <Content Include="Content\Images\HomeVideos\Video1.jpg" />
-    <Content Include="Content\Images\Servicios\6fdb6722-0ced-42e3-8532-501ca1d41b95.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -394,15 +374,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\Images\General\" />
-    <Folder Include="Content\Images\HabitacionFotos\" />
-    <Folder Include="Content\Images\HotelesFotos\" />
-    <Folder Include="Content\Images\HotelesServicios\" />
-    <Folder Include="Content\Images\Hoteles\" />
-    <Folder Include="Content\Images\NosotrosComentarios\" />
-    <Folder Include="Content\Images\Nosotros\" />
-    <Folder Include="Content\Images\Rooms\" />
-    <Folder Include="Content\Images\Testimonial\" />
+    <Folder Include="Content\Images\" />
     <Folder Include="Imagenes\" />
   </ItemGroup>
   <ItemGroup>

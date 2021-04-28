@@ -1,12 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Spatial;
+
 namespace CheckIn.API.Models.ModelCliente
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
-
-    public partial class EncCompras
+    public class EncComprasViewModel
     {
         [Key]
         public int id { get; set; }
@@ -24,7 +24,7 @@ namespace CheckIn.API.Models.ModelCliente
         [StringLength(10)]
         public string TipoDocumento { get; set; }
 
-       
+
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int NumFactura { get; set; }
 
@@ -119,7 +119,7 @@ namespace CheckIn.API.Models.ModelCliente
 
         public DateTime? FecAsignado { get; set; }
 
-       
+
 
         public string PdfFactura { get; set; }
 
@@ -129,11 +129,12 @@ namespace CheckIn.API.Models.ModelCliente
 
         public int? idCierre { get; set; }
         public decimal Impuesto1 { get; set; }
-	public decimal Impuesto2 { get; set; }
-	public decimal Impuesto4 { get; set; }
-	public decimal Impuesto8 { get; set; }
-	public decimal Impuesto13 { get; set; }
+        public decimal Impuesto2 { get; set; }
+        public decimal Impuesto4 { get; set; }
+        public decimal Impuesto8 { get; set; }
+        public decimal Impuesto13 { get; set; }
         public byte[] PdfFac { get; set; }
+        public string ImagenBase64 { get; set; }
         public bool RegimenSimplificado { get; set; }
         public bool FacturaExterior { get; set; }
     }

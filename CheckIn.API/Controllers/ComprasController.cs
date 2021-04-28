@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,6 +23,38 @@ namespace CheckIn.API.Controllers
     {
         ModelCliente db;
         G G = new G();
+
+        public string GuardaImagenBase64(string ImagenBase64, string CarpetaImagen, string NomImagen, System.Drawing.Imaging.ImageFormat FormatoImagen)
+        {
+            Parametros Params = db.Parametros.FirstOrDefault();
+
+            string NombreImagen = "";
+            string rutaImagen = "";
+
+            if (NomImagen == "")
+            {
+                NombreImagen = "NoImage.png";
+            }
+
+            //NombreImagen = $"{PrefijoImagen}_{NomImagen}";
+            Random i = new Random();
+            int o = i.Next(0, 10000);
+            NombreImagen = o + "_" + NomImagen;
+
+            var _bytes = Convert.FromBase64String(ImagenBase64);
+            string pathImage = $"~/Temp/{G.ObtenerCedulaJuridia()}/{NombreImagen}";
+            var fullpath = System.Web.HttpContext.Current.Server.MapPath(pathImage);
+            using (System.Drawing.Image image = System.Drawing.Image.FromStream(new MemoryStream(_bytes)))
+            {
+                //image.Save(fullpath, System.Drawing.Imaging.ImageFormat.Png);  // aqui seria en base al tipo de imagen
+                image.Save(fullpath, FormatoImagen);  // aqui seria en base al tipo de imagen
+            }
+            rutaImagen = Params.UrlImagenesApp + pathImage;
+            rutaImagen = rutaImagen.Replace("~/Temp/", "");
+
+            return NombreImagen;
+        }
+
         [Route("api/Compras/RealizarLecturaEmail")]
 
         public async Task<HttpResponseMessage> GetRealizarLecturaEmailsAsync()
@@ -438,6 +471,8 @@ namespace CheckIn.API.Controllers
                         factura.Impuesto8 = iva8;
                         factura.Impuesto13 = iva13;
                         factura.idCierre = 0;
+                        factura.RegimenSimplificado = false;
+                        factura.FacturaExterior = false;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
                            new SqlParameter("@Id", item.Id));
@@ -751,6 +786,120 @@ namespace CheckIn.API.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
+        [HttpPost]
+        public HttpResponseMessage Post([FromBody] ComprasViewModel compra)
+            
+        {
+                G.AbrirConexionAPP(out db);
+            var t = db.Database.BeginTransaction();
+            try
+            {
+
+                var EncCompras = db.EncCompras.Where(a => a.id == compra.EncCompras.id || a.ConsecutivoHacienda == compra.EncCompras.ConsecutivoHacienda).FirstOrDefault();
+
+                if (EncCompras == null)
+                {
+                    EncCompras = new EncCompras();
+                    if(compra.EncCompras.FacturaExterior)
+                    {
+                        EncCompras.ClaveHacienda = compra.EncCompras.NumFactura.ToString();
+                        EncCompras.ConsecutivoHacienda = compra.EncCompras.NumFactura.ToString();
+                    }
+                    else
+                    {
+
+                        EncCompras.ClaveHacienda = compra.EncCompras.ClaveHacienda;
+                        EncCompras.ConsecutivoHacienda = compra.EncCompras.ConsecutivoHacienda;
+                    }
+                    EncCompras.NumFactura = compra.EncCompras.NumFactura;
+                    EncCompras.FecFactura = compra.EncCompras.FecFactura;
+                    EncCompras.FechaGravado = DateTime.Now;
+                    EncCompras.CodProveedor = compra.EncCompras.CodProveedor;
+                    EncCompras.NomProveedor = compra.EncCompras.NomProveedor;
+                    EncCompras.CodEmpresa = G.ObtenerCedulaJuridia();
+                    EncCompras.CodCliente = compra.EncCompras.CodCliente;
+                    EncCompras.NomCliente = compra.EncCompras.NomCliente;
+                    EncCompras.CodigoActividadEconomica = compra.EncCompras.CodigoActividadEconomica;
+                    EncCompras.CodMoneda = compra.EncCompras.CodMoneda;
+                    EncCompras.DiasCredito = compra.EncCompras.DiasCredito;
+                    EncCompras.Impuesto1 = compra.EncCompras.Impuesto1;
+                    EncCompras.Impuesto2 = compra.EncCompras.Impuesto2;
+                    EncCompras.Impuesto4 = compra.EncCompras.Impuesto4;
+                    EncCompras.Impuesto8 = compra.EncCompras.Impuesto8;
+                    EncCompras.Impuesto13 = compra.EncCompras.Impuesto13;
+                    EncCompras.TotalComprobante = compra.EncCompras.TotalComprobante;
+                    EncCompras.TotalDescuentos = compra.EncCompras.TotalDescuentos;
+                    EncCompras.TotalImpuesto = compra.EncCompras.TotalImpuesto;
+                    EncCompras.TotalVenta = compra.EncCompras.TotalVenta;
+                    EncCompras.TotalVentaNeta = compra.EncCompras.TotalVentaNeta;
+                    EncCompras.TipoDocumento = "01";
+                    EncCompras.EmailCliente = "";
+                    EncCompras.FacturaExterior = compra.EncCompras.FacturaExterior;
+                    EncCompras.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
+
+                    if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
+                    {
+                        string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                        EncCompras.PdfFactura = Url;
+                    }
+                    else
+                    {
+                        EncCompras.PdfFactura = EncCompras.PdfFactura;
+                    }
+
+                    db.EncCompras.Add(EncCompras);
+                    db.SaveChanges();
+
+                    var i = 1;
+                    foreach(var item in compra.DetCompras)
+                    {
+                        var Det = new DetCompras();
+                        Det.CodProveedor = EncCompras.CodProveedor;
+                        Det.CodEmpresa = EncCompras.CodEmpresa;
+                        Det.TipoDocumento = "01";
+                        Det.ClaveHacienda = EncCompras.ClaveHacienda;
+                        Det.ConsecutivoHacienda = EncCompras.ConsecutivoHacienda;
+                        Det.NomProveedor = EncCompras.NomProveedor;
+                        Det.NumFactura = EncCompras.NumFactura;
+                        Det.NumLinea = i;
+                        Det.CodPro = item.CodPro;
+                        Det.UnidadMedida = item.UnidadMedida;
+                        Det.NomPro = item.NomPro;
+                        Det.PrecioUnitario = item.PrecioUnitario;
+                        Det.Cantidad = item.Cantidad;
+                        Det.MontoTotal = item.MontoTotal;
+                        Det.MontoDescuento = item.MontoDescuento;
+                        Det.SubTotal = item.SubTotal;
+                        Det.ImpuestoTarifa = item.ImpuestoTarifa;
+                        Det.ImpuestoMonto = item.ImpuestoMonto;
+                        Det.MontoTotalLinea = item.MontoTotalLinea;
+                        Det.idTipoGasto = item.idTipoGasto;
+                        
+                       // Det.CodCabys = item.CodCabys;
+                        db.DetCompras.Add(Det);
+                        db.SaveChanges();
+                        i++;
+                    }
+
+
+                }
+                else
+                {
+                    throw new Exception("Esta factura YA existe");
+                }
+                t.Commit();
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                t.Rollback();
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
 
 
         [HttpPut]
