@@ -91,7 +91,9 @@ namespace CheckIn.API.Controllers
                                     try
                                     {
                                         System.IO.StreamReader sr = new System.IO.StreamReader(attachment.ContentStream);
-                                        
+                                     
+
+
                                         string texto = sr.ReadToEnd();
 
                                         if (texto.Substring(0, 3) == "???")
@@ -99,7 +101,10 @@ namespace CheckIn.API.Controllers
 
                                         if(texto.Contains("PDF"))
                                         {
-                                             ByteArrayPDF = G.Zip(texto);
+
+                                            ByteArrayPDF = ((MemoryStream)attachment.ContentStream).ToArray();
+                                            //ByteArrayPDF = G.Zip(texto);
+
 
                                         }
                                         
@@ -190,8 +195,8 @@ namespace CheckIn.API.Controllers
                         EncCompras factura = new EncCompras();
                         string xmlBase64 = attachmentBody;
 
-                        var BodyPdf = G.Unzip(item.Pdf);
-                        string pdfBase64 = BodyPdf;
+                        //var BodyPdf = G.Unzip(item.Pdf);
+                        string pdfBase64 = "";
 
 
 
@@ -473,6 +478,7 @@ namespace CheckIn.API.Controllers
                         factura.idCierre = 0;
                         factura.RegimenSimplificado = false;
                         factura.FacturaExterior = false;
+                        factura.idTipoGasto = db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
                            new SqlParameter("@Id", item.Id));
@@ -597,19 +603,20 @@ namespace CheckIn.API.Controllers
                     a.FecAsignado
                 
                  ,
-                    a.PdfFactura
+                    PdfFactura = db.Parametros.FirstOrDefault().UrlImagenesApp + a.PdfFactura
                  ,
                     a.idNormaReparto
                  ,
                     a.idTipoGasto
                  ,
+                 TipoGasto = (a.idTipoGasto == 0 ? "Sin Asignar":  db.Gastos.Where(z =>z.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre),
                     a.idCierre,
                     a.Impuesto1,
                     a.Impuesto2,
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-                    a.PdfFac,
+                  a.PdfFac,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).ToList();
@@ -618,8 +625,7 @@ namespace CheckIn.API.Controllers
                 {
                     filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
 
-                    EncCompras = EncCompras.Where(a => a.NomCliente.ToUpper().Contains(filtro.Texto.ToUpper()) ||
-                    a.EmailCliente.ToUpper().Contains(filtro.Texto.ToUpper()) || a.NomProveedor.ToUpper().Contains(filtro.Texto.ToUpper() ) || a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
+                    EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
                     a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
                     ).ToList();
                 }
@@ -754,20 +760,21 @@ namespace CheckIn.API.Controllers
                     a.FecAsignado
                 
                  ,
-                    a.PdfFactura
+                    PdfFactura = db.Parametros.FirstOrDefault().UrlImagenesApp + a.PdfFactura
                  ,
                     a.idNormaReparto
                  ,
                     a.idTipoGasto
                  ,
+                    TipoGasto = (a.idTipoGasto == 0 ? "Sin Asignar" : db.Gastos.Where(z => z.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre),
                     a.idCierre,
                     a.Impuesto1,
                     a.Impuesto2,
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-                    a.PdfFac,
-             
+                     a.PdfFac,
+
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura)
 
                 }).FirstOrDefault();
@@ -837,7 +844,7 @@ namespace CheckIn.API.Controllers
                     EncCompras.EmailCliente = "";
                     EncCompras.FacturaExterior = compra.EncCompras.FacturaExterior;
                     EncCompras.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
-
+                    EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                     {
                         string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);

@@ -359,23 +359,12 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Temp\402400315\10816938.pdf" />
-    <Content Include="Temp\402400315\1394.pdf" />
-    <Content Include="Temp\402400315\1399.pdf" />
-    <Content Include="Temp\402400315\1837.pdf" />
-    <Content Include="Temp\402400315\2100116044.pdf" />
-    <Content Include="Temp\402400315\2268.pdf" />
-    <Content Include="Temp\402400315\3021.pdf" />
-    <Content Include="Temp\402400315\316222.pdf" />
-    <Content Include="Temp\402400315\316257.pdf" />
-    <Content Include="Temp\402400315\3196182.pdf" />
-    <Content Include="Temp\402400315\336.pdf" />
-    <Content Include="Temp\402400315\48426.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\Images\" />
     <Folder Include="Imagenes\" />
+    <Folder Include="Temp\402400315\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

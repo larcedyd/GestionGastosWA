@@ -240,7 +240,7 @@ namespace CheckIn.API.Controllers
                 System.IO.File.WriteAllBytes(path, bytes);
               
                 
-                 return path;
+                 return idFac+".pdf";
 
             }
 
