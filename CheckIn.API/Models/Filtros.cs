@@ -15,6 +15,9 @@ namespace CheckIn.API.Models
         public DateTime FechaFinal { get; set; }
         public bool Asignados { get; set; }
         public string Estado { get; set; }
+        public string CodMoneda { get; set; }
+        public bool RegimeSimplificado { get; set; }
+        public bool FacturaExterior { get; set; }
 
     }
 }

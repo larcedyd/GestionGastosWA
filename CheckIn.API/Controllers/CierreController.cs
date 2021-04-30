@@ -48,6 +48,7 @@ namespace CheckIn.API.Controllers
                     a.Estado,
                     a.Observacion,
                     a.idLoginAceptacion,
+                    a.CodMoneda,
                     Detalle = db.DetCierre.Where(d => d.idCierre == a.idCierre).Select(s => new {
                         s.id,
                         s.idCierre,
@@ -219,7 +220,7 @@ namespace CheckIn.API.Controllers
                 Cierre.idLoginAceptacion = 0;
                 Cierre.Estado = gastos.EncCierre.Estado;
                 Cierre.Observacion = "";
-
+                Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                 db.EncCierre.Add(Cierre);
                 db.SaveChanges();
 
@@ -342,7 +343,7 @@ namespace CheckIn.API.Controllers
                         Cierre.idLoginAceptacion = 0;
                         Cierre.Estado = gastos.EncCierre.Estado;
                         Cierre.Observacion = Cierre.Observacion;
-
+                    Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                         
                         db.SaveChanges();
 

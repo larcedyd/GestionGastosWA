@@ -489,8 +489,7 @@ namespace CheckIn.API.Controllers
                         try
                         {
                             string procesado = "0";
-                            //if (ex.Message.ToUpper().Contains("XML NO ES EMITIDO") || ex.Message.ToUpper().Contains("EL DOCUMENTO YA EXISTE"))
-                            //      procesado = "1";
+                           
                             db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Mensaje=@Mensaje, Procesado=@Procesado WHERE Id=@Id",
                                  new SqlParameter("@Mensaje", ex.Message),
                                  new SqlParameter("@Procesado", procesado),
@@ -660,6 +659,10 @@ namespace CheckIn.API.Controllers
                 }
                     
 
+
+
+
+
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, EncCompras);
 
@@ -670,6 +673,165 @@ namespace CheckIn.API.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
+        [Route("api/Compras/Listado")]
+        public async Task<HttpResponseMessage> GetComprasModulo([FromUri] Filtros filtro)
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var EncCompras = db.EncCompras.Select(a => new
+                {
+                    a.id,
+                    a.CodEmpresa
+                 ,
+                    a.CodProveedor,
+                    a.NomProveedor
+                 ,
+                    a.TipoDocumento
+                 ,
+                    a.NumFactura
+                 ,
+                    a.FecFactura
+                 ,
+                    a.TipoIdentificacionCliente
+                 ,
+                    a.CodCliente
+                 ,
+                    a.NomCliente
+                 ,
+                    a.EmailCliente
+                 ,
+                    a.DiasCredito
+                 ,
+                    a.CondicionVenta
+                 ,
+                    a.ClaveHacienda
+                 ,
+                    a.ConsecutivoHacienda
+                 ,
+                    a.MedioPago
+                 ,
+                    a.Situacion
+                 ,
+                    a.CodMoneda
+                 ,
+                    a.TotalServGravados
+                 ,
+                    a.TotalServExentos
+                 ,
+                    a.TotalMercanciasGravadas
+                 ,
+                    a.TotalMercanciasExentas
+                 ,
+                    a.TotalExento
+                 ,
+                    a.TotalVenta
+                 ,
+                    a.TotalDescuentos
+                 ,
+                    a.TotalVentaNeta
+                 ,
+                    a.TotalImpuesto
+                 ,
+                    a.TotalComprobante
+                 ,
+                    a.XmlFacturaRecibida
+
+                 ,
+                    a.FechaGravado
+                 ,
+                    a.TotalServExonerado
+                 ,
+                    a.TotalMercExonerada
+                 ,
+                    a.TotalExonerado
+                 ,
+                    a.TotalIVADevuelto
+                 ,
+                    a.TotalOtrosCargos
+                 ,
+                    a.CodigoActividadEconomica
+                 ,
+                    a.idLoginAsignado
+                 ,
+                    a.FecAsignado
+
+                 ,
+                    PdfFactura = db.Parametros.FirstOrDefault().UrlImagenesApp + a.PdfFactura
+                 ,
+                    a.idNormaReparto
+                 ,
+                    a.idTipoGasto
+                 ,
+                    TipoGasto = (a.idTipoGasto == 0 ? "Sin Asignar" : db.Gastos.Where(z => z.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre),
+                    a.idCierre,
+                    a.Impuesto1,
+                    a.Impuesto2,
+                    a.Impuesto4,
+                    a.Impuesto8,
+                    a.Impuesto13,
+                    a.PdfFac,
+                    a.RegimenSimplificado,
+                    a.FacturaExterior,
+                    DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
+
+                }).ToList();
+
+                if (!string.IsNullOrEmpty(filtro.Texto))
+                {
+                    filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
+
+                    EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
+                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper()) || a.NomProveedor.ToString().Contains(filtro.Texto.ToUpper())
+                   
+                    ).ToList();
+                }
+
+                DateTime time = new DateTime();
+                if (filtro.FechaInicio != time)
+                {
+                    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
+                    EncCompras = EncCompras.Where(a => a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal).ToList();
+                }
+
+                if (filtro.Asignados)
+
+                {
+                     
+                    EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
+                    
+                }
+
+                if (!string.IsNullOrEmpty(filtro.CodMoneda) && filtro.CodMoneda != "NULL")
+                {
+                    EncCompras = EncCompras.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
+                }
+
+                if(filtro.RegimeSimplificado)
+                {
+                    EncCompras = EncCompras.Where(a => a.RegimenSimplificado == filtro.RegimeSimplificado).ToList();
+                }
+
+
+                if(filtro.FacturaExterior)
+                {
+                    EncCompras = EncCompras.Where(a => a.FacturaExterior == filtro.FacturaExterior).ToList();
+                }
+
+
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, EncCompras);
+
+            }
+            catch (Exception ex)
+            {
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
 
 
         [Route("api/Compras/Consultar")]
@@ -889,7 +1051,7 @@ namespace CheckIn.API.Controllers
                         i++;
                     }
 
-
+                    compra.EncCompras.id = EncCompras.id;
                 }
                 else
                 {
@@ -897,7 +1059,7 @@ namespace CheckIn.API.Controllers
                 }
                 t.Commit();
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, compra);
             }
             catch (Exception ex)
             {
