@@ -46,8 +46,17 @@ namespace CheckIn.API.Controllers
             var fullpath = System.Web.HttpContext.Current.Server.MapPath(pathImage);
             using (System.Drawing.Image image = System.Drawing.Image.FromStream(new MemoryStream(_bytes)))
             {
+                try
+                {
+                    image.Save(fullpath, FormatoImagen);  // aqui seria en base al tipo de imagen
+
+                }catch(Exception ex)
+                {
+                    G.GuardarTxt("ErrorImagen.txt", ex.ToString());
+                }
+                image.Save(fullpath, FormatoImagen);
                 //image.Save(fullpath, System.Drawing.Imaging.ImageFormat.Png);  // aqui seria en base al tipo de imagen
-                image.Save(fullpath, FormatoImagen);  // aqui seria en base al tipo de imagen
+
             }
             rutaImagen = Params.UrlImagenesApp + pathImage;
             rutaImagen = rutaImagen.Replace("~/Temp/", "");
@@ -478,7 +487,7 @@ namespace CheckIn.API.Controllers
                         factura.idCierre = 0;
                         factura.RegimenSimplificado = false;
                         factura.FacturaExterior = false;
-                        factura.idTipoGasto = db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
+                        factura.idTipoGasto = db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
                            new SqlParameter("@Id", item.Id));
@@ -1007,6 +1016,7 @@ namespace CheckIn.API.Controllers
                     EncCompras.FacturaExterior = compra.EncCompras.FacturaExterior;
                     EncCompras.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
                     EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
+                    EncCompras.idCierre = 0;
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                     {
                         string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
@@ -1065,6 +1075,8 @@ namespace CheckIn.API.Controllers
             {
                 t.Rollback();
                 G.CerrarConexionAPP(db);
+
+                G.GuardarTxt("ErrorImagen.txt", ex.ToString());
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }

@@ -269,6 +269,7 @@
     <Compile Include="Models\AsignacionViewModel.cs" />
     <Compile Include="Models\CierreViewModel.cs" />
     <Compile Include="Models\ComprasViewModel.cs" />
+    <Compile Include="Models\DetCierreViewModel.cs" />
     <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LoginViewModel.cs" />

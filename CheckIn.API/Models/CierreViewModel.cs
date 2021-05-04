@@ -9,6 +9,6 @@ namespace CheckIn.API.Models
     public class CierreViewModel
     {
         public EncCierre EncCierre { get; set; }
-        public DetCierre[] DetCierre { get; set; }
+        public DetCierreViewModel[] DetCierre { get; set; }
     }
 }

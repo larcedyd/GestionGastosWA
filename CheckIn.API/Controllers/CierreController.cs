@@ -250,6 +250,7 @@ namespace CheckIn.API.Controllers
 
                     Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                     Factura.idCierre = det.idCierre;
+                    Factura.idTipoGasto = item.idTipoGasto;
                     db.SaveChanges();
 
 
@@ -343,7 +344,7 @@ namespace CheckIn.API.Controllers
                         Cierre.idLoginAceptacion = 0;
                         Cierre.Estado = gastos.EncCierre.Estado;
                         Cierre.Observacion = Cierre.Observacion;
-                    Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
+                        Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                         
                         db.SaveChanges();
 
@@ -361,7 +362,7 @@ namespace CheckIn.API.Controllers
                             Factura.idLoginAsignado = 0;
                             Factura.FecAsignado = null;
 
-                             
+                            
 
                             Factura.idNormaReparto = 0;
                             Factura.idCierre = 0;
@@ -394,6 +395,7 @@ namespace CheckIn.API.Controllers
 
                             Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                             Factura.idCierre = det.idCierre;
+                            Factura.idTipoGasto = item.idTipoGasto;
                             db.SaveChanges();
 
 
