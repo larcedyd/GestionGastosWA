@@ -974,7 +974,7 @@ namespace CheckIn.API.Controllers
             try
             {
 
-                var EncCompras = db.EncCompras.Where(a => a.id == compra.EncCompras.id || a.ConsecutivoHacienda == compra.EncCompras.ConsecutivoHacienda).FirstOrDefault();
+                var EncCompras = db.EncCompras.Where(a => a.id == compra.EncCompras.id).FirstOrDefault();
 
                 if (EncCompras == null)
                 {
