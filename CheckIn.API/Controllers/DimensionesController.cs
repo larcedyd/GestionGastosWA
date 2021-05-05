@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace CheckIn.API.Controllers
 {
     [Authorize]
-    public class NormasRepartoController: ApiController
+    public class DimensionesController: ApiController
     {
         ModelCliente db;
         G G = new G();
@@ -23,20 +23,17 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
-                var Norma = db.NormasReparto.ToList();
+                var Dimension = db.Dimensiones.ToList();
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                    Norma = Norma.Where(a => a.Nombre.ToUpper().Contains(filtro.Texto.ToUpper())).ToList();
+                    Dimension = Dimension.Where(a => a.Nombre.ToUpper().Contains(filtro.Texto.ToUpper())).ToList();
                 }
 
-                if(filtro.Codigo1 > 0)
-                {
-                    Norma = Norma.Where(a => a.idLogin == filtro.Codigo1).ToList();
-                }
+               
 
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK, Norma);
+                return Request.CreateResponse(HttpStatusCode.OK, Dimension);
 
             }
             catch (Exception ex)
@@ -46,7 +43,7 @@ namespace CheckIn.API.Controllers
             }
         }
 
-        [Route("api/NormasReparto/Consultar")]
+        [Route("api/Dimensiones/Consultar")]
         public HttpResponseMessage GetOne([FromUri]int id)
         {
             try
@@ -54,15 +51,15 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
 
 
-                var Norma = db.NormasReparto.Where(a => a.id == id).FirstOrDefault();
+                var Dimensiones = db.Dimensiones.Where(a => a.id == id).FirstOrDefault();
 
 
-                if (Norma == null)
+                if (Dimensiones == null)
                 {
-                    throw new Exception("Esta norma no se encuentra registrada");
+                    throw new Exception("Esta dimensión no se encuentra registrada");
                 }
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK,Norma);
+                return Request.CreateResponse(HttpStatusCode.OK, Dimensiones);
             }
             catch (Exception ex)
             {
@@ -72,33 +69,32 @@ namespace CheckIn.API.Controllers
         }
 
         [HttpPost]
-        public HttpResponseMessage Post([FromBody] NormasReparto norma)
+        public HttpResponseMessage Post([FromBody] Dimensiones dimension)
         {
             try
             {
                 G.AbrirConexionAPP(out db);
 
-                var Norma = db.NormasReparto.Where(a => a.id == norma.id).FirstOrDefault();
+                var Dimension = db.Dimensiones.Where(a => a.id == dimension.id).FirstOrDefault();
 
-                if (Norma == null)
+                if (Dimension == null)
                 {
-                    Norma = new NormasReparto();
-                    Norma.idLogin = norma.idLogin;
-                    Norma.CodSAP = norma.CodSAP;
-                    Norma.Nombre = norma.Nombre;
-                    Norma.idDimension = norma.idDimension;
+                    Dimension = new Dimensiones();
+                    Dimension.codigoSAP = dimension.codigoSAP;
+                    Dimension.Nombre = dimension.Nombre;
+                     
 
-                    db.NormasReparto.Add(Norma);
+                    db.Dimensiones.Add(Dimension);
                     db.SaveChanges();
 
                 }
                 else
                 {
-                    throw new Exception("Esta norma de reparto YA existe");
+                    throw new Exception("Esta dimensión YA existe");
                 }
 
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK, Norma);
+                return Request.CreateResponse(HttpStatusCode.OK, Dimension);
             }
             catch (Exception ex)
             {
@@ -108,30 +104,29 @@ namespace CheckIn.API.Controllers
         }
 
         [HttpPut]
-        [Route("api/NormasReparto/Actualizar")]
-        public HttpResponseMessage Put([FromBody] NormasReparto norma)
+        [Route("api/Dimensiones/Actualizar")]
+        public HttpResponseMessage Put([FromBody] Dimensiones dimension)
         {
             try
             {
                 G.AbrirConexionAPP(out db);
 
-                var Normas = db.NormasReparto.Where(a => a.id == norma.id).FirstOrDefault();
+                var Dimension = db.Dimensiones.Where(a => a.id == dimension.id).FirstOrDefault();
 
-                if (Normas != null)
+                if (Dimension != null)
                 {
-                    db.Entry(Normas).State = EntityState.Modified;
-                    Normas.CodSAP = norma.CodSAP;
-                    Normas.Nombre = norma.Nombre;
-                    Normas.idDimension = norma.idDimension;
+                    db.Entry(Dimension).State = EntityState.Modified;
+                    Dimension.codigoSAP = dimension.codigoSAP;
+                    Dimension.Nombre = dimension.Nombre;
                     db.SaveChanges();
 
                 }
                 else
                 {
-                    throw new Exception("Norma no existe");
+                    throw new Exception("Dimension no existe");
                 }
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK, Normas);
+                return Request.CreateResponse(HttpStatusCode.OK, Dimension);
             }
             catch (Exception ex)
             {
@@ -141,26 +136,26 @@ namespace CheckIn.API.Controllers
         }
 
         [HttpDelete]
-        [Route("api/NormasReparto/Eliminar")]
+        [Route("api/Dimensiones/Eliminar")]
         public HttpResponseMessage Delete([FromUri] int id)
         {
             try
             {
                 G.AbrirConexionAPP(out db);
 
-                var Norma = db.NormasReparto.Where(a => a.id == id).FirstOrDefault();
+                var Dimension = db.Dimensiones.Where(a => a.id == id).FirstOrDefault();
 
-                if (Norma != null)
+                if (Dimension != null)
                 {
 
 
-                    db.NormasReparto.Remove(Norma);
+                    db.Dimensiones.Remove(Dimension);
                     db.SaveChanges();
 
                 }
                 else
                 {
-                    throw new Exception("Norma no existe");
+                    throw new Exception("Dimension no existe");
                 }
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -171,6 +166,7 @@ namespace CheckIn.API.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
 
     }
 }

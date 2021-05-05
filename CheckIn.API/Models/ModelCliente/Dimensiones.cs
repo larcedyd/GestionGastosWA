@@ -1,3 +1,4 @@
+﻿ 
 namespace CheckIn.API.Models.ModelCliente
 {
     using System;
@@ -6,18 +7,11 @@ namespace CheckIn.API.Models.ModelCliente
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("NormasReparto")]
-    public partial class NormasReparto
+    [Table("Dimensiones")]
+    public class Dimensiones
     {
         public int id { get; set; }
-
-        public int idLogin { get; set; }
-
-        [StringLength(4)]
-        public string CodSAP { get; set; }
-
-        [StringLength(100)]
+        public string codigoSAP { get; set; }
         public string Nombre { get; set; }
-        public int idDimension { get; set; }
     }
 }
