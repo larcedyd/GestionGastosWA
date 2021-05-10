@@ -50,5 +50,6 @@ namespace CheckIn.API.Models.ModelCliente
         [StringLength(500)]
         public string Observacion { get; set; }
         public string CodMoneda { get; set; }
+        public decimal TotalOtrosCargos { get; set; }
     }
 }

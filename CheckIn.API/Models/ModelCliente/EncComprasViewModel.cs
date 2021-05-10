@@ -137,5 +137,6 @@ namespace CheckIn.API.Models.ModelCliente
         public string ImagenBase64 { get; set; }
         public bool RegimenSimplificado { get; set; }
         public bool FacturaExterior { get; set; }
+        public bool GastosVarios { get; set; }
     }
 }

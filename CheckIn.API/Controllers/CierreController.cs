@@ -49,6 +49,7 @@ namespace CheckIn.API.Controllers
                     a.Observacion,
                     a.idLoginAceptacion,
                     a.CodMoneda,
+                    a.TotalOtrosCargos,
                     Detalle = db.DetCierre.Where(d => d.idCierre == a.idCierre).Select(s => new {
                         s.id,
                         s.idCierre,
@@ -81,6 +82,18 @@ namespace CheckIn.API.Controllers
                 if(filtro.Codigo1 > 0)
                 {
                     EncCierre = EncCierre.Where(a => a.idLogin == filtro.Codigo1).ToList();
+                }
+
+                if(filtro.Codigo2 > 0)
+                {
+
+                    if (filtro.Codigo1 == 0)
+                    {
+
+                        EncCierre = EncCierre.Where(a => a.idLoginAceptacion == filtro.Codigo2 || a.idLogin == filtro.Codigo2).ToList();
+                    }
+                     
+
                 }
 
                 G.CerrarConexionAPP(db);
@@ -179,7 +192,7 @@ namespace CheckIn.API.Controllers
 
                 }
 
-                EncCierre.idLoginAceptacion = idLoginAceptacion;
+                //EncCierre.idLoginAceptacion = idLoginAceptacion;
                
                 db.SaveChanges();
                 G.CerrarConexionAPP(db);
@@ -217,10 +230,12 @@ namespace CheckIn.API.Controllers
                 Cierre.Impuesto4 = gastos.EncCierre.Impuesto4;
                 Cierre.Impuesto8 = gastos.EncCierre.Impuesto8;
                 Cierre.Impuesto13 = gastos.EncCierre.Impuesto13;
-                Cierre.idLoginAceptacion = 0;
+                var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
+                Cierre.idLoginAceptacion = login.idLoginAceptacion;
                 Cierre.Estado = gastos.EncCierre.Estado;
                 Cierre.Observacion = "";
                 Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
+                Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                 db.EncCierre.Add(Cierre);
                 db.SaveChanges();
 
@@ -265,9 +280,9 @@ namespace CheckIn.API.Controllers
                 if (gastos.EncCierre.Estado == "E")
                 {
                     SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
-                    var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+                    //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
 
-                    var Login = db.Login.Where(a => a.idRol == Roles.idRol).ToList();
+                    var Login = db.Login.Where(a => a.id == login.idLoginAceptacion).FirstOrDefault();
                     var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                     var parametros = db.Parametros.FirstOrDefault();
 
@@ -282,12 +297,11 @@ namespace CheckIn.API.Controllers
                     html += "</ul><p></p> ";
                     html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
 
-                    foreach (var item in Login)
-                    {
+                    
 
 
-                        emailsender.SendV2(item.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
-                    }
+                        emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+                    
 
 
                 }
@@ -341,11 +355,12 @@ namespace CheckIn.API.Controllers
                         Cierre.Impuesto4 = gastos.EncCierre.Impuesto4;
                         Cierre.Impuesto8 = gastos.EncCierre.Impuesto8;
                         Cierre.Impuesto13 = gastos.EncCierre.Impuesto13;
-                        Cierre.idLoginAceptacion = 0;
-                        Cierre.Estado = gastos.EncCierre.Estado;
+                    var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
+                    Cierre.idLoginAceptacion = login.idLoginAceptacion;
+                    Cierre.Estado = gastos.EncCierre.Estado;
                         Cierre.Observacion = Cierre.Observacion;
                         Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
-                        
+                        Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                         db.SaveChanges();
 
                         var Facturas = db.EncCompras.ToList();
@@ -410,9 +425,9 @@ namespace CheckIn.API.Controllers
                     if (gastos.EncCierre.Estado == "E")
                     {
                         SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
-                        var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+                        //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
 
-                        var Login = db.Login.Where(a => a.idRol == Roles.idRol).ToList();
+                        var Login = db.Login.Where(a => a.id == login.idLoginAceptacion).FirstOrDefault();
                         var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                         var parametros = db.Parametros.FirstOrDefault();
 
@@ -427,12 +442,11 @@ namespace CheckIn.API.Controllers
                         html += "</ul><p></p> ";
                         html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
 
-                        foreach (var item in Login)
-                        {
+                        
 
 
-                            emailsender.SendV2(item.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
-                        }
+                            emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+                        
 
 
                     }

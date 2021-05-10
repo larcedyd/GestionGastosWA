@@ -71,7 +71,7 @@ namespace CheckIn.API.Controllers
 
 
                 var SeguridadModulos = db.SeguridadRolesModulos.Where(a => a.CodRol == user.idRol).ToList();
-               
+                var param = db.Parametros.FirstOrDefault();
 
 
                 de.idLogin = user.id ;
@@ -82,6 +82,7 @@ namespace CheckIn.API.Controllers
                 de.token = token;
                 de.idRol = user.idRol.Value;
                 de.Seguridad = SeguridadModulos;
+                de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
             }
@@ -181,12 +182,22 @@ namespace CheckIn.API.Controllers
                     login.Activo = true;
                     login.idRol = usuario.idRol;
                     login.Email = User.Email;
-
+                    
+                    login.idLoginAceptacion = usuario.idLoginAceptacion;
                     db.Login.Add(login);
 
                     dbLogin.LicUsuarios.Add(User);
                     dbLogin.SaveChanges();
                     db.SaveChanges();
+
+                    if(login.idLoginAceptacion == 0)
+                    {
+
+                        db.Entry(login).State = EntityState.Modified;
+                        login.idLoginAceptacion = login.id;
+                        db.SaveChanges();
+
+                    }
 
                     d.Commit();
                     t.Commit();
@@ -247,6 +258,10 @@ namespace CheckIn.API.Controllers
                     if (usuario.idRol > 0)
                     {
                         User.idRol = usuario.idRol;
+                    }
+                    if(usuario.idLoginAceptacion > 0)
+                    {
+                        User.idLoginAceptacion = usuario.idLoginAceptacion;
                     }
 
                     dbLogin.SaveChanges();
@@ -330,6 +345,7 @@ namespace CheckIn.API.Controllers
         public DateTime FechaVencimiento { get; set; }
         public int idRol { get; set; }
         public string token { get; set; }
+        public string UrlLogo { get; set; }
         public List<SeguridadRolesModulos> Seguridad { get; set; }
     }
 }

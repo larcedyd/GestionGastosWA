@@ -136,5 +136,6 @@ namespace CheckIn.API.Models.ModelCliente
         public byte[] PdfFac { get; set; }
         public bool RegimenSimplificado { get; set; }
         public bool FacturaExterior { get; set; }
+        public bool GastosVarios { get; set; }
     }
 }

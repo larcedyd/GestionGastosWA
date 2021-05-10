@@ -300,7 +300,7 @@ namespace CheckIn.API.Controllers
                         factura.TotalMercExonerada = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercExonerada", true));
                         factura.TotalExonerado = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalExonerado", true));
                         factura.TotalIVADevuelto = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalIVADevuelto", true));
-
+                        factura.TotalOtrosCargos = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "OtrosCargos/MontoCargo", true));
 
                         factura.TotalExento = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalExento", true));
                         factura.TotalVenta = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalVenta", true));
@@ -487,6 +487,7 @@ namespace CheckIn.API.Controllers
                         factura.idCierre = 0;
                         factura.RegimenSimplificado = false;
                         factura.FacturaExterior = false;
+                        factura.GastosVarios = false;
                         factura.idTipoGasto = db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
@@ -631,7 +632,7 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                    filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
+                    //filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
                     a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
@@ -783,6 +784,7 @@ namespace CheckIn.API.Controllers
                     a.PdfFac,
                     a.RegimenSimplificado,
                     a.FacturaExterior,
+                    a.GastosVarios,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).ToList();
@@ -1011,10 +1013,12 @@ namespace CheckIn.API.Controllers
                     EncCompras.TotalImpuesto = compra.EncCompras.TotalImpuesto;
                     EncCompras.TotalVenta = compra.EncCompras.TotalVenta;
                     EncCompras.TotalVentaNeta = compra.EncCompras.TotalVentaNeta;
+                    EncCompras.TotalOtrosCargos = 0;
                     EncCompras.TipoDocumento = "01";
                     EncCompras.EmailCliente = "";
                     EncCompras.FacturaExterior = compra.EncCompras.FacturaExterior;
                     EncCompras.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
+                    EncCompras.GastosVarios = compra.EncCompras.GastosVarios;
                     EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
                     EncCompras.idCierre = 0;
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
