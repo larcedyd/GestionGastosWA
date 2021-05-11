@@ -23,12 +23,53 @@ namespace CheckIn.API.Controllers
         ModelCliente db;
         G G = new G();
 
-        [Route("api/Login/Conectar")]
-        public async Task<HttpResponseMessage> GetLoginAsync([FromUri] string email, string clave)
+
+        [Route("api/Login/Compañias")]
+        public async Task<HttpResponseMessage> GetCompañiasAsync([FromUri]  string Email = "")
         {
             try
             {
-                var LicenciaUsuarios = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(email.ToUpper())).FirstOrDefault();
+                if (string.IsNullOrEmpty(Email))
+                {
+                    throw new Exception("Se debe indicar el email");
+                }
+
+                var LicenciaUsuarios = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(Email.ToUpper())).ToList();
+                if (LicenciaUsuarios == null)
+                {
+                    throw new Exception("Usuario no existe");
+                }
+                List<LicEmpresas> empresas = new List<LicEmpresas>();
+
+                foreach(var item in LicenciaUsuarios)
+                {
+                    var emp = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == item.CedulaJuridica && a.Activo == true).FirstOrDefault();
+                    empresas.Add(emp);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, empresas);
+
+            }
+            catch (Exception ex)
+            {
+
+
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+
+        [Route("api/Login/Conectar")]
+        public async Task<HttpResponseMessage> GetLoginAsync([FromUri] string email, string clave, string CedulaJuridica = "")
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(CedulaJuridica))
+                {
+                    throw new Exception("Se debe indicar el número de compañía a la que perteneces");
+                }
+
+                var LicenciaUsuarios = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(email.ToUpper()) && a.CedulaJuridica == CedulaJuridica).FirstOrDefault();
                 if(LicenciaUsuarios == null)
                 {
                     throw new Exception("Usuario no existe");
