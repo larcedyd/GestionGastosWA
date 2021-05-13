@@ -33,6 +33,8 @@ namespace CheckIn.API.Models.ModelCliente
         public virtual DbSet<SeguridadModulos> SeguridadModulos { get; set; }
         public virtual DbSet<SeguridadRolesModulos> SeguridadRolesModulos { get; set; }
         public virtual DbSet<Dimensiones> Dimensiones { get; set; }
+        public virtual DbSet<CorreosRecepcion> CorreosRecepcion { get; set; }
+        public virtual DbSet<ConexionSAP> ConexionSAP { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

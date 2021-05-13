@@ -223,7 +223,7 @@ namespace CheckIn.API.Controllers
                     login.Activo = true;
                     login.idRol = usuario.idRol;
                     login.Email = User.Email;
-                    
+                    login.CardCode = usuario.CardCode;
                     login.idLoginAceptacion = usuario.idLoginAceptacion;
                     db.Login.Add(login);
 
@@ -305,6 +305,10 @@ namespace CheckIn.API.Controllers
                         User.idLoginAceptacion = usuario.idLoginAceptacion;
                     }
 
+                    if(!string.IsNullOrEmpty(usuario.CardCode))
+                    {
+                        User.CardCode = usuario.CardCode;
+                    }
                     dbLogin.SaveChanges();
                     db.SaveChanges();
 

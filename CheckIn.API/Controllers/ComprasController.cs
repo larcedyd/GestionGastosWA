@@ -73,15 +73,20 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
 
                 var Parametros = db.Parametros.FirstOrDefault();
+                var Correos = db.CorreosRecepcion.ToList();
 
-                using (ImapClient client = new ImapClient(Parametros.RecepcionHostName, (int)(Parametros.RecepcionPort),
-                           Parametros.RecepcionEmail, Parametros.RecepcionPassword, AuthMethod.Login, (bool)(Parametros.RecepcionUseSSL)))
+                foreach(var item in Correos)
+                {
+
+
+                using (ImapClient client = new ImapClient(item.RecepcionHostName, (int)(item.RecepcionPort),
+                           item.RecepcionEmail, item.RecepcionPassword, AuthMethod.Login, (bool)(item.RecepcionUseSSL)))
                 {
                     IEnumerable<uint> uids = client.Search(SearchCondition.Unseen());
 
                     DateTime recepcionUltimaLecturaImap = DateTime.Now;
-                    if (Parametros.RecepcionUltimaLecturaImap != null)
-                        recepcionUltimaLecturaImap = Parametros.RecepcionUltimaLecturaImap.Value;
+                    if (item.RecepcionUltimaLecturaImap != null)
+                        recepcionUltimaLecturaImap = item.RecepcionUltimaLecturaImap.Value;
 
                     uids.Concat(client.Search(SearchCondition.SentSince(recepcionUltimaLecturaImap)));
 
@@ -94,9 +99,12 @@ namespace CheckIn.API.Controllers
                             try
                             {
                                 byte[] ByteArrayPDF = null;
-
+                                    int i = 1;
+                                   
+                                            decimal idGeneral = 0;
                                 foreach (var attachment in message.Attachments)
                                 {
+                                        
                                     try
                                     {
                                         System.IO.StreamReader sr = new System.IO.StreamReader(attachment.ContentStream);
@@ -130,8 +138,8 @@ namespace CheckIn.API.Controllers
                                                     new SqlParameter("@EmailJson", emailByteArray),
                                                     new SqlParameter("@Asunto", message.Subject),
                                                     new SqlParameter("@Remitente", message.From.ToString()),
-                                                    new SqlParameter("@Pdf",ByteArrayPDF)).First();
-
+                                                    new SqlParameter("@Pdf",(ByteArrayPDF == null ? new byte[0]: ByteArrayPDF))).First();
+                                                idGeneral = id;
                                             try
                                             {
 
@@ -154,7 +162,27 @@ namespace CheckIn.API.Controllers
                                             catch { }
                                         }
 
-                                    }
+                                        if(i == message.Attachments.Count())
+                                            {
+                                                if(idGeneral > 0)
+                                                {
+                                                    var bandeja = db.BandejaEntrada.Where(a => a.Id == idGeneral).FirstOrDefault();
+
+                                                    if(bandeja.Pdf.Count() ==  0)
+                                                    {
+                                                            db.Database.ExecuteSqlCommand("Update BandejaEntrada set Pdf=@Pdf " +
+                                                       
+                                                       " WHERE Id=@Id ",
+                                                        new SqlParameter("@Pdf", ByteArrayPDF),
+                                                        
+                                                        new SqlParameter("@Id", idGeneral));
+                                                    }
+
+                                                }
+                                            }
+
+                                            i++;
+                                        }
                                     catch (Exception ex)
                                     {
 
@@ -172,9 +200,14 @@ namespace CheckIn.API.Controllers
 
                         await System.Threading.Tasks.Task.Delay(100);
                     }
+                        db.Entry(item).State = EntityState.Modified;
+                    item.RecepcionUltimaLecturaImap = DateTime.Now;
+                        db.SaveChanges();
 
-                    Parametros.RecepcionUltimaLecturaImap = DateTime.Now;
+                    }
+
                 }
+
 
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK);

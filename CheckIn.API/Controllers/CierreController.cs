@@ -50,6 +50,7 @@ namespace CheckIn.API.Controllers
                     a.idLoginAceptacion,
                     a.CodMoneda,
                     a.TotalOtrosCargos,
+                    a.ProcesadaSAP,
                     Detalle = db.DetCierre.Where(d => d.idCierre == a.idCierre).Select(s => new {
                         s.id,
                         s.idCierre,
@@ -236,6 +237,7 @@ namespace CheckIn.API.Controllers
                 Cierre.Observacion = "";
                 Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                 Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
+                Cierre.ProcesadaSAP = false;
                 db.EncCierre.Add(Cierre);
                 db.SaveChanges();
 
