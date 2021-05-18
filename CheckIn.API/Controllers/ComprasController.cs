@@ -521,6 +521,7 @@ namespace CheckIn.API.Controllers
                         factura.RegimenSimplificado = false;
                         factura.FacturaExterior = false;
                         factura.GastosVarios = false;
+                        factura.FacturaNoRecibida = false;
                         factura.idTipoGasto = db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
@@ -818,6 +819,7 @@ namespace CheckIn.API.Controllers
                     a.RegimenSimplificado,
                     a.FacturaExterior,
                     a.GastosVarios,
+                    a.FacturaNoRecibida,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).ToList();
@@ -863,7 +865,10 @@ namespace CheckIn.API.Controllers
                     EncCompras = EncCompras.Where(a => a.FacturaExterior == filtro.FacturaExterior).ToList();
                 }
 
-
+                if(filtro.FacturaNoRecibida)
+                {
+                    EncCompras = EncCompras.Where(a => a.FacturaNoRecibida == filtro.FacturaNoRecibida).ToList();
+                }
 
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, EncCompras);
@@ -1052,6 +1057,7 @@ namespace CheckIn.API.Controllers
                     EncCompras.FacturaExterior = compra.EncCompras.FacturaExterior;
                     EncCompras.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
                     EncCompras.GastosVarios = compra.EncCompras.GastosVarios;
+                    EncCompras.FacturaNoRecibida = compra.EncCompras.FacturaNoRecibida;
                     EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
                     EncCompras.idCierre = 0;
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))

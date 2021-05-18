@@ -37,6 +37,11 @@ namespace CheckIn.API.Controllers
                     Liquidaciones = Liquidaciones.Where(a => a.idLogin == filtro.Codigo1).ToList();
                 }
 
+                if(!string.IsNullOrEmpty(filtro.CodMoneda))
+                {
+                    Liquidaciones = Liquidaciones.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
+                }
+
                 var MontoAcumulado = Liquidaciones.Sum(a => a.Total);
                 HeaderReportViewModel he = new HeaderReportViewModel();
                 he.MontoAcumulado = MontoAcumulado.Value;
@@ -58,19 +63,23 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
 
                 var Liquidaciones = db.EncCierre.ToList();
-                if(filtro != null)
+                if (filtro != null)
                 {
 
-                if (filtro.FechaInicio.Date != new DateTime().Date)
-                {
-                    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
-                    Liquidaciones = Liquidaciones.Where(a => a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal).ToList();
-                }
+                    if (filtro.FechaInicio.Date != new DateTime().Date)
+                    {
+                        filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
+                        Liquidaciones = Liquidaciones.Where(a => a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal).ToList();
+                    }
 
-                if (filtro.Codigo1 > 0)
-                {
-                    Liquidaciones = Liquidaciones.Where(a => a.idLogin == filtro.Codigo1).ToList();
-                }
+                    if (filtro.Codigo1 > 0)
+                    {
+                        Liquidaciones = Liquidaciones.Where(a => a.idLogin == filtro.Codigo1).ToList();
+                    }
+                    if (!string.IsNullOrEmpty(filtro.CodMoneda))
+                    {
+                        Liquidaciones = Liquidaciones.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
+                    }
                 }
                 List<DetCierre> det = new List<DetCierre>();
                 List<EncCompras> comp = new List<EncCompras>();

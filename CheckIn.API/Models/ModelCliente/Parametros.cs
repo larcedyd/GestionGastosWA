@@ -28,5 +28,10 @@ namespace CheckIn.API.Models.ModelCliente
         public int EnvioPort { get; set; }
         public string UrlImagenesApp { get; set; }
         public string UrlLogo { get; set; }
+        public string CI1 { get; set; }
+        public string CI2 { get; set; }
+        public string CI4 { get; set; }
+        public string CI8 { get; set; }
+        public string CI13 { get; set; }
     }
 }

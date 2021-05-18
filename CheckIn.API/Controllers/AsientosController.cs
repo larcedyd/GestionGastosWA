@@ -58,6 +58,11 @@ namespace CheckIn.API.Controllers
         {
 
             object resp;
+            decimal imp1 = 0;
+            decimal imp2 = 0;
+            decimal imp4 = 0;
+            decimal imp8 = 0;
+            decimal imp13 = 0;
             try
             {
                 G.AbrirConexionAPP(out db);
@@ -79,7 +84,7 @@ namespace CheckIn.API.Controllers
                 }
 
                 var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
-
+                var param = db.Parametros.FirstOrDefault();
 
 
                 var oInvoice = (Documents)Conexion.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oPurchaseInvoices);
@@ -106,18 +111,25 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = item.CodProveedor +"-"+ item.NomProveedor ;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
                     oInvoice.Lines.AccountCode = Cuenta.CodSAP; //"6-01-02-05-000"; //Cuenta contable del gasto
-                    if(item.TotalImpuesto > 0)
-                    {
+                    //if(item.TotalImpuesto > 0)
+                    //{
 
-                        oInvoice.Lines.TaxCode = "IVA"; //EX-IVA -> Factura 
+                    //    oInvoice.Lines.TaxCode = "IVA"; //EX-IVA -> Factura 
 
-                    }
-                    else
-                    {
+                    //}
+                    //else
+                    //{
                         oInvoice.Lines.TaxCode = "EX";
-                    }
+                    //}
+
+                    imp1 += item.Impuesto1;
+                    imp2 += item.Impuesto2;
+                    imp4 += item.Impuesto4;
+                    imp8 += item.Impuesto8;
+                    imp13 += item.Impuesto13;
+
                     //Normas de reparto
-                    switch(Dimension.codigoSAP)
+                    switch (Dimension.codigoSAP)
                     {
                         case "1":
                             {
@@ -176,7 +188,7 @@ namespace CheckIn.API.Controllers
                             }
                     }
 
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(item.TotalComprobante.Value);
+                    oInvoice.Lines.LineTotal = Convert.ToDouble(item.TotalComprobante.Value - item.TotalImpuesto);
 
                     if(TipoGasto.Nombre.ToUpper().Contains("Combustible".ToUpper()))
                     {
@@ -194,9 +206,70 @@ namespace CheckIn.API.Controllers
                     i++;
                 }
 
+
+                if(imp1 > 0)
+                {
+                    oInvoice.Lines.SetCurrentLine(i);
+                    oInvoice.Lines.ItemDescription = "Impuesto 1";
+                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
+                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.AccountCode = param.CI1;
+
+                    oInvoice.Lines.Add();
+                    i++;
+                }
+              
+                if(imp2 > 0)
+                {
+                    oInvoice.Lines.SetCurrentLine(i);
+                    oInvoice.Lines.ItemDescription = "Impuesto 2";
+                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
+                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.AccountCode = param.CI2; 
+                    oInvoice.Lines.Add();
+                    i++;
+                }
+
+               if(imp4 > 0)
+                {
+                    oInvoice.Lines.SetCurrentLine(i);
+                    oInvoice.Lines.ItemDescription = "Impuesto 4";
+                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
+                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.AccountCode = param.CI4 ;
+                    oInvoice.Lines.Add();
+                    i++;
+                }
+
+                if (imp8 > 0)
+                {
+                    oInvoice.Lines.SetCurrentLine(i);
+                    oInvoice.Lines.ItemDescription = "Impuesto 8";
+                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
+                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.AccountCode = param.CI8;
+                    oInvoice.Lines.Add();
+                    i++;
+                }
+
+                if (imp13 > 0)
+                {
+                    oInvoice.Lines.SetCurrentLine(i);
+                    oInvoice.Lines.ItemDescription = "Impuesto 13";
+                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp13);
+                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.AccountCode = param.CI13;
+                    oInvoice.Lines.Add();
+                    i++;
+                }
+
+             
+
               
 
-            
+               
+
+
 
                 var respuesta = oInvoice.Add();
 
