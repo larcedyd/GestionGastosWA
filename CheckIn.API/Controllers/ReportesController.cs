@@ -24,7 +24,7 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
 
-                var Liquidaciones = db.EncCierre.ToList();
+                var Liquidaciones = db.EncCierre.Where(a => a.Estado != "R").ToList();
 
                 if(filtro.FechaInicio.Date != new DateTime().Date )
                 {
@@ -62,7 +62,7 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
 
-                var Liquidaciones = db.EncCierre.ToList();
+                var Liquidaciones = db.EncCierre.Where(a => a.Estado != "R").ToList();
                 if (filtro != null)
                 {
 

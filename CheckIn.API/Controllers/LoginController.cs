@@ -269,8 +269,8 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
 
-                var Usuario = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(usuario.Email.ToUpper()) && a.Activo == true).FirstOrDefault();
-                var User = db.Login.Where(a => a.Email.ToUpper().Contains(usuario.Email.ToUpper())).FirstOrDefault();
+                var User = db.Login.Where(a => a.id == usuario.id).FirstOrDefault(); //a.Email.ToUpper().Contains(usuario.Email.ToUpper())
+                var Usuario = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(usuario.Email.ToUpper()) && a.CedulaJuridica == usuario.CedulaJuridica).FirstOrDefault();
 
                 if (Usuario != null && User != null)
                 {
@@ -329,14 +329,14 @@ namespace CheckIn.API.Controllers
 
         [HttpDelete]
         [Route("api/Login/Eliminar")]
-        public HttpResponseMessage Delete([FromUri] int id)
+        public HttpResponseMessage Delete([FromUri] int id, string CedulaJuridica)
         {
             try
             {
                 G.AbrirConexionAPP(out db);
 
-                var Usuario = dbLogin.LicUsuarios.Where(a => a.idLogin == id).FirstOrDefault();
-                var User = db.Login.Where(a => a.Email.ToUpper().Contains(Usuario.Email.ToUpper())).FirstOrDefault();
+                var User = db.Login.Where(a => a.id == id).FirstOrDefault();
+                var Usuario = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(User.Email.ToUpper()) && a.CedulaJuridica == CedulaJuridica).FirstOrDefault();
 
 
                 if (Usuario != null && User != null)

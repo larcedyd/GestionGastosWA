@@ -123,6 +123,7 @@ namespace CheckIn.API.Controllers
                     Normas.CodSAP = norma.CodSAP;
                     Normas.Nombre = norma.Nombre;
                     Normas.idDimension = norma.idDimension;
+                    Normas.idLogin = norma.idLogin;
                     db.SaveChanges();
 
                 }

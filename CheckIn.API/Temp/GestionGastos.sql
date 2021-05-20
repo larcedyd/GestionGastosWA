@@ -121,15 +121,14 @@ CREATE TABLE [dbo].[EncCierre](
 	[CodMoneda] [varchar](10) NULL,
 	[TotalOtrosCargos] [money] NULL,
 	[ProcesadaSAP] [bit] NULL,
-	[FacturaNoRecibida] [bit] NULL,
+	
  CONSTRAINT [PK_EncCierre] PRIMARY KEY CLUSTERED 
 (
 	[idCierre] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[EncCompras] ADD  CONSTRAINT [DF_EncCompras_FacturaNoRecibida]  DEFAULT ((0)) FOR [FacturaNoRecibida]
-GO
+
 ---------------------------------------------EncCierre------------------------------------------------------
 CREATE TABLE [dbo].[EncCompras](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -183,15 +182,16 @@ CREATE TABLE [dbo].[EncCompras](
 	[RegimenSimplificado] [bit] NULL,
 	[FacturaExterior] [bit] NULL,
 	[GastosVarios] [bit] NULL,
+	[FacturaNoRecibida] [bit] NULL,
  CONSTRAINT [PK_EncCompras] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-
-ALTER TABLE [dbo].[EncCompras] ADD  CONSTRAINT [DF_EncCompras_GastosVarios]  DEFAULT ((0)) FOR [GastosVarios]
+ALTER TABLE [dbo].[EncCompras] ADD  CONSTRAINT [DF_EncCompras_FacturaNoRecibida]  DEFAULT ((0)) FOR [FacturaNoRecibida]
 GO
+
 
 ----------------------------------------------------EncCompras-------------------------------------------------------
 CREATE TABLE [dbo].[Gastos](
@@ -204,6 +204,8 @@ CREATE TABLE [dbo].[Gastos](
 	[idTipoGasto] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[EncCompras] ADD  CONSTRAINT [DF_EncCompras_GastosVarios]  DEFAULT ((0)) FOR [GastosVarios]
 GO
 ----------------------------------------------Gastos-------------------------------------------------------------------
 CREATE TABLE [dbo].[Login](

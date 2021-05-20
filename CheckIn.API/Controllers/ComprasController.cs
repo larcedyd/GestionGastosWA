@@ -227,7 +227,7 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
 
-                var Lista = db.BandejaEntrada.Where(a => a.Procesado == "0").ToList();
+                var Lista = db.BandejaEntrada.Where(a => a.Procesado == "0" && string.IsNullOrEmpty(a.Mensaje)).ToList();
 
                 foreach (var item in Lista)
                 {
@@ -297,6 +297,11 @@ namespace CheckIn.API.Controllers
 
                         factura.CondicionVenta = G.ExtraerValorDeNodoXml(xml, "CondicionVenta");
 
+                        if(factura.CodCliente != factura.CodEmpresa)
+                        {
+                            throw new Exception($"El documento no fue dirigido para esta compañia [Empresa={factura.CodEmpresa}] [Cliente de Factura={factura.CodCliente}]");
+                        }
+
                         try
                         {
                             factura.DiasCredito = int.Parse(G.ExtraerValorDeNodoXml(xml, "PlazoCredito", true));
@@ -355,6 +360,7 @@ namespace CheckIn.API.Controllers
                         decimal iva8 = 0;
                         decimal iva13 = 0;
 
+                        List<DetCompras> detCpmpras = new List<DetCompras>();
                         foreach (var item2 in xml.Elements().Where(m => m.Name.LocalName == "DetalleServicio").Elements())
                         {
                             var det = new DetCompras();
@@ -509,7 +515,7 @@ namespace CheckIn.API.Controllers
 
 
                             db.DetCompras.Add(det);
-
+                            detCpmpras.Add(det);
                         }
 
                         factura.Impuesto1 = iva1;
@@ -522,7 +528,7 @@ namespace CheckIn.API.Controllers
                         factura.FacturaExterior = false;
                         factura.GastosVarios = false;
                         factura.FacturaNoRecibida = false;
-                        factura.idTipoGasto = db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: db.DetCompras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
+                        factura.idTipoGasto = detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
                            new SqlParameter("@Id", item.Id));
@@ -532,7 +538,7 @@ namespace CheckIn.API.Controllers
                     {
                         try
                         {
-                            string procesado = "0";
+                            string procesado = "1";
                            
                             db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Mensaje=@Mensaje, Procesado=@Procesado WHERE Id=@Id",
                                  new SqlParameter("@Mensaje", ex.Message),

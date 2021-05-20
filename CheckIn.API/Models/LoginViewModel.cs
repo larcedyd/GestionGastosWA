@@ -9,7 +9,7 @@ namespace CheckIn.API.Models
     {
    
 
-        public int idLogin { get; set; }
+        public int id { get; set; }
 
 
        

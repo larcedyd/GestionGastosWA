@@ -87,7 +87,7 @@ namespace CheckIn.API.Controllers
                 var param = db.Parametros.FirstOrDefault();
 
 
-                var oInvoice = (Documents)Conexion.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oPurchaseInvoices);
+                var oInvoice = (Documents)Conexion.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oDrafts);
                 
 
 
@@ -196,6 +196,9 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = DetalleFac.Cantidad;
                         oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Super".ToUpper()) ? "Gasolina Super" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Regular".ToUpper()) ? "Gasolina Regular" : "Diesel");
                     }
+
+                    oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value =  item.NumFactura.ToString();
+                    oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
 
                     oInvoice.Lines.Add();
                     //
