@@ -9,5 +9,6 @@ namespace CheckIn.API.Models
     {
         public int idLogin { get; set; }
         public int idFac { get; set; }
+        public int idNorma { get; set; } = 0;
     }
 }

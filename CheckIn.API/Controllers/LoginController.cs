@@ -124,6 +124,7 @@ namespace CheckIn.API.Controllers
                 de.idRol = user.idRol.Value;
                 de.Seguridad = SeguridadModulos;
                 de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
+                de.CambiarClave = user.CambiarClave;
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
             }
@@ -207,8 +208,8 @@ namespace CheckIn.API.Controllers
             {
 
                 var User = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(usuario.Email.ToUpper()) && a.Activo == true).FirstOrDefault();
-
-                if (User == null)
+                var usuario1 = db.Login.Where(a => a.Email.ToUpper().Contains(usuario.Email.ToUpper()) && a.Activo == true).FirstOrDefault();
+                if (usuario1 == null)
                 {
                     User = new LicUsuarios();
                     User.Nombre = usuario.Nombre;
@@ -225,6 +226,7 @@ namespace CheckIn.API.Controllers
                     login.Email = User.Email;
                     login.CardCode = usuario.CardCode;
                     login.idLoginAceptacion = usuario.idLoginAceptacion;
+                    login.CambiarClave = true;
                     db.Login.Add(login);
 
                     dbLogin.LicUsuarios.Add(User);
@@ -270,7 +272,7 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
 
                 var User = db.Login.Where(a => a.id == usuario.id).FirstOrDefault(); //a.Email.ToUpper().Contains(usuario.Email.ToUpper())
-                var Usuario = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(usuario.Email.ToUpper()) && a.CedulaJuridica == usuario.CedulaJuridica).FirstOrDefault();
+                var Usuario = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(User.Email.ToUpper()) && a.CedulaJuridica == usuario.CedulaJuridica).FirstOrDefault();
 
                 if (Usuario != null && User != null)
                 {
@@ -282,6 +284,7 @@ namespace CheckIn.API.Controllers
 
                         Usuario.Clave = BCrypt.Net.BCrypt.HashPassword(usuario.Clave);
                         User.Clave = Usuario.Clave;
+                        User.CambiarClave = false;
                     }
        
                     if (!string.IsNullOrEmpty(usuario.Nombre))
@@ -391,6 +394,7 @@ namespace CheckIn.API.Controllers
         public int idRol { get; set; }
         public string token { get; set; }
         public string UrlLogo { get; set; }
+        public bool CambiarClave { get; set; }
         public List<SeguridadRolesModulos> Seguridad { get; set; }
     }
 }

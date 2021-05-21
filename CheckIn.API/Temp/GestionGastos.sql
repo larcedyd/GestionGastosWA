@@ -217,6 +217,7 @@ CREATE TABLE [dbo].[Login](
 	[Clave] [varchar](500) NULL,
 	[idLoginAceptacion] [int] NULL,
 	[CardCode] [varchar](500) NULL,
+	[CambiarClave] [bit] NULL,
  CONSTRAINT [PK_Login] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

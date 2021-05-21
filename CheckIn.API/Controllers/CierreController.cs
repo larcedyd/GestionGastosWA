@@ -63,29 +63,29 @@ namespace CheckIn.API.Controllers
 
                 }).ToList();
 
-                if (!string.IsNullOrEmpty(filtro.Texto))
+                if (!string.IsNullOrEmpty(filtro.Texto)) //Busca por el periodo 
                 {
                     EncCierre = EncCierre.Where(a => a.Periodo.ToLower().Contains(filtro.Texto.ToLower())).ToList();
                 }
 
                 DateTime time = new DateTime();
-                if (filtro.FechaInicio != time)
+                if (filtro.FechaInicio != time) // Busca por un rango de fechas
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
                     EncCierre = EncCierre.Where(a => a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal).ToList();
                 }
 
-                if(!string.IsNullOrEmpty(filtro.Estado) && filtro.Estado != "NULL")
+                if(!string.IsNullOrEmpty(filtro.Estado) && filtro.Estado != "NULL") // Busca por estado
                 {
                     EncCierre = EncCierre.Where(a => a.Estado == filtro.Estado).ToList();
                 }
                 
-                if(filtro.Codigo1 > 0)
+                if(filtro.Codigo1 > 0) //Busca las facturas que fueron creadas por el liquidador
                 {
                     EncCierre = EncCierre.Where(a => a.idLogin == filtro.Codigo1).ToList();
                 }
 
-                if(filtro.Codigo2 > 0)
+                if(filtro.Codigo2 > 0) //Si El codigo 2 > 0 y ademas el codigo 1 viene en 0 entonces busca las liquidaciones que yo acepte o que yo haya hecho
                 {
 
                     if (filtro.Codigo1 == 0)
@@ -238,6 +238,7 @@ namespace CheckIn.API.Controllers
                 Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                 Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                 Cierre.ProcesadaSAP = false;
+                Cierre.Observacion = gastos.EncCierre.Observacion;
                 db.EncCierre.Add(Cierre);
                 db.SaveChanges();
 
@@ -363,7 +364,8 @@ namespace CheckIn.API.Controllers
                         Cierre.Observacion = Cierre.Observacion;
                         Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                         Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
-                        db.SaveChanges();
+                    Cierre.Observacion = gastos.EncCierre.Observacion;
+                    db.SaveChanges();
 
                         var Facturas = db.EncCompras.ToList();
                         var Logins = db.Login.ToList();

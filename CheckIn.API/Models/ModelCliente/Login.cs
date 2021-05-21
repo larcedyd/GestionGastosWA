@@ -26,5 +26,6 @@ namespace CheckIn.API.Models.ModelCliente
 
         public int idLoginAceptacion { get; set; }
         public string CardCode { get; set; }
+        public bool CambiarClave { get; set; }
     }
 }

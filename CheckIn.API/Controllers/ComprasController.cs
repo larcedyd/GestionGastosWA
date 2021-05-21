@@ -840,6 +840,11 @@ namespace CheckIn.API.Controllers
                     ).ToList();
                 }
 
+                if(filtro.NumCierre > 0)
+                {
+                    EncCompras = EncCompras.Where(a => a.idCierre == filtro.NumCierre).ToList();
+                }
+
                 DateTime time = new DateTime();
                 if (filtro.FechaInicio != time)
                 {
@@ -974,6 +979,7 @@ namespace CheckIn.API.Controllers
                  ,
                     a.idLoginAsignado
                  ,
+                 UsuarioAsignado = db.Login.Where(d => d.id == a.idLoginAsignado).FirstOrDefault() == null ? "": db.Login.Where(d => d.id == a.idLoginAsignado).FirstOrDefault().Nombre,
                     a.FecAsignado
                 
                  ,
@@ -992,7 +998,7 @@ namespace CheckIn.API.Controllers
                     a.Impuesto13,
                      a.PdfFac,
 
-                    DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura)
+                    DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.ConsecutivoHacienda == a.ConsecutivoHacienda && d.ClaveHacienda == a.ClaveHacienda).ToList()
 
                 }).FirstOrDefault();
 
@@ -1154,8 +1160,16 @@ namespace CheckIn.API.Controllers
                     }
 
                     db.Entry(Compra).State = EntityState.Modified;
-                    Compra.idLoginAsignado = asig.idLogin;
-                    Compra.idNormaReparto = db.NormasReparto.Where(a => a.idLogin == asig.idLogin).FirstOrDefault().id;
+                    //Compra.idLoginAsignado = asig.idLogin;
+                    if(asig.idNorma > 0)
+                    {
+                        Compra.idNormaReparto = asig.idNorma;
+                    }
+                    else
+                    {
+                        
+                        Compra.idNormaReparto = db.NormasReparto.Where(a => a.idLogin == asig.idLogin).FirstOrDefault().id;
+                    }
                     Compra.FecAsignado = DateTime.Now;
 
                     db.SaveChanges();

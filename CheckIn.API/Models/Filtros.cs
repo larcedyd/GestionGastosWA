@@ -19,5 +19,6 @@ namespace CheckIn.API.Models
         public bool RegimeSimplificado { get; set; }
         public bool FacturaExterior { get; set; }
         public bool FacturaNoRecibida { get; set; }
+        public int NumCierre { get; set; }
     }
 }
