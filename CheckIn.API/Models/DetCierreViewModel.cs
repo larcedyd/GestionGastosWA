@@ -17,5 +17,6 @@ namespace CheckIn.API.Models
 
         public int idFactura { get; set; }
         public int idTipoGasto { get; set; }
+        public string Comentario { get; set; }
     }
 }

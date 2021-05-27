@@ -44,6 +44,7 @@ CREATE TABLE [dbo].[DetCierre](
 	[idCierre] [int] NULL,
 	[NumLinea] [int] NULL,
 	[idFactura] [int] NULL,
+	[Comentario] [varchar](150) NULL,
  CONSTRAINT [PK_DetCierre] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -183,6 +184,7 @@ CREATE TABLE [dbo].[EncCompras](
 	[FacturaExterior] [bit] NULL,
 	[GastosVarios] [bit] NULL,
 	[FacturaNoRecibida] [bit] NULL,
+	[Comentario] [varchar](150) NULL,
  CONSTRAINT [PK_EncCompras] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

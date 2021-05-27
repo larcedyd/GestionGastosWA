@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -27,6 +29,7 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
+                DateTime time = new DateTime();
                 var EncCierre = db.EncCierre.Select(a => new {
 
                     a.idCierre,
@@ -61,14 +64,14 @@ namespace CheckIn.API.Controllers
                     
 
 
-                }).ToList();
+                }).Where(a => (filtro.FechaInicio != time ? a.FechaCierre >= filtro.FechaInicio : true)).ToList();
 
                 if (!string.IsNullOrEmpty(filtro.Texto)) //Busca por el periodo 
                 {
                     EncCierre = EncCierre.Where(a => a.Periodo.ToLower().Contains(filtro.Texto.ToLower())).ToList();
                 }
 
-                DateTime time = new DateTime();
+       
                 if (filtro.FechaInicio != time) // Busca por un rango de fechas
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
@@ -144,6 +147,50 @@ namespace CheckIn.API.Controllers
             }
         }
 
+        [Route("api/Cierre/EnviarCorreo")]
+        public HttpResponseMessage GetEnviarCorreo([FromBody]InfoLiquid item)
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                List<Attachment> adjuntos = new List<Attachment>();
+               // List<EncCompras> compras = new List<EncCompras>();
+                SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                var parametros = db.Parametros.FirstOrDefault();
+
+                var Cierre = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
+
+
+                foreach(var det in Cierre)
+                {
+                    var Compra = db.EncCompras.Where(a => a.id == det.idFactura).FirstOrDefault();
+                    if(Compra.PdfFac != null)
+                    {
+                        Attachment att = new Attachment(new MemoryStream(Compra.PdfFac), Compra.PdfFactura);
+                        adjuntos.Add(att);
+                    }
+                   
+                }
+
+
+                var resp = emailsender.SendV2(item.emailDest, item.emailCC, "", parametros.RecepcionEmail, "Liquidación", "Liquidación por revisar", item.body, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword, adjuntos);
+
+                if(!resp)
+                {
+                    throw new Exception("No se ha podido enviar el correo con la liquidación");
+                }
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+
 
         [Route("api/Cierre/Estado")]
         public HttpResponseMessage GetEstado([FromUri]int id, string Estado, string comentario = "", int idLoginAceptacion = 0)
@@ -193,8 +240,67 @@ namespace CheckIn.API.Controllers
 
                 }
 
+
+                if (Estado == "A" || Estado == "R")
+                {
+                    SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                    //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+                    var login = db.Login.Where(a => a.id == EncCierre.idLogin).FirstOrDefault();
+                    var AR = Estado;
+
+                    var Login = db.Login.Where(a => a.id == login.id).FirstOrDefault();
+                    var AsignadoCierre = db.Login.Where(a => a.id == EncCierre.idLogin).FirstOrDefault();
+                    var parametros = db.Parametros.FirstOrDefault();
+                    //&oacute; -> Tilde
+                    var html = "";
+                    if (AR == "A")
+                    {
+                        var LoginAceptacion = db.Login.Where(a => a.id == EncCierre.idLoginAceptacion).FirstOrDefault();
+                        html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Aprobada</strong></h3>";
+                        html += "<p style='text-align: justify; '>Se ha aprobado tú liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                        html += "<ul>";
+                        html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + EncCierre.idCierre + "</li>";
+                        html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + EncCierre.Periodo + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + EncCierre.CantidadRegistros + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(EncCierre.Total.Value, 2) + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Usuario Aprobador</strong>: " + (LoginAceptacion == null ? "" : LoginAceptacion.Nombre) + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Comentarios de la Liquidación</strong>: " + EncCierre.Observacion + "</li>";
+                        html += "</ul><p></p> ";
+                        html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
+
+                    }
+                    else
+                    {
+                        var LoginAceptacion = db.Login.Where(a => a.id == EncCierre.idLoginAceptacion).FirstOrDefault();
+                        html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Rechazada</strong></h3>";
+                        html += "<p style='text-align: justify; '>Se ha rechazado tú liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                        html += "<ul>";
+                        html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + EncCierre.idCierre + "</li>";
+                        html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + EncCierre.Periodo + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + EncCierre.CantidadRegistros + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(EncCierre.Total.Value, 2) + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Usuario Aprobador</strong>: " + (LoginAceptacion == null ? "" : LoginAceptacion.Nombre) + "</li>";
+                        html += "<li style='text-align: justify; '><strong>Comentarios de la Liquidación</strong>: " + EncCierre.Observacion + "</li>";
+                        html += "</ul><p></p> ";
+                        html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
+
+                    }
+
+
+
+
+                    emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Respuesta de la liquidación", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+
+
+
+                }
+
+
+
                 //EncCierre.idLoginAceptacion = idLoginAceptacion;
-               
+
                 db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -254,6 +360,7 @@ namespace CheckIn.API.Controllers
                     det.idCierre = Cierre.idCierre;
                     det.NumLinea = i;
                     det.idFactura = item.idFactura;
+                    det.Comentario = item.Comentario;
                     i++;
                     db.DetCierre.Add(det);
                     var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
@@ -263,12 +370,13 @@ namespace CheckIn.API.Controllers
 
                     if(Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault() == null)
                     {
-                        throw new Exception("Este usuario no contiene una norma de reparto asignada");
+                        throw new Exception("Este usuario "+login.Nombre+"  no contiene una norma de reparto asignada");
                     }
 
                     Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                     Factura.idCierre = det.idCierre;
                     Factura.idTipoGasto = item.idTipoGasto;
+                    Factura.Comentario = item.Comentario;
                     db.SaveChanges();
 
 
@@ -311,6 +419,8 @@ namespace CheckIn.API.Controllers
 
 
 
+
+
                 t.Commit();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -333,6 +443,7 @@ namespace CheckIn.API.Controllers
             var t = db.Database.BeginTransaction();
             try
             {
+          //      G.GuardarTxt("BitLlegada.txt", gastos.ToString());
                 if (db.EncCierre.Where(a => a.idCierre == gastos.EncCierre.idCierre).FirstOrDefault() != null)
                 {
 
@@ -381,8 +492,8 @@ namespace CheckIn.API.Controllers
                             Factura.idLoginAsignado = 0;
                             Factura.FecAsignado = null;
 
-                            
 
+                        Factura.Comentario = "";
                             Factura.idNormaReparto = 0;
                             Factura.idCierre = 0;
                            
@@ -400,6 +511,7 @@ namespace CheckIn.API.Controllers
                             det.idCierre = Cierre.idCierre;
                             det.NumLinea = i;
                             det.idFactura = item.idFactura;
+                        det.Comentario = item.Comentario;
                             i++;
                             db.DetCierre.Add(det);
                             var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
@@ -415,6 +527,7 @@ namespace CheckIn.API.Controllers
                             Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                             Factura.idCierre = det.idCierre;
                             Factura.idTipoGasto = item.idTipoGasto;
+                        Factura.Comentario = item.Comentario;
                             db.SaveChanges();
 
 
@@ -455,6 +568,61 @@ namespace CheckIn.API.Controllers
 
                     }
 
+                    if (gastos.EncCierre.Estado == "A" || gastos.EncCierre.Estado == "R")
+                    {
+                        SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                        //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+
+                        var AR = gastos.EncCierre.Estado;
+
+                        var Login = db.Login.Where(a => a.id == login.id).FirstOrDefault();
+                        var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
+                        var parametros = db.Parametros.FirstOrDefault();
+                        //&oacute; -> Tilde
+                        var html = "";
+                        if (AR =="A")
+                        {
+                            var LoginAceptacion = db.Login.Where(a => a.id == Cierre.idLoginAceptacion).FirstOrDefault();
+                             html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Aprobada</strong></h3>";
+                            html += "<p style='text-align: justify; '>Se ha aprobado tú liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                            html += "<ul>";
+                            html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + Cierre.idCierre + "</li>";
+                            html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + Cierre.Periodo + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + Cierre.CantidadRegistros + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(Cierre.Total.Value, 2) + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Usuario Aprobador</strong>: " + LoginAceptacion == null ? "" : LoginAceptacion.Nombre  + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Comentarios de la Liquidación</strong>: " + Cierre.Observacion + "</li>";
+                            html += "</ul><p></p> ";
+                            html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
+
+                        }
+                        else
+                        {
+                            var LoginAceptacion = db.Login.Where(a => a.id == Cierre.idLoginAceptacion).FirstOrDefault();
+                            html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Rechazada</strong></h3>";
+                            html += "<p style='text-align: justify; '>Se ha rechazado tú liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
+                            html += "<ul>";
+                            html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + Cierre.idCierre + "</li>";
+                            html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + Cierre.Periodo + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + Cierre.CantidadRegistros + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(Cierre.Total.Value, 2) + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Usuario Aprobador</strong>: " + LoginAceptacion == null ? "" : LoginAceptacion.Nombre + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Comentarios de la Liquidación</strong>: " + Cierre.Observacion + "</li>";
+                            html += "</ul><p></p> ";
+                            html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
+
+                        }
+
+
+
+
+                        emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Respuesta de la liquidación", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+
+
+
+                    }
 
 
 

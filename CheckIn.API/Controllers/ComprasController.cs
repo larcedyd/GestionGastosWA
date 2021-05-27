@@ -528,6 +528,7 @@ namespace CheckIn.API.Controllers
                         factura.FacturaExterior = false;
                         factura.GastosVarios = false;
                         factura.FacturaNoRecibida = false;
+                        factura.Comentario = "";
                         factura.idTipoGasto = detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
@@ -574,6 +575,7 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
+                DateTime time = new DateTime();
                 var EncCompras = db.EncCompras.Select(a => new
                 {
                     a.id,
@@ -666,9 +668,10 @@ namespace CheckIn.API.Controllers
                     a.Impuesto8,
                     a.Impuesto13,
                   a.PdfFac,
+                  a.Comentario,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
-                }).ToList();
+                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true)).ToList();
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
@@ -679,7 +682,6 @@ namespace CheckIn.API.Controllers
                     ).ToList();
                 }
 
-                DateTime time = new DateTime();
                 if(filtro.FechaInicio != time)
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
@@ -730,6 +732,7 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
+                DateTime time = new DateTime();
                 var EncCompras = db.EncCompras.Select(a => new
                 {
                     a.id,
@@ -826,9 +829,10 @@ namespace CheckIn.API.Controllers
                     a.FacturaExterior,
                     a.GastosVarios,
                     a.FacturaNoRecibida,
+                    a.Comentario,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
-                }).ToList();
+                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.NumCierre > 0 ? a.idCierre == filtro.NumCierre: true)).ToList();
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
@@ -840,12 +844,12 @@ namespace CheckIn.API.Controllers
                     ).ToList();
                 }
 
-                if(filtro.NumCierre > 0)
-                {
-                    EncCompras = EncCompras.Where(a => a.idCierre == filtro.NumCierre).ToList();
-                }
+                //if(filtro.NumCierre > 0)
+                //{
+                //    EncCompras = EncCompras.Where(a => a.idCierre == filtro.NumCierre).ToList();
+                //}
 
-                DateTime time = new DateTime();
+               
                 if (filtro.FechaInicio != time)
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
@@ -997,7 +1001,7 @@ namespace CheckIn.API.Controllers
                     a.Impuesto8,
                     a.Impuesto13,
                      a.PdfFac,
-
+                     a.Comentario,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.ConsecutivoHacienda == a.ConsecutivoHacienda && d.ClaveHacienda == a.ClaveHacienda).ToList()
 
                 }).FirstOrDefault();
@@ -1076,12 +1080,15 @@ namespace CheckIn.API.Controllers
                     {
                         string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
                         EncCompras.PdfFactura = Url;
+                        var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
+                        EncCompras.PdfFac = _bytes;
+
                     }
                     else
                     {
                         EncCompras.PdfFactura = EncCompras.PdfFactura;
                     }
-
+                    EncCompras.Comentario = "";
                     db.EncCompras.Add(EncCompras);
                     db.SaveChanges();
 
@@ -1131,7 +1138,7 @@ namespace CheckIn.API.Controllers
                 t.Rollback();
                 G.CerrarConexionAPP(db);
 
-                G.GuardarTxt("ErrorImagen.txt", ex.ToString());
+                G.GuardarTxt("ErrorFactura.txt", ex.ToString());
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -1185,6 +1192,7 @@ namespace CheckIn.API.Controllers
             catch (Exception ex)
             {
                 G.CerrarConexionAPP(db);
+                G.GuardarTxt("ErrorFactura.txt", ex.ToString());
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }

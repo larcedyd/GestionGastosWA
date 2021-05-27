@@ -11,9 +11,12 @@ namespace CheckIn.API.Models.ModelCliente
             : base("name=ModelCliente")
         {
             this.Database.Connection.ConnectionString = connectionString;
+            
             try
             {
                 this.Database.Connection.Open();
+                this.Database.CommandTimeout = 180;
+            
                 this.Configuration.LazyLoadingEnabled = lazyLoadinEnabled;
             }
             catch { }

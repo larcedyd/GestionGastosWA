@@ -44,9 +44,9 @@ namespace CheckIn.API.Controllers
 
                 var MontoAcumulado = Liquidaciones.Sum(a => a.Total);
 
-                List<DetCierre> det = new List<DetCierre>();
+           
                 List<EncCompras> comp = new List<EncCompras>();
-
+                List<EncCompras> compa = new List<EncCompras>();
                 foreach (var item in Liquidaciones)
                 {
                     var detalle = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
@@ -59,93 +59,22 @@ namespace CheckIn.API.Controllers
                 }
 
 
-                var compa = comp.Select(a => new {
+                var Normas = db.NormasReparto.ToList();
+                var Login = db.Login.ToList();
 
-                    a.id,
-                    a.CodEmpresa
-                 ,
-                    a.CodProveedor,
-                    a.NomProveedor
-                 ,
-                    a.TipoDocumento
-                 ,
-                    a.NumFactura
-                 ,
-                    a.FecFactura
-                 ,
-                    a.TipoIdentificacionCliente
-                 ,
-                    a.CodCliente
-                 ,
-                    a.NomCliente
-                 ,
-                    a.EmailCliente
-                 ,
-                    a.DiasCredito
-                 ,
-                    a.CondicionVenta
-                 ,
-                    a.ClaveHacienda
-                 ,
-                    a.ConsecutivoHacienda
-                 ,
-                    a.MedioPago
-                 ,
-                    a.Situacion
-                 ,
-                    a.CodMoneda
-                 ,
-                    a.TotalServGravados
-                 ,
-                    a.TotalServExentos
-                 ,
-                    a.TotalMercanciasGravadas
-                 ,
-                    a.TotalMercanciasExentas
-                 ,
-                    a.TotalExento
-                 ,
-                    a.TotalVenta
-                 ,
-                    a.TotalDescuentos
-                 ,
-                    a.TotalVentaNeta
-                 ,
-                    a.TotalImpuesto
-                 ,
-                    a.TotalComprobante
-                 ,
 
-                    a.FechaGravado
-                 ,
-                    a.TotalServExonerado
-                 ,
-                    a.TotalMercExonerada
-                 ,
-                    a.TotalExonerado
-                 ,
-                    a.TotalIVADevuelto
-                 ,
-                    a.TotalOtrosCargos
-                 ,
-                    a.CodigoActividadEconomica
-                 ,
-                    a.idLoginAsignado
-                 ,
-                    a.FecAsignado
+                foreach (var item in comp)
+                {
+                    var login = Login.Where(a => a.id == item.idLoginAsignado).FirstOrDefault();
+                    var NormaRepartoActual = Normas.Where(a => a.idLogin == login.id).FirstOrDefault();
 
-                 ,
+                    if (NormaRepartoActual.id != item.idNormaReparto)
+                    {
+                        compa.Add(item);
+                    }
+                }
 
-                    a.idNormaReparto
-                 ,
-                    a.idTipoGasto
-                 ,
-                 
-                    TipoGasto = db.Gastos.Where(d => d.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre,
-                    a.idCierre,
-                    NormaUsuario = db.NormasReparto.Where(d => d.idLogin == a.idLoginAsignado).FirstOrDefault() == null ? a.idNormaReparto : db.NormasReparto.Where(d => d.idLogin == a.idLoginAsignado).FirstOrDefault().id
-
-                }).Where(a => a.idNormaReparto != a.NormaUsuario).ToList();
+              
 
 
                 decimal Total = 0;
@@ -164,6 +93,7 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                G.GuardarTxt("ErrorTotalizado.txt", ex.Message);
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -206,113 +136,133 @@ namespace CheckIn.API.Controllers
                         Liquidaciones = Liquidaciones.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
                     }
                 }
-                List<DetCierre> det = new List<DetCierre>();
+                 
                 List<EncCompras> comp = new List<EncCompras>();
+                List<EncCompras> compa = new List<EncCompras>();
 
-                foreach(var item in Liquidaciones)
+                foreach (var item in Liquidaciones)
                 {
                     var detalle = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
+                    var Compras = db.EncCompras.Where(a => a.idCierre == item.idCierre).ToList();
                     foreach(var ite in detalle)
                     {
-                        var fac = db.EncCompras.Where(a => a.id == ite.idFactura).FirstOrDefault();
+                        var fac = Compras.Where(a => a.id == ite.idFactura).FirstOrDefault();
                         comp.Add(fac);
                     }
 
                 }
 
-                var compa = comp.Select(a => new {
+                var Normas = db.NormasReparto.ToList();
+                var Gastos = db.Gastos.ToList();
+                var Login = db.Login.ToList();
+
+
+                foreach(var item2 in comp)
+                {
+                    var login = Login.Where(a => a.id == item2.idLoginAsignado).FirstOrDefault();
+                    var NormaRepartoActual = Normas.Where(a => a.idLogin == login.id).FirstOrDefault();
+
+                    if(NormaRepartoActual.id == item2.idNormaReparto)
+                    {
+                        compa.Add(item2);
+                    }
+                }
+
+
+
+                var envio = compa.Select(a => new {
 
                     a.id,
                     a.CodEmpresa
-                 ,
+                  ,
                     a.CodProveedor,
                     a.NomProveedor
-                 ,
+                  ,
                     a.TipoDocumento
-                 ,
+                  ,
                     a.NumFactura
-                 ,
+                  ,
                     a.FecFactura
-                 ,
+                  ,
                     a.TipoIdentificacionCliente
-                 ,
+                  ,
                     a.CodCliente
-                 ,
+                  ,
                     a.NomCliente
-                 ,
+                  ,
                     a.EmailCliente
-                 ,
+                  ,
                     a.DiasCredito
-                 ,
+                  ,
                     a.CondicionVenta
-                 ,
+                  ,
                     a.ClaveHacienda
-                 ,
+                  ,
                     a.ConsecutivoHacienda
-                 ,
+                  ,
                     a.MedioPago
-                 ,
+                  ,
                     a.Situacion
-                 ,
+                  ,
                     a.CodMoneda
-                 ,
+                  ,
                     a.TotalServGravados
-                 ,
+                  ,
                     a.TotalServExentos
-                 ,
+                  ,
                     a.TotalMercanciasGravadas
-                 ,
+                  ,
                     a.TotalMercanciasExentas
-                 ,
+                  ,
                     a.TotalExento
-                 ,
+                  ,
                     a.TotalVenta
-                 ,
+                  ,
                     a.TotalDescuentos
-                 ,
+                  ,
                     a.TotalVentaNeta
-                 ,
+                  ,
                     a.TotalImpuesto
-                 ,
+                  ,
                     a.TotalComprobante
-                 ,
+                  ,
 
                     a.FechaGravado
-                 ,
+                  ,
                     a.TotalServExonerado
-                 ,
+                  ,
                     a.TotalMercExonerada
-                 ,
+                  ,
                     a.TotalExonerado
-                 ,
+                  ,
                     a.TotalIVADevuelto
-                 ,
+                  ,
                     a.TotalOtrosCargos
-                 ,
+                  ,
                     a.CodigoActividadEconomica
-                 ,
+                  ,
                     a.idLoginAsignado
-                 ,
+                  ,
                     a.FecAsignado
 
-                 ,
+                  ,
 
                     a.idNormaReparto
-                 ,
+                  ,
                     a.idTipoGasto
-                 ,
-                    TipoGasto = db.Gastos.Where(d => d.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre,
-                    a.idCierre,
-                    NormaUsuario = db.NormasReparto.Where(d => d.idLogin == a.idLoginAsignado).FirstOrDefault() == null ? a.idNormaReparto: db.NormasReparto.Where(d => d.idLogin == a.idLoginAsignado).FirstOrDefault().id
+                  ,
+                    TipoGasto = (Gastos.Where(d => d.idTipoGasto == a.idTipoGasto).FirstOrDefault() == null ? "Sin Asignar": Gastos.Where(d => d.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre),
+                    a.idCierre
 
-                }).Where(a => a.idNormaReparto == a.NormaUsuario).ToList();
+                }).ToList();
 
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.OK, compa);
+                return Request.CreateResponse(HttpStatusCode.OK, envio );
 
             }
             catch (Exception ex)
             {
+                G.GuardarTxt("ErrorGraficos.txt", ex.Message + " -> " + ex.StackTrace );
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

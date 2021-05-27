@@ -19,5 +19,6 @@ namespace CheckIn.API.Models.ModelCliente
         public int NumLinea { get; set; }
 
         public int idFactura { get; set; }
+        public string Comentario { get; set; }
     }
 }
