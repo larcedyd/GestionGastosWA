@@ -178,6 +178,7 @@ namespace SendGridEmail
                     mail.Subject = asunto;
                     mail.Body = html;
                     mail.IsBodyHtml = true;
+                   
                     // * mail.From = new MailAddress(WebConfigurationManager.AppSettings["UserName"], displayName);
                     mail.From = new MailAddress(de, displayName);
 

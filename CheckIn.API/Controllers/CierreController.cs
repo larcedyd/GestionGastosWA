@@ -1,7 +1,13 @@
 ﻿using CheckIn.API.Models;
 using CheckIn.API.Models.ModelCliente;
+using iTextSharp.text;
+using iTextSharp.text.html.simpleparser;
+using iTextSharp.text.pdf;
 using Newtonsoft.Json;
+using PdfSharp;
+using PdfSharp.Pdf;
 using S22.Imap;
+using SelectPdf;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -11,10 +17,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Xml.Linq;
+using TheArtOfDev.HtmlRenderer.PdfSharp;
 
 namespace CheckIn.API.Controllers
 {
@@ -172,6 +180,26 @@ namespace CheckIn.API.Controllers
                    
                 }
 
+                var bodyH = item.body;
+                HtmlToPdf converter = new HtmlToPdf();
+
+                // set converter options
+                converter.Options.PdfPageSize = PdfPageSize.A4;
+                converter.Options.PdfPageOrientation = PdfPageOrientation.Portrait;
+                converter.Options.MarginLeft = 5;
+                converter.Options.MarginRight = 5;
+                // create a new pdf document converting an html string
+                SelectPdf.PdfDocument doc = converter.ConvertHtmlString(bodyH);
+
+                var bytes = doc.Save();
+                doc.Close();
+
+                Attachment att3 = new Attachment(new MemoryStream(bytes), "Liquidacion.pdf");
+                adjuntos.Add(att3);
+
+
+            
+
 
                 var resp = emailsender.SendV2(item.emailDest, item.emailCC, "", parametros.RecepcionEmail, "Liquidación", "Liquidación por revisar", item.body, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword, adjuntos);
 
@@ -185,6 +213,7 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                G.GuardarTxt("ErrorCorreo.txt", ex.Message + " -> " + ex.StackTrace);
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
