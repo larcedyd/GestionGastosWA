@@ -52,7 +52,7 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
-
+                 
 
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
@@ -130,8 +130,15 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
-
-
+                //BitacoraErrores be = new BitacoraErrores();
+                //be.Descripcion = ex.Message;
+                //be.StackTrace = ex.StackTrace;
+                //be.Metodo = "LOGIN de Usuario";
+                //be.Fecha = DateTime.Now;
+                //db.BitacoraErrores.Add(be);
+                //db.SaveChanges();
+                //G.CerrarConexionAPP(db);
+                G.GuardarTxt("ErrorLogin.txt", ex.Message + " => " + ex.StackTrace);
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
         }
@@ -155,6 +162,14 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "GET de Usuario";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -179,6 +194,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "GET ONE de Usuario";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -255,6 +277,14 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message ;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insercion de Usuario";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
                 t.Rollback();
                 d.Rollback();
                 G.CerrarConexionAPP(db);
@@ -325,7 +355,17 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message + " -> " + usuario.CedulaJuridica;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Actualizacion de Usuario";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
                 G.CerrarConexionAPP(db);
+                G.GuardarTxt("ErrorEditarUsuario.txt", ex.Message + " => " + ex.StackTrace);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -375,6 +415,17 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Desactivar usuario";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
+
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

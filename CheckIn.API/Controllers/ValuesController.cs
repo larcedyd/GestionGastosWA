@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
+using System.Web.Routing;
 
 namespace CheckIn.API.Controllers
 {
@@ -16,11 +18,15 @@ namespace CheckIn.API.Controllers
         {
             return new string[] { "value1", "value2" };
         }
+       
+            
 
         // GET api/values/5
-        public string Get(int id)
+        public HttpResponseMessage Get(int id)
         {
-            return "value";
+
+            return Request.CreateResponse(HttpStatusCode.OK, HttpContext.Current.Server.MapPath("~").ToString());
+      
         }
 
         // POST api/values

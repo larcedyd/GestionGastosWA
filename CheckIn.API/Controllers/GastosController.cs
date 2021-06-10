@@ -102,6 +102,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insercion de Gastos";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -136,6 +143,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Actualizar Gastos";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -160,13 +174,20 @@ namespace CheckIn.API.Controllers
                 }
                 else
                 {
-                    throw new Exception("Linea no existe");
+                    throw new Exception("Gasto no existe");
                 }
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Eliminar Gasto";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

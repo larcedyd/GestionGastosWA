@@ -214,6 +214,15 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Lectura de emails";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -564,6 +573,15 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Lectura de Bandeja";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -1143,7 +1161,55 @@ namespace CheckIn.API.Controllers
             }
         }
 
+        [Route("api/Compras/Prueba")]
 
+        public HttpResponseMessage GetPrueba()
+        {
+
+            try
+            {
+                G.AbrirConexionAPP(out db);
+
+                var Facturas = db.EncCompras.Where(a => a.PdfFactura == "" || a.PdfFactura == null).ToList();
+
+
+                foreach(var item in Facturas)
+                {
+                    var pdfResp = G.GuardarPDF(item.PdfFac, G.ObtenerCedulaJuridia(), item.NumFactura);
+
+                    db.Entry(item).State = EntityState.Modified;
+
+                    item.PdfFactura = pdfResp;
+
+                    db.SaveChanges();
+                }
+
+               
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, HttpContext.Current.Server.MapPath("~").ToString());
+            }
+            catch (Exception ex)
+            {
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Lectura de Bandeja";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
+                G.CerrarConexionAPP(db);
+
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+
+
+            }
+
+
+           
+        }
 
         [HttpPut]
         [Route("api/Compras/Actualizar")]

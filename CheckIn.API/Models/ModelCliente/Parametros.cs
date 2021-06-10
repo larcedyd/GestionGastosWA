@@ -33,5 +33,6 @@ namespace CheckIn.API.Models.ModelCliente
         public string CI4 { get; set; }
         public string CI8 { get; set; }
         public string CI13 { get; set; }
+        public string IMPEX { get; set; }
     }
 }

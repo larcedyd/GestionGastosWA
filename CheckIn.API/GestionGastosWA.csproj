@@ -106,11 +106,17 @@
       <HintPath>..\packages\Select.HtmlToPdf.21.1.0\lib\net40\Select.HtmlToPdf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=6.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.6.8.0\lib\net461\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Web.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -271,6 +277,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AsientosController.cs" />
+    <Compile Include="Controllers\BitacoraErroresController.cs" />
     <Compile Include="Controllers\CierreController.cs" />
     <Compile Include="Controllers\ComprasController.cs" />
     <Compile Include="Controllers\Conexion.cs" />
@@ -288,6 +295,7 @@
     <Compile Include="Controllers\TokenGenerator.cs" />
     <Compile Include="Controllers\TokenValidationHandler.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\VCierreController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -307,6 +315,7 @@
     <Compile Include="Models\InfoLiquid.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\ModelCliente\BandejaEntrada.cs" />
+    <Compile Include="Models\ModelCliente\BitacoraErrores.cs" />
     <Compile Include="Models\ModelCliente\ConexionSAP.cs" />
     <Compile Include="Models\ModelCliente\CorreosRecepcion.cs" />
     <Compile Include="Models\ModelCliente\CuentasContables.cs" />

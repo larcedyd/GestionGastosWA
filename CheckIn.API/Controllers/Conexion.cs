@@ -26,39 +26,54 @@ namespace CheckIn.API.Controllers
         {
             get
             {
+
                 if (_company == null)
                     new Conexion().DoSapConnection();
+
+                
 
                 var ins = Instance;
                 return _company;
             }
         }
 
-        private int DoSapConnection()
+        public  int DoSapConnection()
         {
-            G.AbrirConexionAPP(out db);
-            var Datos = db.ConexionSAP.FirstOrDefault();
-            _company = new Company
+            try
             {
-                Server = Datos.ServerSQL,
-                LicenseServer = Datos.ServerLicense,
-                DbServerType = getBDType(Datos.SQLType),
-                language = BoSuppLangs.ln_English,
-                CompanyDB = Datos.SQLBD,
-                UserName = Datos.SAPUser,
-                Password = Datos.SAPPass
-            };
+                G.AbrirConexionAPP(out db);
+                var Datos = db.ConexionSAP.FirstOrDefault();
+                _company = new Company
+                {
+                    Server = Datos.ServerSQL,
+                    LicenseServer = Datos.ServerLicense,
+                    DbServerType = getBDType(Datos.SQLType),
+                    language = BoSuppLangs.ln_English,
+                    CompanyDB = Datos.SQLBD,
+                    UserName = Datos.SAPUser,
+                    Password = Datos.SAPPass
+                };
 
-            var resp = _company.Connect();
+                var resp = _company.Connect();
 
-            if (resp != 0)
+
+                G.GuardarTxt("BitacoraConexion.txt", _company.DbServerType + _company.LicenseServer + _company.CompanyDB + _company.UserName);
+
+                if (resp != 0)
+                {
+                    var msg = _company.GetLastErrorDescription();
+                    return -1;
+                }
+                G.CerrarConexionAPP(db);
+                return resp;
+            }
+            catch (Exception ex)
             {
-                var msg = _company.GetLastErrorDescription();
-                G.GuardarTxt("BitacoraConexion.txt", msg + " " + _company.DbServerType + _company.LicenseServer + _company.CompanyDB + _company.UserName);
+
+                G.GuardarTxt("ErrorConexionSAP.txt", ex.Message);
                 return -1;
             }
-            G.CerrarConexionAPP(db);
-            return resp;
+           
         }
 
 
@@ -80,6 +95,23 @@ namespace CheckIn.API.Controllers
                     return BoDataServerTypes.dst_HANADB;
                 default:
                     return BoDataServerTypes.dst_MSSQL;
+            }
+        }
+
+        public static bool Desconectar()
+        {
+            try
+            {
+                if(_company != null)
+                {
+                    _company = null;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                
             }
         }
 

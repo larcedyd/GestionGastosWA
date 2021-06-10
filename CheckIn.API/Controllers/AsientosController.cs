@@ -33,15 +33,20 @@ namespace CheckIn.API.Controllers
 
             try
             {
+                
                 int resp = Conexion.Company.Connect();
                 if (resp != 0)
                 {
+
+                    
                     return Conexion.Company.GetLastErrorDescription();
                 }
                 else
                 {
+                   
                     return resp.ToString();
                 }
+
             }
             catch (Exception ex)
             {
@@ -67,7 +72,7 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 var Cierre = db.EncCierre.Where(a => a.idCierre == idCierre).FirstOrDefault();
-
+                G.GuardarTxt("ErrorSAP.txt", "Entro");
                 if(Cierre.ProcesadaSAP == true)
                 {
                     throw new Exception("Esta liquidación ya fue procesada");
@@ -76,16 +81,17 @@ namespace CheckIn.API.Controllers
                 var Detalle = db.DetCierre.Where(a => a.idCierre == Cierre.idCierre).ToList();
 
                 List<EncCompras> enc = new List<EncCompras>();
-
+                var Encabezados = db.EncCompras.Where(a => a.idCierre == Cierre.idCierre).ToList();
                 foreach(var item in Detalle)
                 {
-                    var compra = db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault();
+                    var compra = Encabezados.Where(a => a.id == item.idFactura).FirstOrDefault();
                     enc.Add(compra);
                 }
 
                 var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                 var param = db.Parametros.FirstOrDefault();
 
+                 
 
                 var oInvoice = (Documents)Conexion.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oDrafts);
                 
@@ -94,7 +100,7 @@ namespace CheckIn.API.Controllers
                 oInvoice.DocObjectCode = BoObjectTypes.oPurchaseInvoices;
 
                 oInvoice.CardCode = login.CardCode; //CardCode que viene de login
-                oInvoice.DocDate = Cierre.FechaInicial; //Inicio del periodo de cierre
+                oInvoice.DocDate = Cierre.FechaFinal; //Inicio del periodo de cierre
                 oInvoice.DocDueDate = Cierre.FechaFinal; //Final del periodo de cierre
                 oInvoice.DocCurrency = (Cierre.CodMoneda == "CRC" ? "COL": Cierre.CodMoneda); //Moneda de la liquidacion
                 oInvoice.DocType = BoDocumentTypes.dDocument_Service;
@@ -102,8 +108,17 @@ namespace CheckIn.API.Controllers
                 var i = 0;
                 foreach(var item in enc)
                 {
+                    Gastos TipoGasto = new Gastos();
+                    if(item.RegimenSimplificado)
+                    {
+                         TipoGasto = db.Gastos.Where(a => a.Nombre.ToUpper().Contains("Regimen Simplificado".ToUpper())).FirstOrDefault();
+                         
+                    }
+                    else
+                    {
 
-                    var TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
+                           TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
+                    }
                     var Cuenta = db.CuentasContables.Where(a => a.idCuentaContable == TipoGasto.idCuentaContable).FirstOrDefault();
                     var Norma = db.NormasReparto.Where(a => a.id == item.idNormaReparto).FirstOrDefault();
                     var Dimension = db.Dimensiones.Where(a => a.id == Norma.idDimension).FirstOrDefault();
@@ -111,16 +126,9 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = item.CodProveedor +"-"+ item.NomProveedor ;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
                     oInvoice.Lines.AccountCode = Cuenta.CodSAP; //"6-01-02-05-000"; //Cuenta contable del gasto
-                    //if(item.TotalImpuesto > 0)
-                    //{
-
-                    //    oInvoice.Lines.TaxCode = "IVA"; //EX-IVA -> Factura 
-
-                    //}
-                    //else
-                    //{
-                        oInvoice.Lines.TaxCode = "EX";
-                    //}
+   
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                 
 
                     imp1 += item.Impuesto1;
                     imp2 += item.Impuesto2;
@@ -201,11 +209,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
 
                     oInvoice.Lines.Add();
-                    //
-                    //Si es de combustible la factura
-                    //   oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = 100;
-                    //  oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = "Gasolina Super";
-                    //
+                 
                     i++;
                 }
 
@@ -215,7 +219,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = "Impuesto 1";
                     oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
-                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.TaxCode = param.IMPEX;
                     oInvoice.Lines.AccountCode = param.CI1;
 
                     oInvoice.Lines.Add();
@@ -227,7 +231,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = "Impuesto 2";
                     oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
-                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.TaxCode = param.IMPEX;
                     oInvoice.Lines.AccountCode = param.CI2; 
                     oInvoice.Lines.Add();
                     i++;
@@ -238,7 +242,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = "Impuesto 4";
                     oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
-                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.TaxCode = param.IMPEX;
                     oInvoice.Lines.AccountCode = param.CI4 ;
                     oInvoice.Lines.Add();
                     i++;
@@ -249,7 +253,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = "Impuesto 8";
                     oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
-                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.TaxCode = param.IMPEX;
                     oInvoice.Lines.AccountCode = param.CI8;
                     oInvoice.Lines.Add();
                     i++;
@@ -260,7 +264,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.Lines.SetCurrentLine(i);
                     oInvoice.Lines.ItemDescription = "Impuesto 13";
                     oInvoice.Lines.LineTotal = Convert.ToDouble(imp13);
-                    oInvoice.Lines.TaxCode = "EX";
+                    oInvoice.Lines.TaxCode = param.IMPEX;
                     oInvoice.Lines.AccountCode = param.CI13;
                     oInvoice.Lines.Add();
                     i++;
@@ -283,9 +287,9 @@ namespace CheckIn.API.Controllers
                     db.Entry(Cierre).State = EntityState.Modified;
                     Cierre.ProcesadaSAP = true;
                     db.SaveChanges();
-                    resp = new 
+                    resp = new
                     {
-                        
+
                         DocEntry = docEntry,
                         //  Series = pedido.Series.ToString(),
                         Type = "oPurchaiseInvoice",
@@ -293,6 +297,8 @@ namespace CheckIn.API.Controllers
                         Message = "Factura creada exitosamente",
                         User = Conexion.Company.UserName
                     };
+                    G.CerrarConexionAPP(db);
+                    Conexion.Desconectar();
                     return Request.CreateResponse(HttpStatusCode.OK, resp);
                 }
 
@@ -306,12 +312,18 @@ namespace CheckIn.API.Controllers
                     User = Conexion.Company.UserName
                 };
 
-                
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = Conexion.Company.GetLastErrorDescription();
+                be.StackTrace = Conexion.Company.UserName;
+                be.Metodo = "Insercion de Asiento";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
 
 
 
-
+                Conexion.Desconectar();
                 G.CerrarConexionAPP(db);
+              
                 return Request.CreateResponse(HttpStatusCode.OK, resp);
             }
             catch (Exception ex)
@@ -324,6 +336,18 @@ namespace CheckIn.API.Controllers
                     Message = "[Stack] -> " + ex.StackTrace + " -- [Message] --> " + ex.Message,
                     User = Conexion.Company.UserName
                 };
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insercion de Asiento";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
+
+                Conexion.Desconectar();
+                G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError,resp);
             }
 

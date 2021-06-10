@@ -93,7 +93,14 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
-                G.GuardarTxt("ErrorTotalizado.txt", ex.Message);
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error totalizado";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+             
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -262,7 +269,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
-                G.GuardarTxt("ErrorGraficos.txt", ex.Message + " -> " + ex.StackTrace );
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de Graficos";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

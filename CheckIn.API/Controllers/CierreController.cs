@@ -213,6 +213,16 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de Correo";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
                 G.GuardarTxt("ErrorCorreo.txt", ex.Message + " -> " + ex.StackTrace);
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
@@ -336,6 +346,16 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Cambio de estado";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
+
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -350,6 +370,13 @@ namespace CheckIn.API.Controllers
             var t = db.Database.BeginTransaction();
             try
             {
+
+                var Candado = db.EncCierre.Where(a => a.Periodo.ToUpper().Contains(gastos.EncCierre.Periodo.ToUpper()) && a.CodMoneda == gastos.EncCierre.CodMoneda && a.FechaInicial <= gastos.EncCierre.FechaCierre && a.FechaFinal >= gastos.EncCierre.FechaCierre && a.idLogin == gastos.EncCierre.idLogin).FirstOrDefault();
+                if (Candado != null)
+                {
+                    throw new Exception("Ya existe una liquidacion con la moneda " + gastos.EncCierre.CodMoneda + " en este periodo " + gastos.EncCierre.Periodo + " idlogin: " + gastos.EncCierre.idLogin);
+                }
+
                 var Cierre = new EncCierre();
                 Cierre.Periodo = gastos.EncCierre.Periodo;
                 Cierre.FechaInicial = gastos.EncCierre.FechaInicial;
@@ -381,6 +408,10 @@ namespace CheckIn.API.Controllers
                 var Logins = db.Login.ToList();
                 var Normas = db.NormasReparto.ToList();
 
+                if(gastos.DetCierre.Count() == 0)
+                {
+                    throw new Exception("No se puede insertar una liquidacion con ninguna factura");
+                }
               
                 int i = 1;
                 foreach (var item in gastos.DetCierre)
@@ -456,9 +487,19 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+
                 t.Rollback();
-                G.CerrarConexionAPP(db);
                 G.GuardarTxt("ErrorCierre"+DateTime.Now.Day +""+DateTime.Now.Month + ""+DateTime.Now.Year +".txt", ex.ToString());
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insercion de Cierre";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
+                G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -472,6 +513,8 @@ namespace CheckIn.API.Controllers
             var t = db.Database.BeginTransaction();
             try
             {
+               
+
           //      G.GuardarTxt("BitLlegada.txt", gastos.ToString());
                 if (db.EncCierre.Where(a => a.idCierre == gastos.EncCierre.idCierre).FirstOrDefault() != null)
                 {
@@ -491,7 +534,7 @@ namespace CheckIn.API.Controllers
                         Cierre.Total = gastos.EncCierre.Total;
                         Cierre.CantidadRegistros = 0;
                         Cierre.Descuento = gastos.EncCierre.Descuento;
-                        Cierre.FechaCierre = DateTime.Now;
+                    Cierre.FechaCierre = Cierre.FechaCierre;//DateTime.Now;
                         Cierre.Impuestos = gastos.EncCierre.Impuestos;
                         Cierre.Impuesto1 = gastos.EncCierre.Impuesto1;
                         Cierre.Impuesto2 = gastos.EncCierre.Impuesto2;
@@ -522,7 +565,7 @@ namespace CheckIn.API.Controllers
                             Factura.FecAsignado = null;
 
 
-                        Factura.Comentario = "";
+                            Factura.Comentario = "";
                             Factura.idNormaReparto = 0;
                             Factura.idCierre = 0;
                            
@@ -540,7 +583,7 @@ namespace CheckIn.API.Controllers
                             det.idCierre = Cierre.idCierre;
                             det.NumLinea = i;
                             det.idFactura = item.idFactura;
-                        det.Comentario = item.Comentario;
+                            det.Comentario = item.Comentario;
                             i++;
                             db.DetCierre.Add(det);
                             var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
@@ -668,8 +711,17 @@ namespace CheckIn.API.Controllers
             catch (Exception ex)
             {
                 t.Rollback();
-                G.CerrarConexionAPP(db);
                 G.GuardarTxt("ErrorCierre" + DateTime.Now.Day + "" + DateTime.Now.Month + "" + DateTime.Now.Year + ".txt", ex.ToString());
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Actualizacion de Cierre";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+
+                G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }

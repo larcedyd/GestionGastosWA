@@ -262,6 +262,7 @@ CREATE TABLE [dbo].[Parametros](
 	[CI4] [varchar](50) NULL,
 	[CI8] [varchar](50) NULL,
 	[CI13] [varchar](50) NULL,
+	[IMPEX] varchar(5) NULL,
  CONSTRAINT [PK_Parametros] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -337,3 +338,19 @@ CREATE TABLE [dbo].[ConexionSAP](
 GO
 
 ------------------------------------------------Conexion SAP------------------------------------------------------------------
+
+
+CREATE TABLE [dbo].[BitacoraErrores](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[Descripcion] [varchar](max) NULL,
+	[StackTrace] [varchar](max) NULL,
+	[Fecha] [datetime] NULL,
+	[Metodo] [varchar](200) NULL,
+ CONSTRAINT [PK_BitacoraErrores] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+
+-----------------------------------------------------BitacoraErrores-------------------------------------------------------
