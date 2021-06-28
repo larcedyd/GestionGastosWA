@@ -158,7 +158,7 @@ namespace SendGridEmail
 
 
         /// <summary>
-        /// Envia Email por sendgrid (utiliza la clave de sicsoft para el envío)
+        /// Envia Email por sendgrid  
         /// </summary>
         /// <param name="para">Destinatario de Email (pueden ser varios separados por punto y coma (;))</param>
         /// <param name="copia">Emails a los que se desea enviar copia (pueden ser varios separados por punto y coma (;))</param>
@@ -201,14 +201,7 @@ namespace SendGridEmail
                             mail.Bcc.Add(cco.Trim());
                     }
 
-                //if (ArchivosAdjuntos != null)
-                //{
-                //    foreach (var archivo in ArchivosAdjuntos)
-                //    {
-                //        if (!string.IsNullOrEmpty(archivo))
-                //            mail.Attachments.Add(new Attachment(archivo));
-                //    }
-                //}
+           
 
                 if (ArchivosAdjuntos != null)
                 {

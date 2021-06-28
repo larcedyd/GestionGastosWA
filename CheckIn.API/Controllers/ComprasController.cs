@@ -848,6 +848,7 @@ namespace CheckIn.API.Controllers
                     a.GastosVarios,
                     a.FacturaNoRecibida,
                     a.Comentario,
+                    Usuario = (a.idCierre == 0 ? 0 : db.EncCierre.Where(z => z.idCierre == a.idCierre).FirstOrDefault().idLogin) ,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.NumCierre > 0 ? a.idCierre == filtro.NumCierre: true)).ToList();
@@ -857,9 +858,16 @@ namespace CheckIn.API.Controllers
                     filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
-                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper()) || a.NomProveedor.ToString().Contains(filtro.Texto.ToUpper())
+                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper()) /*|| a.NomProveedor.ToString().Contains(filtro.Texto.ToUpper())*/
                    
                     ).ToList();
+                }
+
+                if(!string.IsNullOrEmpty(filtro.Texto2))
+                {
+                    EncCompras = EncCompras.Where(a =>   a.NomProveedor.ToString().ToUpper().Contains(filtro.Texto2.ToUpper())
+
+                   ).ToList();
                 }
 
                 //if(filtro.NumCierre > 0)

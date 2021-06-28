@@ -371,7 +371,7 @@ namespace CheckIn.API.Controllers
             try
             {
 
-                var Candado = db.EncCierre.Where(a => a.Periodo.ToUpper().Contains(gastos.EncCierre.Periodo.ToUpper()) && a.CodMoneda == gastos.EncCierre.CodMoneda && a.FechaInicial <= gastos.EncCierre.FechaCierre && a.FechaFinal >= gastos.EncCierre.FechaCierre && a.idLogin == gastos.EncCierre.idLogin).FirstOrDefault();
+                var Candado = db.EncCierre.Where(a => a.Periodo.ToUpper().Contains(gastos.EncCierre.Periodo.ToUpper()) && a.Estado != "A" && a.CodMoneda == gastos.EncCierre.CodMoneda && a.FechaInicial <= gastos.EncCierre.FechaCierre && a.FechaFinal >= gastos.EncCierre.FechaCierre && a.idLogin == gastos.EncCierre.idLogin).FirstOrDefault();
                 if (Candado != null)
                 {
                     throw new Exception("Ya existe una liquidacion con la moneda " + gastos.EncCierre.CodMoneda + " en este periodo " + gastos.EncCierre.Periodo + " idlogin: " + gastos.EncCierre.idLogin);
@@ -424,14 +424,15 @@ namespace CheckIn.API.Controllers
                     i++;
                     db.DetCierre.Add(det);
                     var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
+                    if (Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault() == null)
+                    {
+                        throw new Exception("Este usuario " + login.Nombre + "  no contiene una norma de reparto asignada");
+                    }
                     db.Entry(Factura).State = EntityState.Modified;
                     Factura.idLoginAsignado = Cierre.idLogin;
                     Factura.FecAsignado = DateTime.Now;
 
-                    if(Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault() == null)
-                    {
-                        throw new Exception("Este usuario "+login.Nombre+"  no contiene una norma de reparto asignada");
-                    }
+                  
 
                     Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                     Factura.idCierre = det.idCierre;
@@ -550,7 +551,9 @@ namespace CheckIn.API.Controllers
                     Cierre.Observacion = gastos.EncCierre.Observacion;
                     db.SaveChanges();
 
-                        var Facturas = db.EncCompras.ToList();
+                    var FecInicial = Cierre.FechaInicial.AddMonths(-1);
+                    var FechaFinal = Cierre.FechaFinal.AddMonths(1);
+                        var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecInicial && a.FecFactura <= FechaFinal ).ToList();
                         var Logins = db.Login.ToList();
                         var Normas = db.NormasReparto.ToList();
 
@@ -714,8 +717,9 @@ namespace CheckIn.API.Controllers
                 G.GuardarTxt("ErrorCierre" + DateTime.Now.Day + "" + DateTime.Now.Month + "" + DateTime.Now.Year + ".txt", ex.ToString());
 
                 BitacoraErrores be = new BitacoraErrores();
+                
                 be.Descripcion = ex.Message;
-                be.StackTrace = ex.StackTrace;
+                be.StackTrace = (string.IsNullOrEmpty(ex.InnerException.Message) ? ex.StackTrace : ex.InnerException.Message);
                 be.Metodo = "Actualizacion de Cierre";
                 be.Fecha = DateTime.Now;
                 db.BitacoraErrores.Add(be);
