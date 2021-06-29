@@ -807,9 +807,7 @@ namespace CheckIn.API.Controllers
                  ,
                     a.TotalComprobante
                  ,
-                    a.XmlFacturaRecibida
-
-                 ,
+                
                     a.FechaGravado
                  ,
                     a.TotalServExonerado
@@ -855,10 +853,10 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                    filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
+                    //filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
-                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper()) /*|| a.NomProveedor.ToString().Contains(filtro.Texto.ToUpper())*/
+                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())  
                    
                     ).ToList();
                 }
@@ -870,11 +868,7 @@ namespace CheckIn.API.Controllers
                    ).ToList();
                 }
 
-                //if(filtro.NumCierre > 0)
-                //{
-                //    EncCompras = EncCompras.Where(a => a.idCierre == filtro.NumCierre).ToList();
-                //}
-
+              
                
                 if (filtro.FechaInicio != time)
                 {
