@@ -1135,7 +1135,17 @@ namespace CheckIn.API.Controllers
                         Det.ImpuestoTarifa = item.ImpuestoTarifa;
                         Det.ImpuestoMonto = item.ImpuestoMonto;
                         Det.MontoTotalLinea = item.MontoTotalLinea;
-                        Det.idTipoGasto = item.idTipoGasto;
+                        var TipoGasto = db.Gastos.Where(a => a.Nombre.ToUpper().Contains("Regimen Simplificado".ToUpper())).FirstOrDefault();
+
+                        if(item.idTipoGasto == 0)
+                        {
+                            Det.idTipoGasto = TipoGasto.idTipoGasto;
+                        }
+                        else
+                        {
+                            Det.idTipoGasto = item.idTipoGasto;
+
+                        }
                         
                        // Det.CodCabys = item.CodCabys;
                         db.DetCompras.Add(Det);

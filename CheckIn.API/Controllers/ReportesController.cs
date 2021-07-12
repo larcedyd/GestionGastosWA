@@ -147,10 +147,13 @@ namespace CheckIn.API.Controllers
                 List<EncCompras> comp = new List<EncCompras>();
                 List<EncCompras> compa = new List<EncCompras>();
 
+                var time1 = filtro.FechaInicio.AddMonths(-1);
+                var time2 = filtro.FechaFinal.AddMonths(1);
+                var EncCompras = db.EncCompras.Where(a => a.FecFactura >= time1 && a.FecFactura <= time2).ToList();
                 foreach (var item in Liquidaciones)
                 {
                     var detalle = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
-                    var Compras = db.EncCompras.Where(a => a.idCierre == item.idCierre).ToList();
+                    var Compras = EncCompras.Where(a => a.idCierre == item.idCierre).ToList();
                     foreach(var ite in detalle)
                     {
                         var fac = Compras.Where(a => a.id == ite.idFactura).FirstOrDefault();
@@ -166,6 +169,12 @@ namespace CheckIn.API.Controllers
 
                 foreach(var item2 in comp)
                 {
+
+                    if(item2.idLoginAsignado == 0 || item2.idLoginAsignado == null)
+                    {
+                        G.GuardarTxt("Login.txt", "factura => " + item2.id + " idCierre => " + item2.idCierre);
+                    }
+
                     var login = Login.Where(a => a.id == item2.idLoginAsignado).FirstOrDefault();
                     var NormaRepartoActual = Normas.Where(a => a.idLogin == login.id).FirstOrDefault();
 

@@ -527,7 +527,7 @@ namespace CheckIn.API.Controllers
  
                  
                         db.Entry(Cierre).State = EntityState.Modified;
-                        Cierre.Periodo = gastos.EncCierre.Periodo;
+                         Cierre.Periodo = Cierre.Periodo;//gastos.EncCierre.Periodo;
                         Cierre.FechaInicial = gastos.EncCierre.FechaInicial;
                         Cierre.FechaFinal = gastos.EncCierre.FechaFinal;
                         Cierre.idLogin = gastos.EncCierre.idLogin;
