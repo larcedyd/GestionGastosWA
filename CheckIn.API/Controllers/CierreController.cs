@@ -377,6 +377,11 @@ namespace CheckIn.API.Controllers
                     throw new Exception("Ya existe una liquidacion con la moneda " + gastos.EncCierre.CodMoneda + " en este periodo " + gastos.EncCierre.Periodo + " idlogin: " + gastos.EncCierre.idLogin);
                 }
 
+
+                if (gastos.DetCierre.Count() == 0)
+                {
+                    throw new Exception("No se puede insertar una liquidacion con ninguna factura");
+                }
                 var Cierre = new EncCierre();
                 Cierre.Periodo = gastos.EncCierre.Periodo;
                 Cierre.FechaInicial = gastos.EncCierre.FechaInicial;
@@ -401,17 +406,18 @@ namespace CheckIn.API.Controllers
                 Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                 Cierre.ProcesadaSAP = false;
                 Cierre.Observacion = gastos.EncCierre.Observacion;
+           
                 db.EncCierre.Add(Cierre);
                 db.SaveChanges();
 
-                var Facturas = db.EncCompras.ToList();
+                var FecIni = Cierre.FechaInicial.AddDays(-1);
+                var FecFin = Cierre.FechaFinal.AddDays(1);
+
+                var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecIni && a.FecFactura <= FecFin).ToList();
                 var Logins = db.Login.ToList();
                 var Normas = db.NormasReparto.ToList();
 
-                if(gastos.DetCierre.Count() == 0)
-                {
-                    throw new Exception("No se puede insertar una liquidacion con ninguna factura");
-                }
+             
               
                 int i = 1;
                 foreach (var item in gastos.DetCierre)

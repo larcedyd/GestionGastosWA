@@ -100,8 +100,19 @@ namespace CheckIn.API.Controllers
                 oInvoice.DocObjectCode = BoObjectTypes.oPurchaseInvoices;
 
                 oInvoice.CardCode = login.CardCode; //CardCode que viene de login
-                oInvoice.DocDate = Cierre.FechaFinal; //Inicio del periodo de cierre
-                oInvoice.DocDueDate = Cierre.FechaFinal; //Final del periodo de cierre
+             
+
+                if(login.CambioFecha)
+                {
+                    oInvoice.DocDate = DateTime.Now; //Fecha que se realiza el asiento
+                    oInvoice.DocDueDate = DateTime.Now; //Fecha que se realiza el asiento
+                }
+                else
+                {
+                    oInvoice.DocDate = Cierre.FechaFinal; //Final del periodo de cierre
+                    oInvoice.DocDueDate = Cierre.FechaFinal; //Final del periodo de cierre
+                }
+
                 oInvoice.DocCurrency = (Cierre.CodMoneda == "CRC" ? "COL": Cierre.CodMoneda); //Moneda de la liquidacion
                 oInvoice.DocType = BoDocumentTypes.dDocument_Service;
                 oInvoice.NumAtCard = "Liquidación: " + idCierre.ToString();

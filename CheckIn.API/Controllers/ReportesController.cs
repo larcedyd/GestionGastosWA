@@ -24,7 +24,8 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
 
-                var Liquidaciones = db.EncCierre.Where(a => a.Estado != "R").ToList();
+                var time = new DateTime();
+                var Liquidaciones = db.EncCierre.Where(a => a.Estado != "R" && (filtro.FechaInicio != time ? a.FechaCierre >= filtro.FechaInicio : true)).ToList();
 
                 if(filtro.FechaInicio.Date != new DateTime().Date )
                 {
@@ -50,9 +51,10 @@ namespace CheckIn.API.Controllers
                 foreach (var item in Liquidaciones)
                 {
                     var detalle = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
+                    var EncCompras = db.EncCompras.Where(a => a.idCierre == item.idCierre).ToList();
                     foreach (var ite in detalle)
                     {
-                        var fac = db.EncCompras.Where(a => a.id == ite.idFactura).FirstOrDefault();
+                        var fac = EncCompras.Where(a => a.id == ite.idFactura).FirstOrDefault();
                         comp.Add(fac);
                     }
 

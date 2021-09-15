@@ -15,7 +15,7 @@ namespace CheckIn.API.Models.ModelCliente
             try
             {
                 this.Database.Connection.Open();
-                this.Database.CommandTimeout = 180;
+                this.Database.CommandTimeout = 300;
             
                 this.Configuration.LazyLoadingEnabled = lazyLoadinEnabled;
             }

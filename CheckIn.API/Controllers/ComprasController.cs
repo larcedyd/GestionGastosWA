@@ -359,7 +359,9 @@ namespace CheckIn.API.Controllers
                         var NomProveedor = G.ExtraerValorDeNodoXml(xml, "Emisor/Nombre");
                         factura.XmlFacturaRecibida = G.StringToBase64(xmlBase64);
                         factura.NomProveedor = NomProveedor;
-                        var pdfResp = G.GuardarPDF(item.Pdf, G.ObtenerCedulaJuridia(), factura.NumFactura);
+                        Random i = new Random();
+                        int o = i.Next(0, 10000);
+                        var pdfResp = G.GuardarPDF(item.Pdf, G.ObtenerCedulaJuridia(), o +"_"+factura.NumFactura.ToString());
 
                         factura.PdfFactura = pdfResp;
                         factura.PdfFac = item.Pdf;
@@ -1187,7 +1189,7 @@ namespace CheckIn.API.Controllers
 
                 foreach(var item in Facturas)
                 {
-                    var pdfResp = G.GuardarPDF(item.PdfFac, G.ObtenerCedulaJuridia(), item.NumFactura);
+                    var pdfResp = G.GuardarPDF(item.PdfFac, G.ObtenerCedulaJuridia(), item.NumFactura.ToString());
 
                     db.Entry(item).State = EntityState.Modified;
 

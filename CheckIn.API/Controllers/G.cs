@@ -221,7 +221,7 @@ namespace CheckIn.API.Controllers
             return xml;
         }
 
-        public string GuardarPDF(byte[] result, string CodEmpresa, int idFac)
+        public string GuardarPDF(byte[] result, string CodEmpresa, string idFac)
         {
             string codEmpresa = CodEmpresa;
           

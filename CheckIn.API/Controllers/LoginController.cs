@@ -249,6 +249,7 @@ namespace CheckIn.API.Controllers
                     login.CardCode = usuario.CardCode;
                     login.idLoginAceptacion = usuario.idLoginAceptacion;
                     login.CambiarClave = true;
+                    login.CambioFecha = false;
                     db.Login.Add(login);
 
                     dbLogin.LicUsuarios.Add(User);
@@ -342,6 +343,7 @@ namespace CheckIn.API.Controllers
                     {
                         User.CardCode = usuario.CardCode;
                     }
+                    User.CambioFecha = User.CambioFecha;
                     dbLogin.SaveChanges();
                     db.SaveChanges();
 
