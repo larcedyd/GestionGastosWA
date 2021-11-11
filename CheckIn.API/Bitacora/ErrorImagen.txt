@@ -17,3 +17,18 @@
 04/05/2021 15:49 System.Exception: Esta factura YA existe
    en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en D:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1068
 ------------------------------------------
+30/09/2021 10:56 System.Runtime.InteropServices.ExternalException (0x80004005): Error genérico en GDI+.
+   en System.Drawing.Image.Save(String filename, ImageCodecInfo encoder, EncoderParameters encoderParams)
+   en System.Drawing.Image.Save(String filename, ImageFormat format)
+   en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 51
+------------------------------------------
+30/09/2021 11:02 System.Runtime.InteropServices.ExternalException (0x80004005): Error genérico en GDI+.
+   en System.Drawing.Image.Save(String filename, ImageCodecInfo encoder, EncoderParameters encoderParams)
+   en System.Drawing.Image.Save(String filename, ImageFormat format)
+   en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 51
+------------------------------------------
+30/09/2021 11:02 System.Runtime.InteropServices.ExternalException (0x80004005): Error genérico en GDI+.
+   en System.Drawing.Image.Save(String filename, ImageCodecInfo encoder, EncoderParameters encoderParams)
+   en System.Drawing.Image.Save(String filename, ImageFormat format)
+   en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 51
+------------------------------------------

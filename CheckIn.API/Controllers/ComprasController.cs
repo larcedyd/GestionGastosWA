@@ -919,7 +919,7 @@ namespace CheckIn.API.Controllers
         }
 
 
-
+        //Este metodo consulta una por una las facturas
         [Route("api/Compras/Consultar")]
         public HttpResponseMessage GetOne([FromUri]int id)
         {
@@ -1024,6 +1024,10 @@ namespace CheckIn.API.Controllers
                     a.Impuesto13,
                      a.PdfFac,
                      a.Comentario,
+             
+                    a.RegimenSimplificado,
+                    a.FacturaExterior,
+                    a.GastosVarios,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.ConsecutivoHacienda == a.ConsecutivoHacienda && d.ClaveHacienda == a.ClaveHacienda).ToList()
 
                 }).FirstOrDefault();
@@ -1052,7 +1056,7 @@ namespace CheckIn.API.Controllers
             try
             {
 
-                var EncCompras = db.EncCompras.Where(a => a.id == compra.EncCompras.id).FirstOrDefault();
+                var EncCompras = db.EncCompras.Where(a => a.NumFactura == compra.EncCompras.NumFactura && a.CodProveedor == compra.EncCompras.CodProveedor).FirstOrDefault();
 
                 if (EncCompras == null)
                 {
@@ -1115,7 +1119,9 @@ namespace CheckIn.API.Controllers
                     db.SaveChanges();
 
                     var i = 1;
-                    foreach(var item in compra.DetCompras)
+                    decimal totalVenta = 0;
+                    decimal totalCompr = 0;
+                    foreach (var item in compra.DetCompras)
                     {
                         var Det = new DetCompras();
                         Det.CodProveedor = EncCompras.CodProveedor;
@@ -1148,13 +1154,27 @@ namespace CheckIn.API.Controllers
                             Det.idTipoGasto = item.idTipoGasto;
 
                         }
-                        
-                       // Det.CodCabys = item.CodCabys;
+
+                        totalCompr += item.MontoTotalLinea.Value;
+                        totalVenta += item.SubTotal.Value;
+                        // Det.CodCabys = item.CodCabys;
                         db.DetCompras.Add(Det);
                         db.SaveChanges();
                         i++;
                     }
+                    if (EncCompras.TotalVenta != totalVenta)
+                    {
+                        db.Entry(EncCompras).State = EntityState.Modified;
+                        EncCompras.TotalVenta = totalVenta;
+                        db.SaveChanges();
+                    }
 
+                    if (EncCompras.TotalComprobante != totalCompr)
+                    {
+                        db.Entry(EncCompras).State = EntityState.Modified;
+                        EncCompras.TotalComprobante = totalCompr;
+                        db.SaveChanges();
+                    }
                     compra.EncCompras.id = EncCompras.id;
                 }
                 else
@@ -1175,7 +1195,7 @@ namespace CheckIn.API.Controllers
             }
         }
 
-        [Route("api/Compras/Prueba")]
+        [Route("api/Compras/Prueba")] //Metodo para cuando el pdf no fue leido correctamente
 
         public HttpResponseMessage GetPrueba()
         {
@@ -1226,7 +1246,7 @@ namespace CheckIn.API.Controllers
         }
 
         [HttpPut]
-        [Route("api/Compras/Actualizar")]
+        [Route("api/Compras/Actualizar")] //Para cambiar la norma de reparto
         public HttpResponseMessage Put([FromBody] AsignacionViewModel asig)
         {
             try
@@ -1277,7 +1297,121 @@ namespace CheckIn.API.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("api/Compras/ActualizarFacturaManual")]
+        public HttpResponseMessage PutActualizarFacturaManual([FromBody] ComprasViewModel compra)
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                
+                var Compra = db.EncCompras.Where(a => a.id == compra.EncCompras.id).FirstOrDefault();
+                var NumFacturaAnterior = Compra.NumFactura;
+                var ProveedorAnterior = Compra.CodProveedor;
+                if (Compra == null)
+                {
+                    throw new Exception("Compra no existe");
+                }
 
+                db.Entry(Compra).State = EntityState.Modified;
+
+                if (compra.EncCompras.CodProveedor != Compra.CodProveedor)
+                {
+                    Compra.CodProveedor = compra.EncCompras.CodProveedor;
+                }
+
+                if (compra.EncCompras.NomProveedor != Compra.NomProveedor)
+                {
+                    Compra.NomProveedor = compra.EncCompras.NomProveedor;
+                }
+
+                if (compra.EncCompras.NumFactura != Compra.NumFactura)
+                {
+                    Compra.NumFactura = compra.EncCompras.NumFactura;
+                    Compra.ClaveHacienda = compra.EncCompras.NumFactura.ToString();
+                    Compra.ConsecutivoHacienda = compra.EncCompras.NumFactura.ToString();
+                }
+
+                if (compra.EncCompras.FecFactura.Value.Date != Compra.FecFactura.Value.Date)
+                {
+                    Compra.FecFactura = compra.EncCompras.FecFactura;
+                }
+
+                Compra.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
+                Compra.FacturaExterior = compra.EncCompras.FacturaExterior;
+                Compra.GastosVarios = compra.EncCompras.GastosVarios;
+
+                if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
+                {
+                    string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + Compra.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                    Compra.PdfFactura = Url;
+                    var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
+                    Compra.PdfFac = _bytes;
+
+                }
+
+                Compra.Impuesto1 = compra.EncCompras.Impuesto1;
+                Compra.Impuesto2 = compra.EncCompras.Impuesto2;
+                Compra.Impuesto4 = compra.EncCompras.Impuesto4;
+                Compra.Impuesto8 = compra.EncCompras.Impuesto8;
+                Compra.Impuesto13 = compra.EncCompras.Impuesto13;
+                Compra.TotalComprobante = compra.EncCompras.TotalComprobante;
+                Compra.TotalDescuentos = compra.EncCompras.TotalDescuentos;
+                Compra.TotalImpuesto = compra.EncCompras.TotalImpuesto;
+                Compra.TotalVenta = compra.EncCompras.TotalVenta;
+                Compra.TotalVentaNeta = compra.EncCompras.TotalVentaNeta;
+                Compra.TotalOtrosCargos = 0;
+                db.SaveChanges();
+
+
+                foreach (var item in compra.DetCompras)
+                {
+                    var Detalle = db.DetCompras.Where(a => a.NumFactura == NumFacturaAnterior && a.CodProveedor == ProveedorAnterior).FirstOrDefault();
+                    db.Entry(Detalle).State = EntityState.Modified;
+
+                    Detalle.CodProveedor = Compra.CodProveedor;
+                    Detalle.CodEmpresa = Compra.CodEmpresa;
+                    Detalle.ClaveHacienda = Compra.ClaveHacienda;
+                    Detalle.ConsecutivoHacienda = Compra.ConsecutivoHacienda;
+                    Detalle.NomProveedor = Compra.NomProveedor;
+                    Detalle.NumFactura = Compra.NumFactura;
+
+                    Detalle.NomPro = item.NomPro;
+                    Detalle.PrecioUnitario = item.PrecioUnitario;
+                    Detalle.Cantidad = item.Cantidad;
+                    Detalle.MontoTotal = item.MontoTotal;
+                    Detalle.MontoDescuento = item.MontoDescuento;
+                    Detalle.SubTotal = item.SubTotal;
+                    Detalle.ImpuestoTarifa = item.ImpuestoTarifa;
+                    Detalle.ImpuestoMonto = item.ImpuestoMonto;
+                    Detalle.MontoTotalLinea = item.MontoTotalLinea;
+                    var TipoGasto = db.Gastos.Where(a => a.Nombre.ToUpper().Contains("Regimen Simplificado".ToUpper())).FirstOrDefault();
+
+                    if (item.idTipoGasto == 0)
+                    {
+                        Detalle.idTipoGasto = TipoGasto.idTipoGasto;
+                    }
+                    else
+                    {
+                        Detalle.idTipoGasto = item.idTipoGasto;
+
+                    }
+
+                    db.SaveChanges();
+                }
+
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, compra);
+            }
+            catch (Exception ex)
+            {
+
+                G.CerrarConexionAPP(db);
+                G.GuardarTxt("ErrorFactura.txt", ex.ToString());
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
 
         public int EncontrarGasto(ModelCliente db, string NomPro)
