@@ -19,3 +19,15 @@
    en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 57
    en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1107
 ------------------------------------------
+15/11/2021 13:47 System.Exception: Esta factura YA existe
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1182
+------------------------------------------
+18/11/2021 10:38 System.Exception: Esta factura YA existe
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1182
+------------------------------------------
+18/11/2021 10:40 System.Exception: Esta factura YA existe
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1182
+------------------------------------------
+18/11/2021 11:00 System.Exception: Esta factura YA existe
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1182
+------------------------------------------

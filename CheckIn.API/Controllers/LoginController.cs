@@ -125,6 +125,7 @@ namespace CheckIn.API.Controllers
                 de.Seguridad = SeguridadModulos;
                 de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
                 de.CambiarClave = user.CambiarClave;
+                de.Pais = Licencia.CadenaConexionSAP;
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
             }
@@ -448,6 +449,7 @@ namespace CheckIn.API.Controllers
         public string token { get; set; }
         public string UrlLogo { get; set; }
         public bool CambiarClave { get; set; }
+        public string Pais { get; set; }
         public List<SeguridadRolesModulos> Seguridad { get; set; }
     }
 }

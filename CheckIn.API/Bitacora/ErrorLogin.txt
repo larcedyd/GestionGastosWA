@@ -1,0 +1,14 @@
+12/11/2021 10:41 An exception occurred while initializing the database. See the InnerException for details. =>    en System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   en System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   en System.Data.Entity.Internal.LazyInternalContext.<>c.<InitializeDatabase>b__58_0(InternalContext c)
+   en System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   en System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   en System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   en System.Data.Entity.Internal.InternalContext.Initialize()
+   en System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   en System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   en System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   en System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   en System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 106
+------------------------------------------
