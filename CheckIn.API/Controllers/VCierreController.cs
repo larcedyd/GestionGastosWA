@@ -23,8 +23,8 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
-              
 
+                fechaCierre = fechaCierre.Date;
                 var Candado = db.EncCierre.Where(a => a.Periodo.ToUpper().Contains(Periodo.ToUpper()) && a.Estado != "A" && a.CodMoneda == CodMoneda && a.FechaInicial <= fechaCierre && a.FechaFinal >= fechaCierre && a.idLogin == idLogin).FirstOrDefault();
                 if (Candado != null)
                 {

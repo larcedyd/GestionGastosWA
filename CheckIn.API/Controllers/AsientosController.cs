@@ -1,5 +1,6 @@
 ﻿using CheckIn.API.Models;
 using CheckIn.API.Models.ModelCliente;
+using CheckIn.API.Models.ModelMain;
 using Newtonsoft.Json;
 using S22.Imap;
 using SAPbobsCOM;
@@ -23,6 +24,7 @@ namespace CheckIn.API.Controllers
     [Authorize]
     public class AsientosController: ApiController
     {
+        ModelLicencias dbLogin = new ModelLicencias();
         ModelCliente db;
         G G = new G();
 
@@ -73,7 +75,14 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
                 var Cierre = db.EncCierre.Where(a => a.idCierre == idCierre).FirstOrDefault();
                 G.GuardarTxt("ErrorSAP.txt", "Entro");
-                if(Cierre.ProcesadaSAP == true)
+
+                var Compañia = G.ObtenerCedulaJuridia();
+
+                var Licencia = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == Compañia).FirstOrDefault();
+
+                var Pais = Licencia.CadenaConexionSAP;
+
+                if (Cierre.ProcesadaSAP == true)
                 {
                     throw new Exception("Esta liquidación ya fue procesada");
                 }
@@ -82,7 +91,7 @@ namespace CheckIn.API.Controllers
 
                 List<EncCompras> enc = new List<EncCompras>();
                 var Encabezados = db.EncCompras.Where(a => a.idCierre == Cierre.idCierre).ToList();
-                foreach(var item in Detalle)
+                foreach (var item in Detalle)
                 {
                     var compra = Encabezados.Where(a => a.id == item.idFactura).FirstOrDefault();
                     enc.Add(compra);
@@ -91,19 +100,24 @@ namespace CheckIn.API.Controllers
                 var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                 var param = db.Parametros.FirstOrDefault();
 
-                 
+
 
                 var oInvoice = (Documents)Conexion.Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oDrafts);
-                
+
 
 
                 oInvoice.DocObjectCode = BoObjectTypes.oPurchaseInvoices;
 
                 oInvoice.CardCode = login.CardCode; //CardCode que viene de login
-             
 
-                if(login.CambioFecha)
+
+                if (login.CambioFecha)
                 {
+                    //int DiferenciaDias = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, 15) - DateTime.Now).Days;
+                    //oInvoice.DocDate = DateTime.Now.AddDays(DiferenciaDias); //Fecha que se realiza el asiento
+                    //oInvoice.DocDueDate = DateTime.Now.AddDays(DiferenciaDias); //Fecha que se realiza el asiento
+
+
                     oInvoice.DocDate = DateTime.Now; //Fecha que se realiza el asiento
                     oInvoice.DocDueDate = DateTime.Now; //Fecha que se realiza el asiento
                 }
@@ -113,39 +127,84 @@ namespace CheckIn.API.Controllers
                     oInvoice.DocDueDate = Cierre.FechaFinal; //Final del periodo de cierre
                 }
 
-                oInvoice.DocCurrency = (Cierre.CodMoneda == "CRC" ? "COL": Cierre.CodMoneda); //Moneda de la liquidacion
+                oInvoice.DocCurrency = (Cierre.CodMoneda == "CRC" ? "COL" : Cierre.CodMoneda); //Moneda de la liquidacion
+                if (Pais == "P")
+                {
+                    if (Cierre.CodMoneda == "USD")
+                    {
+                        oInvoice.DocCurrency = "$";
+                    }
+                }
                 oInvoice.DocType = BoDocumentTypes.dDocument_Service;
                 oInvoice.NumAtCard = "Liquidación: " + idCierre.ToString();
                 var i = 0;
-                foreach(var item in enc)
+                foreach (var item in enc)
                 {
                     Gastos TipoGasto = new Gastos();
-                    if(item.RegimenSimplificado)
+                    //Esto no va para panama
+                    if (Pais == "C")
                     {
-                         TipoGasto = db.Gastos.Where(a => a.Nombre.ToUpper().Contains("Regimen Simplificado".ToUpper())).FirstOrDefault();
-                         
-                    }
-                    else
-                    {
+                        if (item.RegimenSimplificado)
+                        {
+                            TipoGasto = db.Gastos.Where(a => a.Nombre.ToUpper().Contains("Regimen Simplificado".ToUpper())).FirstOrDefault();
 
-                           TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
+                        }
+                        else
+                        {
+
+                            TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
+                        }
                     }
+                    else //Panama
+                    {
+                        TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
+                    }
+
+
                     var Cuenta = db.CuentasContables.Where(a => a.idCuentaContable == TipoGasto.idCuentaContable).FirstOrDefault();
                     var Norma = db.NormasReparto.Where(a => a.id == item.idNormaReparto).FirstOrDefault();
                     var Dimension = db.Dimensiones.Where(a => a.id == Norma.idDimension).FirstOrDefault();
 
                     oInvoice.Lines.SetCurrentLine(i);
-                    oInvoice.Lines.ItemDescription = item.CodProveedor +"-"+ item.NomProveedor ;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
-                    oInvoice.Lines.AccountCode = Cuenta.CodSAP; //"6-01-02-05-000"; //Cuenta contable del gasto
-   
-                        oInvoice.Lines.TaxCode = param.IMPEX;
-                 
+                    if(Pais == "C")
+                    {
 
-                    imp1 += item.Impuesto1;
-                    imp2 += item.Impuesto2;
-                    imp4 += item.Impuesto4;
-                    imp8 += item.Impuesto8;
-                    imp13 += item.Impuesto13;
+                        oInvoice.Lines.ItemDescription = item.CodProveedor + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
+                    }
+                    else
+                    {
+                        
+                        oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + " - " +item.CodProveedor.Split('[')[1] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
+
+                    }
+                    oInvoice.Lines.AccountCode = Cuenta.CodSAP; //"6-01-02-05-000"; //Cuenta contable del gasto
+                     
+                    if (Pais == "C")
+                    {
+                        oInvoice.Lines.TaxCode = param.IMPEX; //Exento para Panama -> Verificar el codigo C0
+
+                    }else
+                    {
+                        oInvoice.Lines.VatGroup = param.IMPEX;
+                    }
+
+                    //Redifinir para Panama
+                    if (Pais == "C")
+                    {
+                        imp1 += item.Impuesto1;
+                        imp2 += item.Impuesto2;
+                        imp4 += item.Impuesto4;
+                        imp8 += item.Impuesto8;
+                        imp13 += item.Impuesto13;
+                    }
+                    else //Panama
+                    {
+                        imp1 += item.Impuesto1;
+                        imp2 += item.Impuesto2;
+
+                    }
+
+
 
                     //Normas de reparto
                     switch (Dimension.codigoSAP)
@@ -202,95 +261,188 @@ namespace CheckIn.API.Controllers
                                 oInvoice.Lines.CostingCode2 = "";
                                 oInvoice.Lines.CostingCode3 = "";
                                 oInvoice.Lines.CostingCode4 = "";
-                                oInvoice.Lines.CostingCode5 ="";
+                                oInvoice.Lines.CostingCode5 = "";
                                 break;
                             }
                     }
 
                     oInvoice.Lines.LineTotal = Convert.ToDouble(item.TotalComprobante.Value - item.TotalImpuesto);
 
-                    if(TipoGasto.Nombre.ToUpper().Contains("Combustible".ToUpper()))
+
+                    if (Pais == "C")
                     {
-                        var DetalleFac = db.DetCompras.Where(a => a.NumFactura == item.NumFactura && a.ClaveHacienda == item.ClaveHacienda && a.ConsecutivoHacienda == item.ConsecutivoHacienda).FirstOrDefault();
-                        oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = DetalleFac.Cantidad;
-                        oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Super".ToUpper()) ? "Gasolina Super" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Regular".ToUpper()) ? "Gasolina Regular" : "Diesel");
+                        G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
+                        if (TipoGasto.Nombre.ToUpper().Contains("Combustible".ToUpper()))
+                        {
+
+                            var DetalleFac = db.DetCompras.Where(a => a.NumFactura == item.NumFactura && a.ClaveHacienda == item.ClaveHacienda && a.ConsecutivoHacienda == item.ConsecutivoHacienda).FirstOrDefault();
+
+                            oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = int.Parse(Math.Round(DetalleFac.Cantidad.Value).ToString());
+
+                            oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Super".ToUpper()) ? "Gasolina Super" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Regular".ToUpper()) ? "Gasolina Regular" : "Diesel");
+
+                        }
+
+                        oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value = item.NumFactura.ToString();
+                        oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
+                    }
+                    else //Panama
+                    {
+                        G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
+                        if (TipoGasto.Nombre.ToUpper().Contains("Comb".ToUpper()))
+                        {
+                            var DetalleFac = db.DetCompras.Where(a => a.NumFactura == item.NumFactura && a.ClaveHacienda == item.ClaveHacienda && a.ConsecutivoHacienda == item.ConsecutivoHacienda).FirstOrDefault();
+                            oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = int.Parse(Math.Round(DetalleFac.Cantidad.Value).ToString());
+                            oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Gasolina 95".ToUpper()) ? "Gasolina 95" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Gasolina 90".ToUpper()) ? "Gasolina 90" : "Gas LP");
+                        }
+
+                        oInvoice.Lines.UserFields.Fields.Item("U_REFFAC").Value = item.NumFactura.ToString();
+                        oInvoice.Lines.UserFields.Fields.Item("U_FechaFac").Value = item.FecFactura;
+
+                        switch (item.CodProveedor.Replace("-", "").Replace("-", "").Length)
+                        {
+                            case 8:
+                                {
+                                    oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "1";
+                                    break;
+                                }
+                            case 9:
+                                {
+                                    oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "1";
+                                    break;
+                                }
+                            case 10:
+                                {
+                                    oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "3";
+                                    break;
+                                }
+                            case 14:
+                                {
+                                    oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "2";
+                                    break;
+                                }
+                            case 15:
+                                {
+                                    oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "2";
+                                    break;
+                                }
+                            default:
+                                {
+                                    oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "1";
+                                    break;
+                                }
+                        }
+
+                        oInvoice.Lines.UserFields.Fields.Item("U_RUC").Value = item.CodProveedor.Split('[')[0];
+                        oInvoice.Lines.UserFields.Fields.Item("U_DV").Value = item.CodProveedor.Split('[')[1];
+                        oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
+
                     }
 
-                    oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value =  item.NumFactura.ToString();
-                    oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
 
                     oInvoice.Lines.Add();
+
+                    i++;
+                }
+
+
+                //Preguntar por el pais
+                if (Pais == "C")
+                {
+                    if (imp1 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Impuesto 1";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI1;
+
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp2 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Impuesto 2";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI2;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp4 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Impuesto 4";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI4;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp8 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Impuesto 8";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI8;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp13 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Impuesto 13";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp13);
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI13;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+                }
+                else //Panama
+                {
+                    if (imp1 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "ITBMS(7%)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
+                        oInvoice.Lines.VatGroup = param.IMPEX;
+                        //oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI1;
+
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp2 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "ITBMS(10%)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
+                        oInvoice.Lines.VatGroup = param.IMPEX;
+                       // oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI2;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+                }
+
+
+               
                  
-                    i++;
-                }
-
-
-                if(imp1 > 0)
-                {
-                    oInvoice.Lines.SetCurrentLine(i);
-                    oInvoice.Lines.ItemDescription = "Impuesto 1";
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
-                    oInvoice.Lines.TaxCode = param.IMPEX;
-                    oInvoice.Lines.AccountCode = param.CI1;
-
-                    oInvoice.Lines.Add();
-                    i++;
-                }
-              
-                if(imp2 > 0)
-                {
-                    oInvoice.Lines.SetCurrentLine(i);
-                    oInvoice.Lines.ItemDescription = "Impuesto 2";
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
-                    oInvoice.Lines.TaxCode = param.IMPEX;
-                    oInvoice.Lines.AccountCode = param.CI2; 
-                    oInvoice.Lines.Add();
-                    i++;
-                }
-
-               if(imp4 > 0)
-                {
-                    oInvoice.Lines.SetCurrentLine(i);
-                    oInvoice.Lines.ItemDescription = "Impuesto 4";
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
-                    oInvoice.Lines.TaxCode = param.IMPEX;
-                    oInvoice.Lines.AccountCode = param.CI4 ;
-                    oInvoice.Lines.Add();
-                    i++;
-                }
-
-                if (imp8 > 0)
-                {
-                    oInvoice.Lines.SetCurrentLine(i);
-                    oInvoice.Lines.ItemDescription = "Impuesto 8";
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
-                    oInvoice.Lines.TaxCode = param.IMPEX;
-                    oInvoice.Lines.AccountCode = param.CI8;
-                    oInvoice.Lines.Add();
-                    i++;
-                }
-
-                if (imp13 > 0)
-                {
-                    oInvoice.Lines.SetCurrentLine(i);
-                    oInvoice.Lines.ItemDescription = "Impuesto 13";
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(imp13);
-                    oInvoice.Lines.TaxCode = param.IMPEX;
-                    oInvoice.Lines.AccountCode = param.CI13;
-                    oInvoice.Lines.Add();
-                    i++;
-                }
-
-             
-
-              
 
                
 
 
 
                 var respuesta = oInvoice.Add();
-
+                G.GuardarTxt("ErrorSAP.txt", "Respuesta: " + respuesta.ToString());
                 if (respuesta == 0)
                 {
                     var docEntry = Conexion.Company.GetNewObjectKey();
@@ -313,6 +465,13 @@ namespace CheckIn.API.Controllers
                     return Request.CreateResponse(HttpStatusCode.OK, resp);
                 }
 
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = Conexion.Company.GetLastErrorDescription();
+                be.StackTrace = Conexion.Company.UserName;
+                be.Metodo = "Insercion de Asiento";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 resp = new
                 {
                     //   Series = pedido.Series.ToString(),
@@ -323,12 +482,7 @@ namespace CheckIn.API.Controllers
                     User = Conexion.Company.UserName
                 };
 
-                BitacoraErrores be = new BitacoraErrores();
-                be.Descripcion = Conexion.Company.GetLastErrorDescription();
-                be.StackTrace = Conexion.Company.UserName;
-                be.Metodo = "Insercion de Asiento";
-                be.Fecha = DateTime.Now;
-                db.BitacoraErrores.Add(be);
+            
 
 
 

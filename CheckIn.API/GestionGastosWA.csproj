@@ -287,6 +287,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\NormasRepartoController.cs" />
+    <Compile Include="Controllers\ProveedoresController.cs" />
     <Compile Include="Controllers\ReportesController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
     <Compile Include="Controllers\SeguridadModulosController.cs" />
@@ -329,6 +330,7 @@
     <Compile Include="Models\ModelCliente\ModelCliente.cs" />
     <Compile Include="Models\ModelCliente\NormasReparto.cs" />
     <Compile Include="Models\ModelCliente\Parametros.cs" />
+    <Compile Include="Models\ModelCliente\Proveedores.cs" />
     <Compile Include="Models\ModelCliente\Roles.cs" />
     <Compile Include="Models\ModelCliente\SeguridadModulos.cs" />
     <Compile Include="Models\ModelCliente\SeguridadRolesModulos.cs" />

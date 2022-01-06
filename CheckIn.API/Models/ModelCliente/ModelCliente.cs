@@ -39,7 +39,7 @@ namespace CheckIn.API.Models.ModelCliente
         public virtual DbSet<CorreosRecepcion> CorreosRecepcion { get; set; }
         public virtual DbSet<ConexionSAP> ConexionSAP { get; set; }
         public virtual DbSet<BitacoraErrores> BitacoraErrores { get; set; }
-
+        public virtual DbSet<Proveedores> Proveedores { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CuentasContables>()

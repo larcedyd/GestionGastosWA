@@ -12,3 +12,5 @@
    en System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 106
 ------------------------------------------
+23/12/2021 09:36 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 96
+------------------------------------------
