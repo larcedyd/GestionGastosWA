@@ -32,3 +32,13 @@
    en System.Drawing.Image.Save(String filename, ImageFormat format)
    en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 51
 ------------------------------------------
+24/03/2022 15:18 System.Runtime.InteropServices.ExternalException (0x80004005): Error genérico en GDI+.
+   en System.Drawing.Image.Save(String filename, ImageCodecInfo encoder, EncoderParameters encoderParams)
+   en System.Drawing.Image.Save(String filename, ImageFormat format)
+   en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 51
+------------------------------------------
+24/03/2022 15:18 System.Runtime.InteropServices.ExternalException (0x80004005): Error genérico en GDI+.
+   en System.Drawing.Image.Save(String filename, ImageCodecInfo encoder, EncoderParameters encoderParams)
+   en System.Drawing.Image.Save(String filename, ImageFormat format)
+   en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 51
+------------------------------------------

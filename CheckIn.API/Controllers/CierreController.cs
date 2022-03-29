@@ -370,8 +370,8 @@ namespace CheckIn.API.Controllers
             var t = db.Database.BeginTransaction();
             try
             {
-
-                var Candado = db.EncCierre.Where(a => a.Periodo.ToUpper().Contains(gastos.EncCierre.Periodo.ToUpper()) && a.Estado != "A" && a.CodMoneda == gastos.EncCierre.CodMoneda && a.FechaInicial <= gastos.EncCierre.FechaCierre && a.FechaFinal >= gastos.EncCierre.FechaCierre && a.idLogin == gastos.EncCierre.idLogin).FirstOrDefault();
+                gastos.EncCierre.FechaCierre = DateTime.Now.Date;
+                var Candado = db.EncCierre.Where(a => a.Periodo.ToUpper().Trim().Contains(gastos.EncCierre.Periodo.ToUpper().Trim()) && a.Estado != "A" && a.CodMoneda.Trim() == gastos.EncCierre.CodMoneda.Trim() && a.FechaInicial <= gastos.EncCierre.FechaCierre && a.FechaFinal >= gastos.EncCierre.FechaCierre && a.idLogin == gastos.EncCierre.idLogin).FirstOrDefault();
                 if (Candado != null)
                 {
                     throw new Exception("Ya existe una liquidacion con la moneda " + gastos.EncCierre.CodMoneda + " en este periodo " + gastos.EncCierre.Periodo + " idlogin: " + gastos.EncCierre.idLogin);
@@ -414,7 +414,7 @@ namespace CheckIn.API.Controllers
                 var FecFin = Cierre.FechaFinal.AddDays(1);
 
                 var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecIni && a.FecFactura <= FecFin).ToList();
-                var Logins = db.Login.ToList();
+                 var Logins = db.Login.ToList();
                 var Normas = db.NormasReparto.ToList();
 
              
