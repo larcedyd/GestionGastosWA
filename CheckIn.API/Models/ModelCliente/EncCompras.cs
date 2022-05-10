@@ -139,5 +139,7 @@ namespace CheckIn.API.Models.ModelCliente
         public bool GastosVarios { get; set; }
         public bool FacturaNoRecibida { get; set; }
         public string Comentario { get; set; }
+        public byte[] ImagenB64 { get; set; }
+
     }
 }

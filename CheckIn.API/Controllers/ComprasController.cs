@@ -290,7 +290,7 @@ namespace CheckIn.API.Controllers
 
                         if (db.EncCompras.Where(m => m.CodEmpresa == factura.CodEmpresa
                    && m.CodProveedor == factura.CodProveedor
-                   && m.NumFactura == factura.NumFactura
+                   && m.ConsecutivoHacienda == factura.ConsecutivoHacienda
                    && m.TipoDocumento == factura.TipoDocumento).Count() > 0)
                         {
                             throw new Exception($"El documento ya existe [Clave={factura.ClaveHacienda}] [Consecutivo={factura.ConsecutivoHacienda}]");
@@ -687,8 +687,9 @@ namespace CheckIn.API.Controllers
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-                  a.PdfFac,
+                  PdfFac = "",
                   a.Comentario,
+                  a.ImagenB64,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true)).ToList();
@@ -842,12 +843,13 @@ namespace CheckIn.API.Controllers
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-                    a.PdfFac,
+                    PdfFac = "",
                     a.RegimenSimplificado,
                     a.FacturaExterior,
                     a.GastosVarios,
                     a.FacturaNoRecibida,
                     a.Comentario,
+                    a.ImagenB64,
                     Usuario = (a.idCierre == 0 ? 0 : db.EncCierre.Where(z => z.idCierre == a.idCierre).FirstOrDefault().idLogin) ,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
@@ -1028,6 +1030,7 @@ namespace CheckIn.API.Controllers
                     a.RegimenSimplificado,
                     a.FacturaExterior,
                     a.GastosVarios,
+                    a.ImagenB64,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.ConsecutivoHacienda == a.ConsecutivoHacienda && d.ClaveHacienda == a.ClaveHacienda && d.CodProveedor == a.CodProveedor ).ToList()
 
                 }).FirstOrDefault();
@@ -1080,12 +1083,31 @@ namespace CheckIn.API.Controllers
                     try
                     {
                         var CodProv = EncCompras.CodProveedor.Split('[')[0];
-                        var DV = EncCompras.CodProveedor.Split('[')[1];
+                        var DV = "";
+                        var CR = false;
+                        try
+                        {
+                             DV = EncCompras.CodProveedor.Split('[')[1];
+                        }
+                        catch (Exception ex)
+                        {
+
+                            CR = true;
+                            DV = "0";
+                        }
+                        
                         var Proveedor = db.Proveedores.Where(a => a.RUC.Replace("-", "").Replace("-", "") == CodProv.Replace("-", "").Replace("-", "") && a.DV == DV).FirstOrDefault();
 
                         if(Proveedor != null)
                         {
-                            EncCompras.CodProveedor = Proveedor.RUC + "[" + Proveedor.DV;
+                            if (!CR)
+                            {
+                                EncCompras.CodProveedor = Proveedor.RUC + "[" + Proveedor.DV;
+                            }
+                                
+
+
+                            
                         }
                         else
                         {
@@ -1129,19 +1151,24 @@ namespace CheckIn.API.Controllers
                     EncCompras.FacturaNoRecibida = compra.EncCompras.FacturaNoRecibida;
                     EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
                     EncCompras.idCierre = 0;
+                    //EncCompras.ImagenB64 = compra.EncCompras.ImagenB64;
+
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                     {
-                        string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                        EncCompras.PdfFactura = Url;
+                        /* string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                         EncCompras.PdfFactura = Url;*/
+                        EncCompras.PdfFactura = "";
                         var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                         EncCompras.PdfFac = _bytes;
+                        byte[] hex = Convert.FromBase64String(compra.EncCompras.ImagenBase64.Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", ""));
+                        EncCompras.ImagenB64 = hex;
 
                     }
                     else
                     {
                         EncCompras.PdfFactura = EncCompras.PdfFactura;
                     }
-                    EncCompras.Comentario = "";
+                    EncCompras.Comentario = compra.EncCompras.Comentario;
                     db.EncCompras.Add(EncCompras);
                     db.SaveChanges();
 
@@ -1278,17 +1305,20 @@ namespace CheckIn.API.Controllers
                         EncCompras.idCierre = 0;
                         if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                         {
-                            string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                            EncCompras.PdfFactura = Url;
+                            /*string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                            EncCompras.PdfFactura = Url;*/
+                            EncCompras.PdfFactura = "";
                             var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                             EncCompras.PdfFac = _bytes;
+                            byte[] hex = Convert.FromBase64String(compra.EncCompras.ImagenBase64.Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", ""));
+                            EncCompras.ImagenB64 = hex;
 
                         }
                         else
                         {
                             EncCompras.PdfFactura = EncCompras.PdfFactura;
                         }
-                        EncCompras.Comentario = "";
+                        EncCompras.Comentario = compra.EncCompras.Comentario;
 
                         db.SaveChanges();
 
@@ -1511,12 +1541,32 @@ namespace CheckIn.API.Controllers
                     try
                     {
                         var CodProv = Compra.CodProveedor.Split('[')[0];
-                        var DV = Compra.CodProveedor.Split('[')[1];
+                        var CR = false;
+                        var DV = "";
+
+                        try
+                        {
+                            DV = Compra.CodProveedor.Split('[')[1];
+                        }
+                        catch (Exception ex)
+                        {
+
+                            CR = true;
+                            DV = "0";
+                        }
+
+                   
+
                         var Proveedor = db.Proveedores.Where(a => a.RUC.Replace("-", "").Replace("-", "") == CodProv.Replace("-", "").Replace("-", "") && a.DV == DV).FirstOrDefault();
 
                         if (Proveedor != null)
                         {
-                            Compra.CodProveedor = Proveedor.RUC + "[" + Proveedor.DV;
+                            if (!CR)
+                            {
+                                Compra.CodProveedor = Proveedor.RUC + "[" + Proveedor.DV;
+                            }
+
+                         
                         }
                         else
                         {
@@ -1527,6 +1577,8 @@ namespace CheckIn.API.Controllers
                             db.Proveedores.Add(Proveedor);
                             db.SaveChanges();
                         }
+
+
                     }
                     catch (Exception)
                     {
@@ -1558,12 +1610,18 @@ namespace CheckIn.API.Controllers
 
                 if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                 {
-                    string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + Compra.ConsecutivoHacienda + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                    Compra.PdfFactura = Url;
+                    /*
+                    string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + Compra.ConsecutivoHacienda + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                    Compra.PdfFactura = Url;*/
+                    Compra.PdfFactura = "";
+                    byte[] hex = Convert.FromBase64String(compra.EncCompras.ImagenBase64.Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", ""));
+                    Compra.ImagenB64 = hex;
+
                     var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                     Compra.PdfFac = _bytes;
-
+                   
                 }
+                
 
                 Compra.Impuesto1 = compra.EncCompras.Impuesto1;
                 Compra.Impuesto2 = compra.EncCompras.Impuesto2;
