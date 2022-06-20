@@ -172,10 +172,19 @@ namespace CheckIn.API.Controllers
                 foreach(var det in Cierre)
                 {
                     var Compra = db.EncCompras.Where(a => a.id == det.idFactura).FirstOrDefault();
-                    if(Compra.PdfFac != null)
+                    if (Compra.PdfFac != null)
                     {
-                        Attachment att = new Attachment(new MemoryStream(Compra.PdfFac), Compra.PdfFactura);
-                        adjuntos.Add(att);
+                        if (Compra.ImagenB64 != null)
+                        {
+                            Attachment att = new Attachment(new MemoryStream(Compra.PdfFac), Compra.PdfFactura + ".png");
+                            adjuntos.Add(att);
+                        }
+                        else
+                        {
+                            Attachment att = new Attachment(new MemoryStream(Compra.PdfFac), Compra.PdfFactura);
+                            adjuntos.Add(att);
+                        }
+                       
                     }
                    
                 }
@@ -574,7 +583,7 @@ namespace CheckIn.API.Controllers
                             Factura.FecAsignado = null;
 
 
-                            Factura.Comentario = "";
+                            //Factura.Comentario = "";
                             Factura.idNormaReparto = 0;
                             Factura.idCierre = 0;
                            

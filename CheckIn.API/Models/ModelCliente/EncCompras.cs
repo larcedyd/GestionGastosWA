@@ -11,11 +11,11 @@ namespace CheckIn.API.Models.ModelCliente
         [Key]
         public int id { get; set; }
         [Required]
-        [StringLength(20)]
+  
         public string CodEmpresa { get; set; }
 
         [Required]
-        [StringLength(20)]
+    
         public string CodProveedor { get; set; }
 
         public string NomProveedor { get; set; }

@@ -73,3 +73,36 @@
    en CheckIn.API.Controllers.ComprasController.GuardaImagenBase64(String ImagenBase64, String CarpetaImagen, String NomImagen, ImageFormat FormatoImagen) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 57
    en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1155
 ------------------------------------------
+30/05/2022 11:54 System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1173
+------------------------------------------
+30/05/2022 11:57 System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1173
+------------------------------------------
+30/05/2022 12:02 System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1216
+------------------------------------------
+30/05/2022 12:02 System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1216
+------------------------------------------
+30/05/2022 12:07 System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1216
+------------------------------------------
+01/06/2022 15:59 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------

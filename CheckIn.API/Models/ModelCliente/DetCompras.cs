@@ -13,7 +13,7 @@ namespace CheckIn.API.Models.ModelCliente
         [StringLength(20)]
         public string CodEmpresa { get; set; }
 
-        [StringLength(20)]
+     
         public string CodProveedor { get; set; }
 
         [StringLength(2)]
