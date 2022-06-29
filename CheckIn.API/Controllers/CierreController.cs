@@ -38,6 +38,8 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 DateTime time = new DateTime();
+                //var Facturas = db.EncCompras.Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.FechaFinal != time ? a.FecFactura <= filtro.FechaFinal : true)).ToList();
+
                 var EncCierre = db.EncCierre.Select(a => new {
 
                     a.idCierre,
@@ -66,7 +68,7 @@ namespace CheckIn.API.Controllers
                         s.id,
                         s.idCierre,
                         s.NumLinea,
-                        Factura = db.EncCompras.Where(z => z.id == s.idFactura).FirstOrDefault(),
+                       // Factura = Facturas.Where(z => z.id == s.idFactura).FirstOrDefault(), 
 
                     }).ToList()
                     
