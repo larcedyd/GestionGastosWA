@@ -165,7 +165,7 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
                 List<Attachment> adjuntos = new List<Attachment>();
                // List<EncCompras> compras = new List<EncCompras>();
-                SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                EmailSender emailsender = new EmailSender();
                 var parametros = db.Parametros.FirstOrDefault();
 
                 var Cierre = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
@@ -262,7 +262,7 @@ namespace CheckIn.API.Controllers
 
                 if(Estado == "E")
                 {
-                    SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                    EmailSender emailsender = new EmailSender();
                     var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
 
                     var Login = db.Login.Where(a => a.idRol == Roles.idRol).ToList();
@@ -293,7 +293,7 @@ namespace CheckIn.API.Controllers
 
                 if (Estado == "A" || Estado == "R")
                 {
-                    SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                    EmailSender emailsender = new EmailSender();
                     //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
                     var login = db.Login.Where(a => a.id == EncCierre.idLogin).FirstOrDefault();
                     var AR = Estado;
@@ -468,7 +468,7 @@ namespace CheckIn.API.Controllers
 
                 if (gastos.EncCierre.Estado == "E")
                 {
-                    SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                    EmailSender emailsender = new EmailSender();
                     //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
 
                     var Login = db.Login.Where(a => a.id == login.idLoginAceptacion).FirstOrDefault();
@@ -619,7 +619,7 @@ namespace CheckIn.API.Controllers
                             Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                             Factura.idCierre = det.idCierre;
                             Factura.idTipoGasto = item.idTipoGasto;
-                        Factura.Comentario = item.Comentario;
+                            Factura.Comentario = item.Comentario;
                             db.SaveChanges();
 
 
@@ -633,7 +633,7 @@ namespace CheckIn.API.Controllers
 
                     if (gastos.EncCierre.Estado == "E")
                     {
-                        SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                        EmailSender emailsender = new EmailSender();
                         //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
 
                         var Login = db.Login.Where(a => a.id == login.idLoginAceptacion).FirstOrDefault();
@@ -662,7 +662,7 @@ namespace CheckIn.API.Controllers
 
                     if (gastos.EncCierre.Estado == "A" || gastos.EncCierre.Estado == "R")
                     {
-                        SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
+                        EmailSender emailsender = new EmailSender();
                         //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
 
                         var AR = gastos.EncCierre.Estado;
