@@ -339,7 +339,7 @@ namespace CheckIn.API.Controllers
                         }
 
                         oInvoice.Lines.UserFields.Fields.Item("U_RUC").Value = item.CodProveedor.Split('[')[0];
-                        oInvoice.Lines.UserFields.Fields.Item("U_DV").Value = item.CodProveedor.Split('[')[1];
+                        oInvoice.Lines.UserFields.Fields.Item("U_DV").Value = item.CodProveedor.Split('[')[1].Substring(0,2);
                         oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
 
                     }else if(Pais == "N")

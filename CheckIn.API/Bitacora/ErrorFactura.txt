@@ -106,3 +106,21 @@
 01/06/2022 15:59 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
    en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
 ------------------------------------------
+04/07/2022 22:43 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------
+04/07/2022 22:43 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------
+04/07/2022 22:44 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------
+04/07/2022 22:47 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------
+04/07/2022 22:50 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------
+04/07/2022 22:53 System.Exception: Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1399
+------------------------------------------

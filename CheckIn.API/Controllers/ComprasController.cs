@@ -1411,7 +1411,7 @@ namespace CheckIn.API.Controllers
                 G.CerrarConexionAPP(db);
 
                 G.GuardarTxt("ErrorFactura.txt", ex.ToString());
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 

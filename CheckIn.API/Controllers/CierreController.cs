@@ -412,7 +412,7 @@ namespace CheckIn.API.Controllers
                 var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                 Cierre.idLoginAceptacion = login.idLoginAceptacion;
                 Cierre.Estado = gastos.EncCierre.Estado;
-                Cierre.Observacion = "";
+                Cierre.Observacion = gastos.EncCierre.Observacion;
                 Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
                 Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                 Cierre.ProcesadaSAP = false;
@@ -454,7 +454,7 @@ namespace CheckIn.API.Controllers
                     Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                     Factura.idCierre = det.idCierre;
                     Factura.idTipoGasto = item.idTipoGasto;
-                    Factura.Comentario = item.Comentario;
+                    Factura.Comentario = Factura.Comentario + " " + item.Comentario;
                     db.SaveChanges();
 
 
