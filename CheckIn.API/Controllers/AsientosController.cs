@@ -155,7 +155,7 @@ namespace CheckIn.API.Controllers
                             TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
                         }
                     }
-                    else //Panama
+                    else //Panama y Nicaragua
                     {
                         TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
                     }
