@@ -367,7 +367,7 @@ namespace CheckIn.API.Controllers
                         switch (item.CodProveedor.Replace("-", "").Replace("-", "").Length)
                         {
                              
-                            case 15:
+                            case 14:
                                 {
                                     oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "2";
                                     break;
