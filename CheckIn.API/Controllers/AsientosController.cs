@@ -378,13 +378,10 @@ namespace CheckIn.API.Controllers
 
                         switch (item.CodProveedor.Replace("-", "").Replace("-", "").Length)
                         {
-<<<<<<< Updated upstream
-                             
-                            case 14:
-=======
+
 
                             case 15:
->>>>>>> Stashed changes
+
                                 {
                                     oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "2";
                                     break;
