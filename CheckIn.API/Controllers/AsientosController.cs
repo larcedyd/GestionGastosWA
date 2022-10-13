@@ -22,7 +22,7 @@ using System.Xml.Linq;
 namespace CheckIn.API.Controllers
 {
     [Authorize]
-    public class AsientosController: ApiController
+    public class AsientosController : ApiController
     {
         ModelLicencias dbLogin = new ModelLicencias();
         ModelCliente db;
@@ -35,17 +35,17 @@ namespace CheckIn.API.Controllers
 
             try
             {
-                
+
                 int resp = Conexion.Company.Connect();
                 if (resp != 0)
                 {
 
-                    
+
                     return Conexion.Company.GetLastErrorDescription();
                 }
                 else
                 {
-                   
+
                     return resp.ToString();
                 }
 
@@ -166,29 +166,31 @@ namespace CheckIn.API.Controllers
                     var Dimension = db.Dimensiones.Where(a => a.id == Norma.idDimension).FirstOrDefault();
 
                     oInvoice.Lines.SetCurrentLine(i);
-                    if(Pais == "C")
+                    if (Pais == "C")
                     {
 
                         oInvoice.Lines.ItemDescription = item.CodProveedor + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
                     }
-                    else if(Pais == "P")
+                    else if (Pais == "P")
                     {
-                        
-                        oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + " - " +item.CodProveedor.Split('[')[1] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
 
-                    }else if(Pais == "N")
+                        oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + " - " + item.CodProveedor.Split('[')[1] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
+
+                    }
+                    else if (Pais == "N")
                     {
-                        oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] +  "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
+                        oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
 
                     }
 
                     oInvoice.Lines.AccountCode = Cuenta.CodSAP; //"6-01-02-05-000"; //Cuenta contable del gasto
-                     
+
                     if (Pais == "C" || Pais == "N")
                     {
                         oInvoice.Lines.TaxCode = param.IMPEX; //Exento para Panama -> Verificar el codigo C0
 
-                    }else
+                    }
+                    else
                     {
                         oInvoice.Lines.VatGroup = param.IMPEX;
                     }
@@ -291,7 +293,7 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value = item.NumFactura.ToString();
                         oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
                     }
-                    else if(Pais == "P")//Panama
+                    else if (Pais == "P")//Panama
                     {
                         G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
                         if (TipoGasto.Nombre.ToUpper().Contains("Comb".ToUpper()))
@@ -348,17 +350,27 @@ namespace CheckIn.API.Controllers
                             oInvoice.Lines.UserFields.Fields.Item("U_DV").Value = item.CodProveedor.Split('[')[1].Substring(0, 1);
 
                         }
-                       
+
                         oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
 
-                    }else if(Pais == "N")
+                    }
+                    else if (Pais == "N")
                     {
                         G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
                         if (TipoGasto.Nombre.ToUpper().Contains("Comb".ToUpper()))
                         {
                             var DetalleFac = db.DetCompras.Where(a => a.NumFactura == item.NumFactura && a.ClaveHacienda == item.ClaveHacienda && a.ConsecutivoHacienda == item.ConsecutivoHacienda).FirstOrDefault();
-                            oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = int.Parse(Math.Round(DetalleFac.Cantidad.Value).ToString());
-                            oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Gasolina 95".ToUpper()) ? "Gasolina 95" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Gasolina 90".ToUpper()) ? "Gasolina 90" : "Gas LP");
+                            if (DetalleFac != null)
+                            {
+                                oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = int.Parse(Math.Round(DetalleFac.Cantidad.Value).ToString());
+                                oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Gasolina 95".ToUpper()) ? "Gasolina 95" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Gasolina 90".ToUpper()) ? "Gasolina 90" : "Gas LP");
+
+                            }
+                            else
+                            {
+                                G.GuardarTxt("ErrorSAP.txt", "Esta vacio el detalle: " + DetalleFac.ToString());
+
+                            }
                         }
 
                         oInvoice.Lines.UserFields.Fields.Item("U_REFFAC").Value = item.NumFactura.ToString();
@@ -366,8 +378,13 @@ namespace CheckIn.API.Controllers
 
                         switch (item.CodProveedor.Replace("-", "").Replace("-", "").Length)
                         {
+<<<<<<< Updated upstream
                              
                             case 14:
+=======
+
+                            case 15:
+>>>>>>> Stashed changes
                                 {
                                     oInvoice.Lines.UserFields.Fields.Item("U_Tipoid").Value = "2";
                                     break;
@@ -380,7 +397,7 @@ namespace CheckIn.API.Controllers
                         }
 
                         oInvoice.Lines.UserFields.Fields.Item("U_RUC").Value = item.CodProveedor.Split('[')[0];
-                       
+
                         oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
                     }
 
@@ -450,7 +467,7 @@ namespace CheckIn.API.Controllers
                         i++;
                     }
                 }
-                else if(Pais == "P") //Panama
+                else if (Pais == "P") //Panama
                 {
                     if (imp1 > 0)
                     {
@@ -471,12 +488,13 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.ItemDescription = "ITBMS(10%)";
                         oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
                         oInvoice.Lines.VatGroup = param.IMPEX;
-                       // oInvoice.Lines.TaxCode = param.IMPEX;
+                        // oInvoice.Lines.TaxCode = param.IMPEX;
                         oInvoice.Lines.AccountCode = param.CI2;
                         oInvoice.Lines.Add();
                         i++;
                     }
-                }else if(Pais == "N")
+                }
+                else if (Pais == "N")
                 {
                     if (imp1 > 0)
                     {
@@ -505,10 +523,10 @@ namespace CheckIn.API.Controllers
                 }
 
 
-               
-                 
 
-               
+
+
+
 
 
 
@@ -553,13 +571,13 @@ namespace CheckIn.API.Controllers
                     User = Conexion.Company.UserName
                 };
 
-            
+
 
 
 
                 Conexion.Desconectar();
                 G.CerrarConexionAPP(db);
-              
+
                 return Request.CreateResponse(HttpStatusCode.OK, resp);
             }
             catch (Exception ex)
@@ -584,7 +602,7 @@ namespace CheckIn.API.Controllers
 
                 Conexion.Desconectar();
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.InternalServerError,resp);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, resp);
             }
 
 
