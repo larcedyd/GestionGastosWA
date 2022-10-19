@@ -1,6 +1,7 @@
 ﻿using CheckIn.API.Models;
 using CheckIn.API.Models.ModelCliente;
 using S22.Imap;
+
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -63,6 +64,11 @@ namespace CheckIn.API.Controllers
 
             return NombreImagen;
         }
+
+         
+
+
+
 
         [Route("api/Compras/RealizarLecturaEmail")]
 
