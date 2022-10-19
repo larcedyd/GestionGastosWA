@@ -88,6 +88,7 @@ namespace CheckIn.API.Controllers
                 using (ImapClient client = new ImapClient(item.RecepcionHostName, (int)(item.RecepcionPort),
                            item.RecepcionEmail, item.RecepcionPassword, AuthMethod.Login, (bool)(item.RecepcionUseSSL)))
                 {
+
                     IEnumerable<uint> uids = client.Search(SearchCondition.Unseen());
 
                     DateTime recepcionUltimaLecturaImap = DateTime.Now;
