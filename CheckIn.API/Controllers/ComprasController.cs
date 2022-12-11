@@ -1617,7 +1617,7 @@ namespace CheckIn.API.Controllers
                 {
                     Compra.FecFactura = compra.EncCompras.FecFactura;
                 }
-
+                Compra.Comentario = Compra.Comentario != compra.EncCompras.Comentario ? compra.EncCompras.Comentario : Compra.Comentario;
                 Compra.RegimenSimplificado = compra.EncCompras.RegimenSimplificado;
                 Compra.FacturaExterior = compra.EncCompras.FacturaExterior;
                 Compra.GastosVarios = compra.EncCompras.GastosVarios;

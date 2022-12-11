@@ -30,3 +30,5 @@
    en System.Linq.Queryable.FirstOrDefault[TSource](IQueryable`1 source)
    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\GIT\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 72
 ------------------------------------------
+11/12/2022 12:53 Se debe indicar el número de compañía a la que perteneces =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 69
+------------------------------------------
