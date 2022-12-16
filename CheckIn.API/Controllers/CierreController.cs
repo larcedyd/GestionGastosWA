@@ -454,7 +454,7 @@ namespace CheckIn.API.Controllers
                     Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                     Factura.idCierre = det.idCierre;
                     Factura.idTipoGasto = item.idTipoGasto;
-                    Factura.Comentario = Factura.Comentario + " " + item.Comentario;
+                    Factura.Comentario = Factura.Comentario  ;
                     db.SaveChanges();
 
 
