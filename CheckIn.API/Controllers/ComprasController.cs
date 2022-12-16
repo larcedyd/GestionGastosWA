@@ -51,7 +51,8 @@ namespace CheckIn.API.Controllers
                 {
                     image.Save(fullpath, FormatoImagen);  // aqui seria en base al tipo de imagen
 
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     G.GuardarTxt("ErrorImagen.txt", ex.ToString());
                 }
@@ -65,7 +66,7 @@ namespace CheckIn.API.Controllers
             return NombreImagen;
         }
 
-         
+
 
 
 
@@ -81,108 +82,108 @@ namespace CheckIn.API.Controllers
                 var Parametros = db.Parametros.FirstOrDefault();
                 var Correos = db.CorreosRecepcion.ToList();
 
-                foreach(var item in Correos)
+                foreach (var item in Correos)
                 {
 
 
-                using (ImapClient client = new ImapClient(item.RecepcionHostName, (int)(item.RecepcionPort),
-                           item.RecepcionEmail, item.RecepcionPassword, AuthMethod.Login, (bool)(item.RecepcionUseSSL)))
-                {
-
-                    IEnumerable<uint> uids = client.Search(SearchCondition.Unseen());
-
-                    DateTime recepcionUltimaLecturaImap = DateTime.Now;
-                    if (item.RecepcionUltimaLecturaImap != null)
-                        recepcionUltimaLecturaImap = item.RecepcionUltimaLecturaImap.Value;
-
-                    uids.Concat(client.Search(SearchCondition.SentSince(recepcionUltimaLecturaImap)));
-
-                    foreach (var uid in uids)
+                    using (ImapClient client = new ImapClient(item.RecepcionHostName, (int)(item.RecepcionPort),
+                               item.RecepcionEmail, item.RecepcionPassword, AuthMethod.Login, (bool)(item.RecepcionUseSSL)))
                     {
-                        System.Net.Mail.MailMessage message = client.GetMessage(uid);
 
-                        if (message.Attachments.Count > 0)
+                        IEnumerable<uint> uids = client.Search(SearchCondition.Unseen());
+
+                        DateTime recepcionUltimaLecturaImap = DateTime.Now;
+                        if (item.RecepcionUltimaLecturaImap != null)
+                            recepcionUltimaLecturaImap = item.RecepcionUltimaLecturaImap.Value;
+
+                        uids.Concat(client.Search(SearchCondition.SentSince(recepcionUltimaLecturaImap)));
+
+                        foreach (var uid in uids)
                         {
-                            try
+                            System.Net.Mail.MailMessage message = client.GetMessage(uid);
+
+                            if (message.Attachments.Count > 0)
                             {
-                                byte[] ByteArrayPDF = null;
-                                    int i = 1;
-                                   
-                                            decimal idGeneral = 0;
-                                foreach (var attachment in message.Attachments)
+                                try
                                 {
-                                        
-                                    try
+                                    byte[] ByteArrayPDF = null;
+                                    int i = 1;
+
+                                    decimal idGeneral = 0;
+                                    foreach (var attachment in message.Attachments)
                                     {
-                                        System.IO.StreamReader sr = new System.IO.StreamReader(attachment.ContentStream);
-                                     
 
-
-                                        string texto = sr.ReadToEnd();
-
-                                        if (texto.Substring(0, 3) == "???")
-                                            texto = texto.Substring(3);
-
-                                        if(texto.Contains("PDF"))
+                                        try
                                         {
-
-                                            ByteArrayPDF = ((MemoryStream)attachment.ContentStream).ToArray();
-                                            //ByteArrayPDF = G.Zip(texto);
+                                            System.IO.StreamReader sr = new System.IO.StreamReader(attachment.ContentStream);
 
 
-                                        }
-                                        
 
-                                        if (texto.Contains("FacturaElectronica")
-                                                && !texto.Contains("TiqueteElectronico")
-                                                && !texto.Contains("NotaCreditoElectronica")
-                                                && !texto.Contains("NotaDebitoElectronica"))
-                                        {
-                                            var emailByteArray = G.Zip(texto);
+                                            string texto = sr.ReadToEnd();
 
-                                            decimal id = db.Database.SqlQuery<decimal>("Insert Into BandejaEntrada(XmlFactura, Procesado, Asunto, Remitente,Pdf) " +
-                                                    " VALUES (@EmailJson, 0, @Asunto, @Remitente, @Pdf); SELECT SCOPE_IDENTITY(); ",
-                                                    new SqlParameter("@EmailJson", emailByteArray),
-                                                    new SqlParameter("@Asunto", message.Subject),
-                                                    new SqlParameter("@Remitente", message.From.ToString()),
-                                                    new SqlParameter("@Pdf",(ByteArrayPDF == null ? new byte[0]: ByteArrayPDF))).First();
-                                                idGeneral = id;
-                                            try
+                                            if (texto.Substring(0, 3) == "???")
+                                                texto = texto.Substring(3);
+
+                                            if (texto.Contains("PDF"))
                                             {
 
-                                                var datos = G.ObtenerDatosXmlRechazado(texto);
+                                                ByteArrayPDF = ((MemoryStream)attachment.ContentStream).ToArray();
+                                                //ByteArrayPDF = G.Zip(texto);
 
-                                                db.Database.ExecuteSqlCommand("Update BandejaEntrada set NumeroConsecutivo=@NumeroConsecutivo, " +
-                                                    " TipoDocumento = @TipoDocumento, FechaEmision = @FechaEmision , " +
-                                                    " NombreEmisor = @NombreEmisor,IdEmisor = @IdEmisor ,CodigoMoneda = @CodigoMoneda , " +
-                                                    " TotalComprobante = @TotalComprobante " +
-                                                    " WHERE Id=@Id ",
-                                                     new SqlParameter("@NumeroConsecutivo", datos.NumeroConsecutivo),
-                                                     new SqlParameter("@TipoDocumento", datos.TipoDocumento),
-                                                     new SqlParameter("@FechaEmision", datos.FechaEmision),
-                                                     new SqlParameter("@NombreEmisor", datos.NombreEmisor),
-                                                     new SqlParameter("@IdEmisor", datos.Numero),
-                                                     new SqlParameter("@CodigoMoneda", datos.CodigoMoneda),
-                                                     new SqlParameter("@TotalComprobante", datos.TotalComprobante),
-                                                     new SqlParameter("@Id", id));
+
                                             }
-                                            catch { }
-                                        }
 
-                                        if(i == message.Attachments.Count())
+
+                                            if (texto.Contains("FacturaElectronica")
+                                                    && !texto.Contains("TiqueteElectronico")
+                                                    && !texto.Contains("NotaCreditoElectronica")
+                                                    && !texto.Contains("NotaDebitoElectronica"))
                                             {
-                                                if(idGeneral > 0)
+                                                var emailByteArray = G.Zip(texto);
+
+                                                decimal id = db.Database.SqlQuery<decimal>("Insert Into BandejaEntrada(XmlFactura, Procesado, Asunto, Remitente,Pdf) " +
+                                                        " VALUES (@EmailJson, 0, @Asunto, @Remitente, @Pdf); SELECT SCOPE_IDENTITY(); ",
+                                                        new SqlParameter("@EmailJson", emailByteArray),
+                                                        new SqlParameter("@Asunto", message.Subject),
+                                                        new SqlParameter("@Remitente", message.From.ToString()),
+                                                        new SqlParameter("@Pdf", (ByteArrayPDF == null ? new byte[0] : ByteArrayPDF))).First();
+                                                idGeneral = id;
+                                                try
+                                                {
+
+                                                    var datos = G.ObtenerDatosXmlRechazado(texto);
+
+                                                    db.Database.ExecuteSqlCommand("Update BandejaEntrada set NumeroConsecutivo=@NumeroConsecutivo, " +
+                                                        " TipoDocumento = @TipoDocumento, FechaEmision = @FechaEmision , " +
+                                                        " NombreEmisor = @NombreEmisor,IdEmisor = @IdEmisor ,CodigoMoneda = @CodigoMoneda , " +
+                                                        " TotalComprobante = @TotalComprobante " +
+                                                        " WHERE Id=@Id ",
+                                                         new SqlParameter("@NumeroConsecutivo", datos.NumeroConsecutivo),
+                                                         new SqlParameter("@TipoDocumento", datos.TipoDocumento),
+                                                         new SqlParameter("@FechaEmision", datos.FechaEmision),
+                                                         new SqlParameter("@NombreEmisor", datos.NombreEmisor),
+                                                         new SqlParameter("@IdEmisor", datos.Numero),
+                                                         new SqlParameter("@CodigoMoneda", datos.CodigoMoneda),
+                                                         new SqlParameter("@TotalComprobante", datos.TotalComprobante),
+                                                         new SqlParameter("@Id", id));
+                                                }
+                                                catch { }
+                                            }
+
+                                            if (i == message.Attachments.Count())
+                                            {
+                                                if (idGeneral > 0)
                                                 {
                                                     var bandeja = db.BandejaEntrada.Where(a => a.Id == idGeneral).FirstOrDefault();
 
-                                                    if(bandeja.Pdf.Count() ==  0)
+                                                    if (bandeja.Pdf.Count() == 0)
                                                     {
-                                                            db.Database.ExecuteSqlCommand("Update BandejaEntrada set Pdf=@Pdf " +
-                                                       
-                                                       " WHERE Id=@Id ",
-                                                        new SqlParameter("@Pdf", ByteArrayPDF),
-                                                        
-                                                        new SqlParameter("@Id", idGeneral));
+                                                        db.Database.ExecuteSqlCommand("Update BandejaEntrada set Pdf=@Pdf " +
+
+                                                   " WHERE Id=@Id ",
+                                                    new SqlParameter("@Pdf", ByteArrayPDF),
+
+                                                    new SqlParameter("@Id", idGeneral));
                                                     }
 
                                                 }
@@ -190,25 +191,25 @@ namespace CheckIn.API.Controllers
 
                                             i++;
                                         }
-                                    catch (Exception ex)
-                                    {
+                                        catch (Exception ex)
+                                        {
 
 
+                                        }
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
+                                catch (Exception ex)
+                                {
 
 
+                                }
                             }
+                            message.Dispose();
+
+                            await System.Threading.Tasks.Task.Delay(100);
                         }
-                        message.Dispose();
-
-                        await System.Threading.Tasks.Task.Delay(100);
-                    }
                         db.Entry(item).State = EntityState.Modified;
-                    item.RecepcionUltimaLecturaImap = DateTime.Now;
+                        item.RecepcionUltimaLecturaImap = DateTime.Now;
                         db.SaveChanges();
 
                     }
@@ -259,7 +260,7 @@ namespace CheckIn.API.Controllers
 
 
                         var xml = G.ConvertirArchivoaXElement(xmlBase64, G.ObtenerCedulaJuridia());
-                       
+
 
                         if (!xmlBase64.Contains("FacturaElectronica")
                             && !xmlBase64.Contains("TiqueteElectronico")
@@ -283,7 +284,7 @@ namespace CheckIn.API.Controllers
                             factura.NumFactura = int.Parse(factura.ConsecutivoHacienda.Substring(11, 9));
 
                         }
-                       
+
                         factura.TipoDocumento = factura.ConsecutivoHacienda.Substring(8, 2);
                         if (factura.TipoDocumento == "04")
                             throw new Exception($"El documento es un Tiquete Electrónico, que no puede ser utilizado como gasto deducible. Debe solicitar al proveedor que genere una Factura Electrónica.");
@@ -313,7 +314,7 @@ namespace CheckIn.API.Controllers
 
                         factura.CondicionVenta = G.ExtraerValorDeNodoXml(xml, "CondicionVenta");
 
-                        if(factura.CodCliente != factura.CodEmpresa)
+                        if (factura.CodCliente != factura.CodEmpresa)
                         {
                             throw new Exception($"El documento no fue dirigido para esta compañia [Empresa={factura.CodEmpresa}] [Cliente de Factura={factura.CodCliente}]");
                         }
@@ -368,7 +369,7 @@ namespace CheckIn.API.Controllers
                         factura.NomProveedor = NomProveedor;
                         Random i = new Random();
                         int o = i.Next(0, 10000);
-                        var pdfResp = G.GuardarPDF(item.Pdf, G.ObtenerCedulaJuridia(), o +"_"+factura.NumFactura.ToString());
+                        var pdfResp = G.GuardarPDF(item.Pdf, G.ObtenerCedulaJuridia(), o + "_" + factura.NumFactura.ToString());
 
                         factura.PdfFactura = pdfResp;
                         factura.PdfFac = item.Pdf;
@@ -439,9 +440,9 @@ namespace CheckIn.API.Controllers
 
 
                             det.MontoTotalLinea = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "MontoTotalLinea", true));
-                            
 
-                           var ExoneracionPorcentajeCompra = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/PorcentajeCompra", true));
+
+                            var ExoneracionPorcentajeCompra = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/PorcentajeCompra", true));
 
                             int opcion = Convert.ToInt32(det.ImpuestoTarifa);
                             decimal cantidadImpuesto = 0;
@@ -547,7 +548,7 @@ namespace CheckIn.API.Controllers
                         factura.GastosVarios = false;
                         factura.FacturaNoRecibida = false;
                         factura.Comentario = "";
-                        factura.idTipoGasto = detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0: detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
+                        factura.idTipoGasto = detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0 : detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
                         db.EncCompras.Add(factura);
                         db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Procesado=1 WHERE Id=@Id",
                            new SqlParameter("@Id", item.Id));
@@ -558,7 +559,7 @@ namespace CheckIn.API.Controllers
                         try
                         {
                             string procesado = "1";
-                           
+
                             db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Mensaje=@Mensaje, Procesado=@Procesado WHERE Id=@Id",
                                  new SqlParameter("@Mensaje", ex.Message),
                                  new SqlParameter("@Procesado", procesado),
@@ -660,7 +661,7 @@ namespace CheckIn.API.Controllers
                     a.TotalComprobante
                  ,
                     a.XmlFacturaRecibida
-                 
+
                  ,
                     a.FechaGravado
                  ,
@@ -679,7 +680,7 @@ namespace CheckIn.API.Controllers
                     a.idLoginAsignado
                  ,
                     a.FecAsignado
-                
+
                  ,
                     PdfFactura = db.Parametros.FirstOrDefault().UrlImagenesApp + a.PdfFactura
                  ,
@@ -687,16 +688,16 @@ namespace CheckIn.API.Controllers
                  ,
                     a.idTipoGasto
                  ,
-                 TipoGasto = (a.idTipoGasto == 0 ? "Sin Asignar":  db.Gastos.Where(z =>z.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre),
+                    TipoGasto = (a.idTipoGasto == 0 ? "Sin Asignar" : db.Gastos.Where(z => z.idTipoGasto == a.idTipoGasto).FirstOrDefault().Nombre),
                     a.idCierre,
                     a.Impuesto1,
                     a.Impuesto2,
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-                  PdfFac = "",
-                  a.Comentario,
-                  a.ImagenB64,
+                    PdfFac = "",
+                    a.Comentario,
+                    a.ImagenB64,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
                 }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true)).ToList();
@@ -710,34 +711,34 @@ namespace CheckIn.API.Controllers
                     ).ToList();
                 }
 
-                if(filtro.FechaInicio != time)
+                if (filtro.FechaInicio != time)
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
                     EncCompras = EncCompras.Where(a => a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal).ToList();
                 }
-             
-                if(filtro.Asignados)
+
+                if (filtro.Asignados)
 
                 {
-                    if(filtro.Codigo2 > 0)
+                    if (filtro.Codigo2 > 0)
                     {
-                         
-                            EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0 || a.idLoginAsignado == filtro.Codigo2).ToList();
 
-                       
+                        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0 || a.idLoginAsignado == filtro.Codigo2).ToList();
+
+
 
                     }
                     else
                     {
-                        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0 ).ToList();
+                        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
                     }
                 }
 
-                if(filtro.Codigo3 > 0)
+                if (filtro.Codigo3 > 0)
                 {
                     //EncCompras = EncCompras.Where(a => a.idCierre == filtro.Codigo3).ToList();
                 }
-                    
+
 
 
 
@@ -817,7 +818,7 @@ namespace CheckIn.API.Controllers
                  ,
                     a.TotalComprobante
                  ,
-                
+
                     a.FechaGravado
                  ,
                     a.TotalServExonerado
@@ -857,30 +858,30 @@ namespace CheckIn.API.Controllers
                     a.FacturaNoRecibida,
                     a.Comentario,
                     a.ImagenB64,
-                    Usuario = (a.idCierre == 0 ? 0 : db.EncCierre.Where(z => z.idCierre == a.idCierre).FirstOrDefault().idLogin) ,
+                    Usuario = (a.idCierre == 0 ? 0 : db.EncCierre.Where(z => z.idCierre == a.idCierre).FirstOrDefault().idLogin),
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
-                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.NumCierre > 0 ? a.idCierre == filtro.NumCierre: true)).ToList();
+                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.NumCierre > 0 ? a.idCierre == filtro.NumCierre : true)).ToList();
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
                     //filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
-                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())  
-                   
+                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
+
                     ).ToList();
                 }
 
-                if(!string.IsNullOrEmpty(filtro.Texto2))
+                if (!string.IsNullOrEmpty(filtro.Texto2))
                 {
-                    EncCompras = EncCompras.Where(a =>   a.NomProveedor.ToString().ToUpper().Contains(filtro.Texto2.ToUpper())
+                    EncCompras = EncCompras.Where(a => a.NomProveedor.ToString().ToUpper().Contains(filtro.Texto2.ToUpper())
 
                    ).ToList();
                 }
 
-              
-               
+
+
                 if (filtro.FechaInicio != time)
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
@@ -890,9 +891,9 @@ namespace CheckIn.API.Controllers
                 if (filtro.Asignados)
 
                 {
-                     
+
                     EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
-                    
+
                 }
 
                 if (!string.IsNullOrEmpty(filtro.CodMoneda) && filtro.CodMoneda != "NULL")
@@ -900,18 +901,18 @@ namespace CheckIn.API.Controllers
                     EncCompras = EncCompras.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
                 }
 
-                if(filtro.RegimeSimplificado)
+                if (filtro.RegimeSimplificado)
                 {
                     EncCompras = EncCompras.Where(a => a.RegimenSimplificado == filtro.RegimeSimplificado).ToList();
                 }
 
 
-                if(filtro.FacturaExterior)
+                if (filtro.FacturaExterior)
                 {
                     EncCompras = EncCompras.Where(a => a.FacturaExterior == filtro.FacturaExterior).ToList();
                 }
 
-                if(filtro.FacturaNoRecibida)
+                if (filtro.FacturaNoRecibida)
                 {
                     EncCompras = EncCompras.Where(a => a.FacturaNoRecibida == filtro.FacturaNoRecibida).ToList();
                 }
@@ -995,8 +996,8 @@ namespace CheckIn.API.Controllers
                     a.TotalComprobante
                  ,
                     a.XmlFacturaRecibida
-                 
- 
+
+
                  ,
                     a.FechaGravado
                  ,
@@ -1014,9 +1015,9 @@ namespace CheckIn.API.Controllers
                  ,
                     a.idLoginAsignado
                  ,
-                 UsuarioAsignado = db.Login.Where(d => d.id == a.idLoginAsignado).FirstOrDefault() == null ? "": db.Login.Where(d => d.id == a.idLoginAsignado).FirstOrDefault().Nombre,
+                    UsuarioAsignado = db.Login.Where(d => d.id == a.idLoginAsignado).FirstOrDefault() == null ? "" : db.Login.Where(d => d.id == a.idLoginAsignado).FirstOrDefault().Nombre,
                     a.FecAsignado
-                
+
                  ,
                     PdfFactura = db.Parametros.FirstOrDefault().UrlImagenesApp + a.PdfFactura
                  ,
@@ -1031,14 +1032,14 @@ namespace CheckIn.API.Controllers
                     a.Impuesto4,
                     a.Impuesto8,
                     a.Impuesto13,
-                     a.PdfFac,
-                     a.Comentario,
-             
+                    a.PdfFac,
+                    a.Comentario,
+
                     a.RegimenSimplificado,
                     a.FacturaExterior,
                     a.GastosVarios,
                     a.ImagenB64,
-                    DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.ConsecutivoHacienda == a.ConsecutivoHacienda && d.ClaveHacienda == a.ClaveHacienda && d.CodProveedor == a.CodProveedor ).ToList()
+                    DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.ConsecutivoHacienda == a.ConsecutivoHacienda && d.ClaveHacienda == a.ClaveHacienda && d.CodProveedor == a.CodProveedor).ToList()
 
                 }).FirstOrDefault();
 
@@ -1059,9 +1060,9 @@ namespace CheckIn.API.Controllers
 
         [HttpPost]
         public HttpResponseMessage Post([FromBody] ComprasViewModel compra)
-            
+
         {
-                G.AbrirConexionAPP(out db);
+            G.AbrirConexionAPP(out db);
             var t = db.Database.BeginTransaction();
             try
             {
@@ -1071,7 +1072,7 @@ namespace CheckIn.API.Controllers
                 if (EncCompras == null)
                 {
                     EncCompras = new EncCompras();
-                    if(compra.EncCompras.FacturaExterior)
+                    if (compra.EncCompras.FacturaExterior)
                     {
                         EncCompras.ClaveHacienda = compra.EncCompras.NumFactura.ToString();
                         EncCompras.ConsecutivoHacienda = compra.EncCompras.NumFactura.ToString();
@@ -1094,7 +1095,7 @@ namespace CheckIn.API.Controllers
                         var CR = false;
                         try
                         {
-                             DV = EncCompras.CodProveedor.Split('[')[1];
+                            DV = EncCompras.CodProveedor.Split('[')[1];
                         }
                         catch (Exception ex)
                         {
@@ -1102,19 +1103,19 @@ namespace CheckIn.API.Controllers
                             CR = true;
                             DV = "0";
                         }
-                        
+
                         var Proveedor = db.Proveedores.Where(a => a.RUC.Replace("-", "").Replace("-", "") == CodProv.Replace("-", "").Replace("-", "") && a.DV == DV).FirstOrDefault();
 
-                        if(Proveedor != null)
+                        if (Proveedor != null)
                         {
                             if (!CR)
                             {
                                 EncCompras.CodProveedor = Proveedor.RUC + "[" + Proveedor.DV;
                             }
-                                
 
 
-                            
+
+
                         }
                         else
                         {
@@ -1129,9 +1130,9 @@ namespace CheckIn.API.Controllers
                     catch (Exception)
                     {
 
-                        
+
                     }
-                   
+
 
                     EncCompras.CodEmpresa = G.ObtenerCedulaJuridia();
                     EncCompras.CodCliente = compra.EncCompras.CodCliente;
@@ -1206,7 +1207,7 @@ namespace CheckIn.API.Controllers
                         Det.MontoTotalLinea = item.MontoTotalLinea;
                         var TipoGasto = db.Gastos.Where(a => a.Nombre.ToUpper().Contains("Regimen Simplificado".ToUpper())).FirstOrDefault();
 
-                        if(item.idTipoGasto == 0)
+                        if (item.idTipoGasto == 0)
                         {
                             Det.idTipoGasto = TipoGasto.idTipoGasto;
                         }
@@ -1240,7 +1241,7 @@ namespace CheckIn.API.Controllers
                 }
                 else
                 {
-                    if(EncCompras.idCierre == 0)
+                    if (EncCompras.idCierre == 0)
                     {
                         db.Entry(EncCompras).State = EntityState.Modified;
                         if (compra.EncCompras.FacturaExterior)
@@ -1398,14 +1399,14 @@ namespace CheckIn.API.Controllers
                         }
                         compra.EncCompras.id = EncCompras.id;
                         // throw new Exception("Esta factura YA existe");
-                        
+
                     }
                     else
                     {
-                        
+
                         throw new Exception("Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada");
                     }
-                   
+
                 }
                 t.Commit();
                 G.CerrarConexionAPP(db);
@@ -1441,7 +1442,7 @@ namespace CheckIn.API.Controllers
                 var Facturas = db.EncCompras.Where(a => a.PdfFactura == "" || a.PdfFactura == null).ToList();
 
 
-                foreach(var item in Facturas)
+                foreach (var item in Facturas)
                 {
                     var pdfResp = G.GuardarPDF(item.PdfFac, G.ObtenerCedulaJuridia(), item.NumFactura.ToString());
 
@@ -1452,7 +1453,7 @@ namespace CheckIn.API.Controllers
                     db.SaveChanges();
                 }
 
-               
+
 
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, HttpContext.Current.Server.MapPath("~").ToString());
@@ -1476,7 +1477,7 @@ namespace CheckIn.API.Controllers
             }
 
 
-           
+
         }
 
         [HttpPut]
@@ -1495,20 +1496,20 @@ namespace CheckIn.API.Controllers
                 {
                     var Compra = db.EncCompras.Where(a => a.id == asig.idFac).FirstOrDefault();
 
-                    if(Compra == null)
+                    if (Compra == null)
                     {
                         throw new Exception("Compra no existe");
                     }
 
                     db.Entry(Compra).State = EntityState.Modified;
                     //Compra.idLoginAsignado = asig.idLogin;
-                    if(asig.idNorma > 0)
+                    if (asig.idNorma > 0)
                     {
                         Compra.idNormaReparto = asig.idNorma;
                     }
                     else
                     {
-                        
+
                         Compra.idNormaReparto = db.NormasReparto.Where(a => a.idLogin == asig.idLogin).FirstOrDefault().id;
                     }
                     Compra.FecAsignado = DateTime.Now;
@@ -1538,7 +1539,7 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
-                
+
                 var Compra = db.EncCompras.Where(a => a.id == compra.EncCompras.id).FirstOrDefault();
                 var NumFacturaAnterior = Compra.NumFactura;
                 var ProveedorAnterior = Compra.CodProveedor;
@@ -1569,7 +1570,7 @@ namespace CheckIn.API.Controllers
                             DV = "0";
                         }
 
-                   
+
 
                         var Proveedor = db.Proveedores.Where(a => a.RUC.Replace("-", "").Replace("-", "") == CodProv.Replace("-", "").Replace("-", "") && a.DV == DV).FirstOrDefault();
 
@@ -1580,7 +1581,7 @@ namespace CheckIn.API.Controllers
                                 Compra.CodProveedor = Proveedor.RUC + "[" + Proveedor.DV;
                             }
 
-                         
+
                         }
                         else
                         {
@@ -1633,9 +1634,9 @@ namespace CheckIn.API.Controllers
 
                     var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                     Compra.PdfFac = _bytes;
-                   
+
                 }
-                
+
 
                 Compra.Impuesto1 = compra.EncCompras.Impuesto1;
                 Compra.Impuesto2 = compra.EncCompras.Impuesto2;

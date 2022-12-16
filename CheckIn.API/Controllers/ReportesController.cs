@@ -48,10 +48,14 @@ namespace CheckIn.API.Controllers
            
                 List<EncCompras> comp = new List<EncCompras>();
                 List<EncCompras> compa = new List<EncCompras>();
+
+                var DetCierre = db.DetCierre.ToList();
+                var EncComprasDB = db.EncCompras.ToList();
+
                 foreach (var item in Liquidaciones)
                 {
-                    var detalle = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
-                    var EncCompras = db.EncCompras.Where(a => a.idCierre == item.idCierre).ToList();
+                    var detalle = DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
+                    var EncCompras = EncComprasDB.Where(a => a.idCierre == item.idCierre).ToList();
                     foreach (var ite in detalle)
                     {
                         var fac = EncCompras.Where(a => a.id == ite.idFactura).FirstOrDefault();
@@ -152,9 +156,10 @@ namespace CheckIn.API.Controllers
                 var time1 = filtro.FechaInicio.AddMonths(-1);
                 var time2 = filtro.FechaFinal.AddMonths(1);
                 var EncCompras = db.EncCompras.Where(a => a.FecFactura >= time1 && a.FecFactura <= time2).ToList();
+                var DetCierre = db.DetCierre.ToList();
                 foreach (var item in Liquidaciones)
                 {
-                    var detalle = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
+                    var detalle = DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
                     var Compras = EncCompras.Where(a => a.idCierre == item.idCierre).ToList();
                     foreach(var ite in detalle)
                     {

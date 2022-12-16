@@ -27,7 +27,7 @@ using TheArtOfDev.HtmlRenderer.PdfSharp;
 namespace CheckIn.API.Controllers
 {
     [Authorize]
-    public class CierreController:ApiController
+    public class CierreController : ApiController
     {
         ModelCliente db;
         G G = new G();
@@ -40,11 +40,12 @@ namespace CheckIn.API.Controllers
                 DateTime time = new DateTime();
                 //var Facturas = db.EncCompras.Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.FechaFinal != time ? a.FecFactura <= filtro.FechaFinal : true)).ToList();
 
-                var EncCierre = db.EncCierre.Select(a => new {
+                var EncCierre = db.EncCierre.Select(a => new
+                {
 
                     a.idCierre,
                     a.idLogin,
-                    NombreUsuario = db.Login.Where(d => d.id == a.idLogin).FirstOrDefault() == null ? "": db.Login.Where(d => d.id == a.idLogin).FirstOrDefault().Nombre,
+                    NombreUsuario = db.Login.Where(d => d.id == a.idLogin).FirstOrDefault() == null ? "" : db.Login.Where(d => d.id == a.idLogin).FirstOrDefault().Nombre,
                     a.Periodo,
                     a.FechaCierre,
                     a.FechaInicial,
@@ -64,14 +65,15 @@ namespace CheckIn.API.Controllers
                     a.CodMoneda,
                     a.TotalOtrosCargos,
                     a.ProcesadaSAP,
-                    Detalle = db.DetCierre.Where(d => d.idCierre == a.idCierre).Select(s => new {
+                    Detalle = db.DetCierre.Where(d => d.idCierre == a.idCierre).Select(s => new
+                    {
                         s.id,
                         s.idCierre,
                         s.NumLinea,
-                       // Factura = Facturas.Where(z => z.id == s.idFactura).FirstOrDefault(), 
+                        // Factura = Facturas.Where(z => z.id == s.idFactura).FirstOrDefault(), 
 
                     }).ToList()
-                    
+
 
 
                 }).Where(a => (filtro.FechaInicio != time ? a.FechaCierre >= filtro.FechaInicio : true)).ToList();
@@ -81,24 +83,24 @@ namespace CheckIn.API.Controllers
                     EncCierre = EncCierre.Where(a => a.Periodo.ToLower().Contains(filtro.Texto.ToLower())).ToList();
                 }
 
-       
+
                 if (filtro.FechaInicio != time) // Busca por un rango de fechas
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
                     EncCierre = EncCierre.Where(a => a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal).ToList();
                 }
 
-                if(!string.IsNullOrEmpty(filtro.Estado) && filtro.Estado != "NULL") // Busca por estado
+                if (!string.IsNullOrEmpty(filtro.Estado) && filtro.Estado != "NULL") // Busca por estado
                 {
                     EncCierre = EncCierre.Where(a => a.Estado == filtro.Estado).ToList();
                 }
-                
-                if(filtro.Codigo1 > 0) //Busca las facturas que fueron creadas por el liquidador
+
+                if (filtro.Codigo1 > 0) //Busca las facturas que fueron creadas por el liquidador
                 {
                     EncCierre = EncCierre.Where(a => a.idLogin == filtro.Codigo1).ToList();
                 }
 
-                if(filtro.Codigo2 > 0) //Si El codigo 2 > 0 y ademas el codigo 1 viene en 0 entonces busca las liquidaciones que yo acepte o que yo haya hecho
+                if (filtro.Codigo2 > 0) //Si El codigo 2 > 0 y ademas el codigo 1 viene en 0 entonces busca las liquidaciones que yo acepte o que yo haya hecho
                 {
 
                     if (filtro.Codigo1 == 0)
@@ -106,7 +108,7 @@ namespace CheckIn.API.Controllers
 
                         EncCierre = EncCierre.Where(a => a.idLoginAceptacion == filtro.Codigo2 || a.idLogin == filtro.Codigo2).ToList();
                     }
-                     
+
 
                 }
 
@@ -141,7 +143,7 @@ namespace CheckIn.API.Controllers
                     DetCierre
                 };
 
-              
+
 
                 if (resp == null)
                 {
@@ -164,14 +166,14 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 List<Attachment> adjuntos = new List<Attachment>();
-               // List<EncCompras> compras = new List<EncCompras>();
+                // List<EncCompras> compras = new List<EncCompras>();
                 SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
                 var parametros = db.Parametros.FirstOrDefault();
 
                 var Cierre = db.DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
 
 
-                foreach(var det in Cierre)
+                foreach (var det in Cierre)
                 {
                     var Compra = db.EncCompras.Where(a => a.id == det.idFactura).FirstOrDefault();
                     if (Compra.PdfFac != null)
@@ -186,9 +188,9 @@ namespace CheckIn.API.Controllers
                             Attachment att = new Attachment(new MemoryStream(Compra.PdfFac), Compra.PdfFactura);
                             adjuntos.Add(att);
                         }
-                       
+
                     }
-                   
+
                 }
 
                 var bodyH = item.body;
@@ -209,12 +211,12 @@ namespace CheckIn.API.Controllers
                 adjuntos.Add(att3);
 
 
-            
+
 
 
                 var resp = emailsender.SendV2(item.emailDest, item.emailCC, "", parametros.RecepcionEmail, "Liquidación", "Liquidación por revisar", item.body, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword, adjuntos);
 
-                if(!resp)
+                if (!resp)
                 {
                     throw new Exception("No se ha podido enviar el correo con la liquidación");
                 }
@@ -254,13 +256,13 @@ namespace CheckIn.API.Controllers
                 db.Entry(EncCierre).State = EntityState.Modified;
 
                 EncCierre.Estado = Estado;
-                if(!string.IsNullOrEmpty(comentario))
+                if (!string.IsNullOrEmpty(comentario))
                 {
 
                     EncCierre.Observacion = comentario;
                 }
 
-                if(Estado == "E")
+                if (Estado == "E")
                 {
                     SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
                     var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
@@ -274,13 +276,13 @@ namespace CheckIn.API.Controllers
                     html += "<ul>";
                     html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + EncCierre.idCierre + "</li>";
                     html += "<li style = 'text-align: justify;' ><strong> Nombre </strong>: " + AsignadoCierre.Nombre + "</li>";
-                    html += "<li style='text-align: justify; '><strong>Periodo</strong>: "+EncCierre.Periodo+"</li>";
-                    html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + EncCierre.CantidadRegistros+"</li>";
-                    html += "<li style='text-align: justify; '><strong>Total</strong>: "+decimal.Round(EncCierre.Total.Value,2)+"</li>";
+                    html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + EncCierre.Periodo + "</li>";
+                    html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + EncCierre.CantidadRegistros + "</li>";
+                    html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(EncCierre.Total.Value, 2) + "</li>";
                     html += "</ul><p></p> ";
-                    html += "<p>Favor revisar en la plataforma <a href='"+parametros.UrlSitioPublicado+"'>"+ parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
-                   
-                    foreach(var item in Login)
+                    html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
+
+                    foreach (var item in Login)
                     {
 
 
@@ -376,8 +378,8 @@ namespace CheckIn.API.Controllers
         [HttpPost]
         public HttpResponseMessage Post([FromBody] CierreViewModel gastos)
         {
-               
-                G.AbrirConexionAPP(out db);
+
+            G.AbrirConexionAPP(out db);
             var t = db.Database.BeginTransaction();
             try
             {
@@ -417,7 +419,7 @@ namespace CheckIn.API.Controllers
                 Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                 Cierre.ProcesadaSAP = false;
                 Cierre.Observacion = gastos.EncCierre.Observacion;
-           
+
                 db.EncCierre.Add(Cierre);
                 db.SaveChanges();
 
@@ -425,11 +427,11 @@ namespace CheckIn.API.Controllers
                 var FecFin = Cierre.FechaFinal.AddDays(1);
 
                 var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecIni && a.FecFactura <= FecFin).ToList();
-                 var Logins = db.Login.ToList();
+                var Logins = db.Login.ToList();
                 var Normas = db.NormasReparto.ToList();
 
-             
-              
+
+
                 int i = 1;
                 foreach (var item in gastos.DetCierre)
                 {
@@ -449,12 +451,12 @@ namespace CheckIn.API.Controllers
                     Factura.idLoginAsignado = Cierre.idLogin;
                     Factura.FecAsignado = DateTime.Now;
 
-                  
+
 
                     Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
                     Factura.idCierre = det.idCierre;
                     Factura.idTipoGasto = item.idTipoGasto;
-                    Factura.Comentario = Factura.Comentario  ;
+                    Factura.Comentario = Factura.Comentario;
                     db.SaveChanges();
 
 
@@ -486,11 +488,11 @@ namespace CheckIn.API.Controllers
                     html += "</ul><p></p> ";
                     html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
 
-                    
 
 
-                        emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
-                    
+
+                    emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+
 
 
                 }
@@ -507,7 +509,7 @@ namespace CheckIn.API.Controllers
             {
 
                 t.Rollback();
-                G.GuardarTxt("ErrorCierre"+DateTime.Now.Day +""+DateTime.Now.Month + ""+DateTime.Now.Year +".txt", ex.ToString());
+                G.GuardarTxt("ErrorCierre" + DateTime.Now.Day + "" + DateTime.Now.Month + "" + DateTime.Now.Year + ".txt", ex.ToString());
 
                 BitacoraErrores be = new BitacoraErrores();
                 be.Descripcion = ex.Message;
@@ -531,9 +533,9 @@ namespace CheckIn.API.Controllers
             var t = db.Database.BeginTransaction();
             try
             {
-               
 
-          //      G.GuardarTxt("BitLlegada.txt", gastos.ToString());
+
+                //      G.GuardarTxt("BitLlegada.txt", gastos.ToString());
                 if (db.EncCierre.Where(a => a.idCierre == gastos.EncCierre.idCierre).FirstOrDefault() != null)
                 {
 
@@ -541,94 +543,94 @@ namespace CheckIn.API.Controllers
 
 
                     var Cierre = db.EncCierre.Where(a => a.idCierre == gastos.EncCierre.idCierre).FirstOrDefault();
- 
-                 
-                        db.Entry(Cierre).State = EntityState.Modified;
-                         Cierre.Periodo = Cierre.Periodo;//gastos.EncCierre.Periodo;
-                        Cierre.FechaInicial = gastos.EncCierre.FechaInicial;
-                        Cierre.FechaFinal = gastos.EncCierre.FechaFinal;
-                        Cierre.idLogin = gastos.EncCierre.idLogin;
-                        Cierre.SubTotal = gastos.EncCierre.SubTotal;
-                        Cierre.Total = gastos.EncCierre.Total;
-                        Cierre.CantidadRegistros = 0;
-                        Cierre.Descuento = gastos.EncCierre.Descuento;
+
+
+                    db.Entry(Cierre).State = EntityState.Modified;
+                    Cierre.Periodo = Cierre.Periodo;//gastos.EncCierre.Periodo;
+                    Cierre.FechaInicial = gastos.EncCierre.FechaInicial;
+                    Cierre.FechaFinal = gastos.EncCierre.FechaFinal;
+                    Cierre.idLogin = gastos.EncCierre.idLogin;
+                    Cierre.SubTotal = gastos.EncCierre.SubTotal;
+                    Cierre.Total = gastos.EncCierre.Total;
+                    Cierre.CantidadRegistros = 0;
+                    Cierre.Descuento = gastos.EncCierre.Descuento;
                     Cierre.FechaCierre = Cierre.FechaCierre;//DateTime.Now;
-                        Cierre.Impuestos = gastos.EncCierre.Impuestos;
-                        Cierre.Impuesto1 = gastos.EncCierre.Impuesto1;
-                        Cierre.Impuesto2 = gastos.EncCierre.Impuesto2;
-                        Cierre.Impuesto4 = gastos.EncCierre.Impuesto4;
-                        Cierre.Impuesto8 = gastos.EncCierre.Impuesto8;
-                        Cierre.Impuesto13 = gastos.EncCierre.Impuesto13;
+                    Cierre.Impuestos = gastos.EncCierre.Impuestos;
+                    Cierre.Impuesto1 = gastos.EncCierre.Impuesto1;
+                    Cierre.Impuesto2 = gastos.EncCierre.Impuesto2;
+                    Cierre.Impuesto4 = gastos.EncCierre.Impuesto4;
+                    Cierre.Impuesto8 = gastos.EncCierre.Impuesto8;
+                    Cierre.Impuesto13 = gastos.EncCierre.Impuesto13;
                     var login = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                     Cierre.idLoginAceptacion = login.idLoginAceptacion;
                     Cierre.Estado = gastos.EncCierre.Estado;
-                        Cierre.Observacion = Cierre.Observacion;
-                        Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
-                        Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
+                    Cierre.Observacion = Cierre.Observacion;
+                    Cierre.CodMoneda = gastos.EncCierre.CodMoneda;
+                    Cierre.TotalOtrosCargos = gastos.EncCierre.TotalOtrosCargos;
                     Cierre.Observacion = gastos.EncCierre.Observacion;
                     db.SaveChanges();
 
                     var FecInicial = Cierre.FechaInicial.AddMonths(-1);
                     var FechaFinal = Cierre.FechaFinal.AddMonths(1);
-                        var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecInicial && a.FecFactura <= FechaFinal ).ToList();
-                        var Logins = db.Login.ToList();
-                        var Normas = db.NormasReparto.ToList();
+                    var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecInicial && a.FecFactura <= FechaFinal).ToList();
+                    var Logins = db.Login.ToList();
+                    var Normas = db.NormasReparto.ToList();
 
 
-                        var Detalle = db.DetCierre.Where(a => a.idCierre == Cierre.idCierre).ToList();
+                    var Detalle = db.DetCierre.Where(a => a.idCierre == Cierre.idCierre).ToList();
 
-                        foreach (var item in Detalle)
+                    foreach (var item in Detalle)
+                    {
+                        var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
+                        db.Entry(Factura).State = EntityState.Modified;
+                        Factura.idLoginAsignado = 0;
+                        Factura.FecAsignado = null;
+
+
+                        //Factura.Comentario = "";
+                        Factura.idNormaReparto = 0;
+                        Factura.idCierre = 0;
+
+                        db.DetCierre.Remove(item);
+                        db.SaveChanges();
+                    }
+
+
+
+
+                    int i = 1;
+                    foreach (var item in gastos.DetCierre)
+                    {
+                        DetCierre det = new DetCierre();
+                        det.idCierre = Cierre.idCierre;
+                        det.NumLinea = i;
+                        det.idFactura = item.idFactura;
+                        det.Comentario = item.Comentario;
+                        i++;
+                        db.DetCierre.Add(det);
+                        var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
+                        db.Entry(Factura).State = EntityState.Modified;
+                        Factura.idLoginAsignado = Cierre.idLogin;
+                        Factura.FecAsignado = DateTime.Now;
+
+                        if (Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault() == null)
                         {
-                            var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
-                            db.Entry(Factura).State = EntityState.Modified;
-                            Factura.idLoginAsignado = 0;
-                            Factura.FecAsignado = null;
-
-
-                            //Factura.Comentario = "";
-                            Factura.idNormaReparto = 0;
-                            Factura.idCierre = 0;
-                           
-                            db.DetCierre.Remove(item);
-                            db.SaveChanges();
+                            throw new Exception("Este usuario no contiene una norma de reparto asignada");
                         }
 
-
-
-
-                        int i = 1;
-                        foreach (var item in gastos.DetCierre)
-                        {
-                            DetCierre det = new DetCierre();
-                            det.idCierre = Cierre.idCierre;
-                            det.NumLinea = i;
-                            det.idFactura = item.idFactura;
-                            det.Comentario = item.Comentario;
-                            i++;
-                            db.DetCierre.Add(det);
-                            var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
-                            db.Entry(Factura).State = EntityState.Modified;
-                            Factura.idLoginAsignado = Cierre.idLogin;
-                            Factura.FecAsignado = DateTime.Now;
-
-                            if (Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault() == null)
-                            {
-                                throw new Exception("Este usuario no contiene una norma de reparto asignada");
-                            }
-
-                            Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
-                            Factura.idCierre = det.idCierre;
-                            Factura.idTipoGasto = item.idTipoGasto;
+                        Factura.idNormaReparto = Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault().id;
+                        Factura.idCierre = det.idCierre;
+                        Factura.idTipoGasto = item.idTipoGasto;
                         //Factura.Comentario = item.Comentario;
-                            db.SaveChanges();
-
-
-                        }
                         db.SaveChanges();
 
-                        db.Entry(Cierre).State = EntityState.Modified;
-                        Cierre.CantidadRegistros = i - 1;
-                        db.SaveChanges();
+
+                    }
+                    db.SaveChanges();
+
+                    db.Entry(Cierre).State = EntityState.Modified;
+                    Cierre.CantidadRegistros = i - 1;
+                    db.SaveChanges();
 
 
                     if (gastos.EncCierre.Estado == "E")
@@ -651,11 +653,11 @@ namespace CheckIn.API.Controllers
                         html += "</ul><p></p> ";
                         html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para aceptar o denegar dicha liquidaci&oacute;n.</p>";
 
-                        
 
 
-                            emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
-                        
+
+                        emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
+
 
 
                     }
@@ -672,10 +674,10 @@ namespace CheckIn.API.Controllers
                         var parametros = db.Parametros.FirstOrDefault();
                         //&oacute; -> Tilde
                         var html = "";
-                        if (AR =="A")
+                        if (AR == "A")
                         {
                             var LoginAceptacion = db.Login.Where(a => a.id == Cierre.idLoginAceptacion).FirstOrDefault();
-                             html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Aprobada</strong></h3>";
+                            html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Aprobada</strong></h3>";
                             html += "<p style='text-align: justify; '>Se ha aprobado tú liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
                             html += "<ul>";
                             html += "<li style = 'text-align: justify;' ><strong> ID Cierre </strong>: " + Cierre.idCierre + "</li>";
@@ -683,7 +685,7 @@ namespace CheckIn.API.Controllers
                             html += "<li style='text-align: justify; '><strong>Periodo</strong>: " + Cierre.Periodo + "</li>";
                             html += "<li style='text-align: justify; '><strong>Cantidad de Facturas: </strong>" + Cierre.CantidadRegistros + "</li>";
                             html += "<li style='text-align: justify; '><strong>Total</strong>: " + decimal.Round(Cierre.Total.Value, 2) + "</li>";
-                            html += "<li style='text-align: justify; '><strong>Usuario Aprobador</strong>: " + LoginAceptacion == null ? "" : LoginAceptacion.Nombre  + "</li>";
+                            html += "<li style='text-align: justify; '><strong>Usuario Aprobador</strong>: " + LoginAceptacion == null ? "" : LoginAceptacion.Nombre + "</li>";
                             html += "<li style='text-align: justify; '><strong>Comentarios de la Liquidación</strong>: " + Cierre.Observacion + "</li>";
                             html += "</ul><p></p> ";
                             html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
@@ -734,7 +736,7 @@ namespace CheckIn.API.Controllers
                 G.GuardarTxt("ErrorCierre" + DateTime.Now.Day + "" + DateTime.Now.Month + "" + DateTime.Now.Year + ".txt", ex.ToString());
 
                 BitacoraErrores be = new BitacoraErrores();
-                
+
                 be.Descripcion = ex.Message;
                 be.StackTrace = (string.IsNullOrEmpty(ex.InnerException.Message) ? ex.StackTrace : ex.InnerException.Message);
                 be.Metodo = "Actualizacion de Cierre";
