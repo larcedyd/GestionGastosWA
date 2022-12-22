@@ -1377,8 +1377,8 @@ namespace CheckIn.API.Controllers
 
                             }
 
-                            totalCompr += item.MontoTotalLinea.Value;
-                            totalVenta += item.SubTotal.Value;
+                           // totalCompr += item.MontoTotalLinea.Value;
+                           // totalVenta += item.SubTotal.Value;
                             // Det.CodCabys = item.CodCabys;
                             db.DetCompras.Add(Det);
                             db.SaveChanges();

@@ -166,3 +166,21 @@
 11/12/2022 12:47 System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
    en CheckIn.API.Controllers.ComprasController.PutActualizarFacturaManual(ComprasViewModel compra) en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1543
 ------------------------------------------
+22/12/2022 08:56 System.FormatException: La entrada no es una cadena Base 64 válida porque contiene un carácter que no es Base 64, más de dos caracteres de relleno o un carácter no válido entre los caracteres de relleno. 
+   en System.Convert.FromBase64_Decode(Char* startInputPtr, Int32 inputLength, Byte* startDestPtr, Int32 destLength)
+   en System.Convert.FromBase64CharPtr(Char* inputPtr, Int32 inputLength)
+   en System.Convert.FromBase64String(String s)
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1169
+------------------------------------------
+22/12/2022 09:50 System.FormatException: La entrada no es una cadena Base 64 válida porque contiene un carácter que no es Base 64, más de dos caracteres de relleno o un carácter no válido entre los caracteres de relleno. 
+   en System.Convert.FromBase64_Decode(Char* startInputPtr, Int32 inputLength, Byte* startDestPtr, Int32 destLength)
+   en System.Convert.FromBase64CharPtr(Char* inputPtr, Int32 inputLength)
+   en System.Convert.FromBase64String(String s)
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1169
+------------------------------------------
+22/12/2022 09:55 System.FormatException: La entrada no es una cadena Base 64 válida porque contiene un carácter que no es Base 64, más de dos caracteres de relleno o un carácter no válido entre los caracteres de relleno. 
+   en System.Convert.FromBase64_Decode(Char* startInputPtr, Int32 inputLength, Byte* startDestPtr, Int32 destLength)
+   en System.Convert.FromBase64CharPtr(Char* inputPtr, Int32 inputLength)
+   en System.Convert.FromBase64String(String s)
+   en CheckIn.API.Controllers.ComprasController.Post(ComprasViewModel compra) en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\ComprasController.cs:línea 1169
+------------------------------------------
