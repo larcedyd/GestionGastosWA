@@ -435,6 +435,11 @@ namespace CheckIn.API.Controllers
                 int i = 1;
                 foreach (var item in gastos.DetCierre)
                 {
+                    var DetalleExistente = db.DetCierre.Where(a => a.idFactura == item.idFactura).FirstOrDefault();
+                    if (DetalleExistente != null)
+                    {
+                        throw new Exception("Esta factura ya ha asignada por otro usuario");
+                    }
                     DetCierre det = new DetCierre();
                     det.idCierre = Cierre.idCierre;
                     det.NumLinea = i;
@@ -601,6 +606,14 @@ namespace CheckIn.API.Controllers
                     int i = 1;
                     foreach (var item in gastos.DetCierre)
                     {
+
+                        var DetalleExistente = db.DetCierre.Where(a => a.idFactura == item.idFactura).FirstOrDefault();
+                        if (DetalleExistente != null)
+                        {
+                            throw new Exception("Esta factura ya ha asignada por otro usuario");
+                        }
+
+
                         DetCierre det = new DetCierre();
                         det.idCierre = Cierre.idCierre;
                         det.NumLinea = i;
