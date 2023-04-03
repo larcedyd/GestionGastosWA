@@ -438,7 +438,7 @@ namespace CheckIn.API.Controllers
                     var DetalleExistente = db.DetCierre.Where(a => a.idFactura == item.idFactura).FirstOrDefault();
                     if (DetalleExistente != null)
                     {
-                        throw new Exception("Esta factura ya ha asignada por otro usuario");
+                        throw new Exception("Esta factura " + (db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault() == null ? "0" : db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault().ConsecutivoHacienda) + " ya ha sido asignada por otro usuario");
                     }
                     DetCierre det = new DetCierre();
                     det.idCierre = Cierre.idCierre;
@@ -610,7 +610,7 @@ namespace CheckIn.API.Controllers
                         var DetalleExistente = db.DetCierre.Where(a => a.idFactura == item.idFactura).FirstOrDefault();
                         if (DetalleExistente != null)
                         {
-                            throw new Exception("Esta factura ya ha asignada por otro usuario");
+                            throw new Exception("Esta factura " + (db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault() == null ? "0" : db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault().ConsecutivoHacienda) +" ya ha sido asignada por otro usuario");
                         }
 
 
@@ -751,14 +751,14 @@ namespace CheckIn.API.Controllers
                 BitacoraErrores be = new BitacoraErrores();
 
                 be.Descripcion = ex.Message;
-                be.StackTrace = (string.IsNullOrEmpty(ex.InnerException.Message) ? ex.StackTrace : ex.InnerException.Message);
+                be.StackTrace = ex.StackTrace; //(string.IsNullOrEmpty(ex.InnerException.Message) ? ex.StackTrace : ex.InnerException.Message);
                 be.Metodo = "Actualizacion de Cierre";
                 be.Fecha = DateTime.Now;
                 db.BitacoraErrores.Add(be);
                 db.SaveChanges();
 
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
