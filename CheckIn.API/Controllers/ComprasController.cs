@@ -37,7 +37,7 @@ namespace CheckIn.API.Controllers
                 NombreImagen = "NoImage.png";
             }
 
-            //NombreImagen = $"{PrefijoImagen}_{NomImagen}";
+        
             Random i = new Random();
             int o = i.Next(0, 10000);
             NombreImagen = o + "_" + NomImagen;
@@ -57,8 +57,7 @@ namespace CheckIn.API.Controllers
                     G.GuardarTxt("ErrorImagen.txt", ex.ToString());
                 }
                 image.Save(fullpath, FormatoImagen);
-                //image.Save(fullpath, System.Drawing.Imaging.ImageFormat.Png);  // aqui seria en base al tipo de imagen
-
+              
             }
             rutaImagen = Params.UrlImagenesApp + pathImage;
             rutaImagen = rutaImagen.Replace("~/Temp/", "");
@@ -128,7 +127,7 @@ namespace CheckIn.API.Controllers
                                             {
 
                                                 ByteArrayPDF = ((MemoryStream)attachment.ContentStream).ToArray();
-                                                //ByteArrayPDF = G.Zip(texto);
+                                             
 
 
                                             }
@@ -254,7 +253,7 @@ namespace CheckIn.API.Controllers
                         EncCompras factura = new EncCompras();
                         string xmlBase64 = attachmentBody;
 
-                        //var BodyPdf = G.Unzip(item.Pdf);
+                       
                         string pdfBase64 = "";
 
 
@@ -291,7 +290,7 @@ namespace CheckIn.API.Controllers
 
 
                         //Informacion del Proveedor o emisor de la factura
-                        //       factura.TipoIdentificacionProveedor = G.ExtraerValorDeNodoXml(xml, "Emisor/Identificacion/Tipo");
+               
                         factura.CodProveedor = G.ExtraerValorDeNodoXml(xml, "Emisor/Identificacion/Numero");
 
                         // si el nombre se pasa de 80 caracteres debemos cortarlo
@@ -332,25 +331,25 @@ namespace CheckIn.API.Controllers
                         if (attachmentBody.Contains("xml-schemas/v4.3"))
                         {
                             factura.CodMoneda = G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoTipoMoneda/CodigoMoneda");
-                            //  factura.TipoCA = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoTipoMoneda/TipoCambio", true));
+                          
                         }
                         else
                         {
                             factura.CodMoneda = G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoMoneda");
-                            //factura.TipoCambio = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TipoCambio", true));
+                         
                         }
 
                         if (string.IsNullOrWhiteSpace(factura.CodMoneda))
                         {
                             factura.CodMoneda = "CRC";
-                            //factura.TipoCambio = 1;
+                        
                         }
 
                         factura.TotalServGravados = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalServGravados", true));
                         factura.TotalServExentos = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalServExentos", true));
                         factura.TotalMercanciasGravadas = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercanciasGravadas", true));
                         factura.TotalMercanciasExentas = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercanciasExentas", true));
-                        //factura.TotalGravado = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalGravado", true));
+               
                         factura.TotalServExonerado = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalServExonerado", true));
                         factura.TotalMercExonerada = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercExonerada", true));
                         factura.TotalExonerado = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalExonerado", true));
@@ -416,25 +415,16 @@ namespace CheckIn.API.Controllers
                             det.Cantidad = Convert.ToInt32(Decimal);
                             det.PrecioUnitario = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "PrecioUnitario", true));
                             det.MontoTotal = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "MontoTotal", true));
-                            //det.NaturalezaDescuento = G.ExtraerValorDeNodoXml(item2.Elements().Where(a => a.Name.LocalName == "Descuento").FirstOrDefault(), "NaturalezaDescuento");
+                          
                             det.MontoDescuento = decimal.Parse(G.ExtraerValorDeNodoXml(item2.Elements().Where(a => a.Name.LocalName == "Descuento").FirstOrDefault(), "MontoDescuento", true));
                             det.SubTotal = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "SubTotal", true));
 
                             //Impuesto
-                            // det.ImpuestoCodigo = G.ExtraerValorDeNodoXml(item2, "Impuesto/Codigo");
+             
                             det.ImpuestoTarifa = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Tarifa", true));
                             det.ImpuestoMonto = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Monto", true));
 
-                            ////exoneracion
-                            //det.ExoneracionTipoDocumento = G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/TipoDocumento");
-                            //if (!string.IsNullOrEmpty(det.ExoneracionTipoDocumento))
-                            //{
-                            //    det.ExoneracionNumeroDocumento = G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/NumeroDocumento");
-                            //    det.ExoneracionNombreInstitucion = G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/NombreInstitucion");
-                            //    det.ExoneracionFechaEmision = DateTime.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/FechaEmision"));
-                            //    det.ExoneracionMontoImpuesto = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/MontoImpuesto", true));
-                            //    det.ExoneracionPorcentajeCompra = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Exoneracion/PorcentajeCompra", true));
-                            //}
+                           
 
                             det.idTipoGasto = EncontrarGasto(db, det.CodCabys);
 
@@ -704,7 +694,7 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                    //filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
+                
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
                     a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
@@ -865,7 +855,7 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                    //filtro.Codigo1 = Convert.ToInt32(filtro.Texto);
+             
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
                     a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
@@ -1159,12 +1149,11 @@ namespace CheckIn.API.Controllers
                     EncCompras.FacturaNoRecibida = compra.EncCompras.FacturaNoRecibida;
                     EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
                     EncCompras.idCierre = 0;
-                    //EncCompras.ImagenB64 = compra.EncCompras.ImagenB64;
+ 
 
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                     {
-                        /* string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".png", System.Drawing.Imaging.ImageFormat.Png);
-                         EncCompras.PdfFactura = Url;*/
+                     
                         EncCompras.PdfFactura = "";
                         var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                         EncCompras.PdfFac = _bytes;
@@ -1219,7 +1208,7 @@ namespace CheckIn.API.Controllers
 
                         totalCompr += item.MontoTotalLinea.Value;
                         totalVenta += item.SubTotal.Value;
-                        // Det.CodCabys = item.CodCabys;
+                       
                         db.DetCompras.Add(Det);
                         db.SaveChanges();
                         i++;
@@ -1313,8 +1302,7 @@ namespace CheckIn.API.Controllers
                         EncCompras.idCierre = 0;
                         if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                         {
-                            /*string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + EncCompras.ConsecutivoHacienda + ".png", System.Drawing.Imaging.ImageFormat.Png);
-                            EncCompras.PdfFactura = Url;*/
+                          
                             EncCompras.PdfFactura = "";
                             var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                             EncCompras.PdfFac = _bytes;
@@ -1379,7 +1367,7 @@ namespace CheckIn.API.Controllers
 
                             totalCompr += item.MontoTotalLinea.Value;
                             totalVenta += item.SubTotal.Value;
-                            // Det.CodCabys = item.CodCabys;
+                       
                             db.DetCompras.Add(Det);
                             db.SaveChanges();
                             i++;
@@ -1398,7 +1386,7 @@ namespace CheckIn.API.Controllers
                             db.SaveChanges();
                         }
                         compra.EncCompras.id = EncCompras.id;
-                        // throw new Exception("Esta factura YA existe");
+              
 
                     }
                     else
@@ -1502,7 +1490,7 @@ namespace CheckIn.API.Controllers
                     }
 
                     db.Entry(Compra).State = EntityState.Modified;
-                    //Compra.idLoginAsignado = asig.idLogin;
+                  
                     if (asig.idNorma > 0)
                     {
                         Compra.idNormaReparto = asig.idNorma;
@@ -1625,9 +1613,7 @@ namespace CheckIn.API.Controllers
 
                 if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                 {
-                    /*
-                    string Url = GuardaImagenBase64(compra.EncCompras.ImagenBase64, G.ObtenerCedulaJuridia(), G.ObtenerCedulaJuridia() + "_" + Compra.ConsecutivoHacienda + ".png", System.Drawing.Imaging.ImageFormat.Png);
-                    Compra.PdfFactura = Url;*/
+                 
                     Compra.PdfFactura = "";
                     byte[] hex = Convert.FromBase64String(compra.EncCompras.ImagenBase64.Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", ""));
                     Compra.ImagenB64 = hex;

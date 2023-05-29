@@ -72,7 +72,7 @@
     <Reference Include="Interop.SAPbobsCOM, Version=10.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>..\..\..\..\Dropbox\D&amp;D CONSULOTORES COMPARTIDO\CONTROL CLIENTES\INTEROPS\Agri\Interop.SAPbobsCOM.dll</HintPath>
+      <HintPath>..\..\..\..\..\OneDrive\Escritorio\Interop Amvac Produccion\Interop.SAPbobsCOM.dll</HintPath>
     </Reference>
     <Reference Include="itextsharp, Version=5.5.13.2, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\iTextSharp.5.5.13.2\lib\itextsharp.dll</HintPath>

@@ -38,7 +38,7 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 DateTime time = new DateTime();
-                //var Facturas = db.EncCompras.Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.FechaFinal != time ? a.FecFactura <= filtro.FechaFinal : true)).ToList();
+             
 
                 var EncCierre = db.EncCierre.Select(a => new
                 {
@@ -70,7 +70,7 @@ namespace CheckIn.API.Controllers
                         s.id,
                         s.idCierre,
                         s.NumLinea,
-                        // Factura = Facturas.Where(z => z.id == s.idFactura).FirstOrDefault(), 
+            
 
                     }).ToList()
 
@@ -166,7 +166,7 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 List<Attachment> adjuntos = new List<Attachment>();
-                // List<EncCompras> compras = new List<EncCompras>();
+   
                 SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
                 var parametros = db.Parametros.FirstOrDefault();
 
@@ -196,12 +196,12 @@ namespace CheckIn.API.Controllers
                 var bodyH = item.body;
                 HtmlToPdf converter = new HtmlToPdf();
 
-                // set converter options
+           
                 converter.Options.PdfPageSize = PdfPageSize.A4;
                 converter.Options.PdfPageOrientation = PdfPageOrientation.Portrait;
                 converter.Options.MarginLeft = 5;
                 converter.Options.MarginRight = 5;
-                // create a new pdf document converting an html string
+           
                 SelectPdf.PdfDocument doc = converter.ConvertHtmlString(bodyH);
 
                 var bytes = doc.Save();
@@ -296,14 +296,14 @@ namespace CheckIn.API.Controllers
                 if (Estado == "A" || Estado == "R")
                 {
                     SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
-                    //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+         
                     var login = db.Login.Where(a => a.id == EncCierre.idLogin).FirstOrDefault();
                     var AR = Estado;
 
                     var Login = db.Login.Where(a => a.id == login.id).FirstOrDefault();
                     var AsignadoCierre = db.Login.Where(a => a.id == EncCierre.idLogin).FirstOrDefault();
                     var parametros = db.Parametros.FirstOrDefault();
-                    //&oacute; -> Tilde
+               
                     var html = "";
                     if (AR == "A")
                     {
@@ -351,7 +351,7 @@ namespace CheckIn.API.Controllers
 
 
 
-                //EncCierre.idLoginAceptacion = idLoginAceptacion;
+         
 
                 db.SaveChanges();
                 G.CerrarConexionAPP(db);
@@ -476,7 +476,7 @@ namespace CheckIn.API.Controllers
                 if (gastos.EncCierre.Estado == "E")
                 {
                     SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
-                    //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+        
 
                     var Login = db.Login.Where(a => a.id == login.idLoginAceptacion).FirstOrDefault();
                     var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
@@ -540,7 +540,6 @@ namespace CheckIn.API.Controllers
             {
 
 
-                //      G.GuardarTxt("BitLlegada.txt", gastos.ToString());
                 if (db.EncCierre.Where(a => a.idCierre == gastos.EncCierre.idCierre).FirstOrDefault() != null)
                 {
 
@@ -551,7 +550,7 @@ namespace CheckIn.API.Controllers
 
 
                     db.Entry(Cierre).State = EntityState.Modified;
-                    Cierre.Periodo = Cierre.Periodo;//gastos.EncCierre.Periodo;
+                    Cierre.Periodo = Cierre.Periodo;
                     Cierre.FechaInicial = gastos.EncCierre.FechaInicial;
                     Cierre.FechaFinal = gastos.EncCierre.FechaFinal;
                     Cierre.idLogin = gastos.EncCierre.idLogin;
@@ -559,7 +558,7 @@ namespace CheckIn.API.Controllers
                     Cierre.Total = gastos.EncCierre.Total;
                     Cierre.CantidadRegistros = 0;
                     Cierre.Descuento = gastos.EncCierre.Descuento;
-                    Cierre.FechaCierre = Cierre.FechaCierre;//DateTime.Now;
+                    Cierre.FechaCierre = Cierre.FechaCierre;
                     Cierre.Impuestos = gastos.EncCierre.Impuestos;
                     Cierre.Impuesto1 = gastos.EncCierre.Impuesto1;
                     Cierre.Impuesto2 = gastos.EncCierre.Impuesto2;
@@ -592,7 +591,8 @@ namespace CheckIn.API.Controllers
                         Factura.FecAsignado = null;
 
 
-                        //Factura.Comentario = "";
+               
+
                         Factura.idNormaReparto = 0;
                         Factura.idCierre = 0;
 
@@ -649,7 +649,7 @@ namespace CheckIn.API.Controllers
                     if (gastos.EncCierre.Estado == "E")
                     {
                         SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
-                        //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+                    
 
                         var Login = db.Login.Where(a => a.id == login.idLoginAceptacion).FirstOrDefault();
                         var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
@@ -678,14 +678,14 @@ namespace CheckIn.API.Controllers
                     if (gastos.EncCierre.Estado == "A" || gastos.EncCierre.Estado == "R")
                     {
                         SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
-                        //var Roles = db.Roles.Where(a => a.NombreRol.ToUpper().Contains("APROBADOR")).FirstOrDefault();
+                   
 
                         var AR = gastos.EncCierre.Estado;
 
                         var Login = db.Login.Where(a => a.id == login.id).FirstOrDefault();
                         var AsignadoCierre = db.Login.Where(a => a.id == Cierre.idLogin).FirstOrDefault();
                         var parametros = db.Parametros.FirstOrDefault();
-                        //&oacute; -> Tilde
+                      
                         var html = "";
                         if (AR == "A")
                         {
@@ -751,7 +751,7 @@ namespace CheckIn.API.Controllers
                 BitacoraErrores be = new BitacoraErrores();
 
                 be.Descripcion = ex.Message;
-                be.StackTrace = ex.StackTrace; //(string.IsNullOrEmpty(ex.InnerException.Message) ? ex.StackTrace : ex.InnerException.Message);
+                be.StackTrace = ex.StackTrace; 
                 be.Metodo = "Actualizacion de Cierre";
                 be.Fecha = DateTime.Now;
                 db.BitacoraErrores.Add(be);
