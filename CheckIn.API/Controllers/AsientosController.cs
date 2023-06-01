@@ -112,12 +112,7 @@ namespace CheckIn.API.Controllers
 
 
                 if (login.CambioFecha)
-                {
-                    //int DiferenciaDias = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, 15) - DateTime.Now).Days;
-                    //oInvoice.DocDate = DateTime.Now.AddDays(DiferenciaDias); //Fecha que se realiza el asiento
-                    //oInvoice.DocDueDate = DateTime.Now.AddDays(DiferenciaDias); //Fecha que se realiza el asiento
-
-
+                { 
                     oInvoice.DocDate = DateTime.Now; //Fecha que se realiza el asiento
                     oInvoice.DocDueDate = DateTime.Now; //Fecha que se realiza el asiento
                 }
@@ -187,7 +182,7 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
 
                     }
-                    oInvoice.Lines.AccountCode = Cuenta.CodSAP; //"6-01-02-05-000"; //Cuenta contable del gasto
+                    oInvoice.Lines.AccountCode = Cuenta.CodSAP;   //Cuenta contable del gasto
 
                     if (Pais == "C" || Pais == "N" || Pais == "D")
                     {
@@ -207,7 +202,8 @@ namespace CheckIn.API.Controllers
                         imp4 += item.Impuesto4;
                         imp8 += item.Impuesto8;
                         imp13 += item.Impuesto13;
-                    }else if(Pais == "D")
+                    }
+                    else if (Pais == "D")
                     {
                         imp1 += item.Impuesto1;
                         imp2 += item.Impuesto2;
@@ -406,7 +402,8 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.UserFields.Fields.Item("U_RUC").Value = item.CodProveedor.Split('[')[0];
 
                         oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
-                    }else if(Pais == "D")
+                    }
+                    else if (Pais == "D")
                     {
                         G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
                         if (TipoGasto.Nombre.ToUpper().Contains("Comb".ToUpper()))
@@ -569,7 +566,8 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.Add();
                         i++;
                     }
-                }else if(Pais == "D")
+                }
+                else if (Pais == "D")
                 {
                     if (imp1 > 0)
                     {
@@ -590,7 +588,7 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.ItemDescription = "ITBIS(16%)";
                         oInvoice.Lines.LineTotal = Convert.ToDouble(imp2);
                         //oInvoice.Lines.VatGroup = param.IMPEX;
-                         oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
                         oInvoice.Lines.AccountCode = param.CI2;
                         oInvoice.Lines.Add();
                         i++;
@@ -601,8 +599,8 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.SetCurrentLine(i);
                         oInvoice.Lines.ItemDescription = "Otros Cargos (10&)";
                         oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
-                       // oInvoice.Lines.VatGroup = param.IMPEX;
-                         oInvoice.Lines.TaxCode = param.IMPEX;
+                        // oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
                         oInvoice.Lines.AccountCode = param.CI2;
                         oInvoice.Lines.Add();
                         i++;

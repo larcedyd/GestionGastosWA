@@ -38,6 +38,14 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de GET VCierre";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+                G.CerrarConexionAPP(db);
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, resultado);
             }

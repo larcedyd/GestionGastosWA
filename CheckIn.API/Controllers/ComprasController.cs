@@ -37,7 +37,7 @@ namespace CheckIn.API.Controllers
                 NombreImagen = "NoImage.png";
             }
 
-        
+
             Random i = new Random();
             int o = i.Next(0, 10000);
             NombreImagen = o + "_" + NomImagen;
@@ -57,7 +57,7 @@ namespace CheckIn.API.Controllers
                     G.GuardarTxt("ErrorImagen.txt", ex.ToString());
                 }
                 image.Save(fullpath, FormatoImagen);
-              
+
             }
             rutaImagen = Params.UrlImagenesApp + pathImage;
             rutaImagen = rutaImagen.Replace("~/Temp/", "");
@@ -127,7 +127,7 @@ namespace CheckIn.API.Controllers
                                             {
 
                                                 ByteArrayPDF = ((MemoryStream)attachment.ContentStream).ToArray();
-                                             
+
 
 
                                             }
@@ -253,7 +253,7 @@ namespace CheckIn.API.Controllers
                         EncCompras factura = new EncCompras();
                         string xmlBase64 = attachmentBody;
 
-                       
+
                         string pdfBase64 = "";
 
 
@@ -290,7 +290,7 @@ namespace CheckIn.API.Controllers
 
 
                         //Informacion del Proveedor o emisor de la factura
-               
+
                         factura.CodProveedor = G.ExtraerValorDeNodoXml(xml, "Emisor/Identificacion/Numero");
 
                         // si el nombre se pasa de 80 caracteres debemos cortarlo
@@ -331,25 +331,25 @@ namespace CheckIn.API.Controllers
                         if (attachmentBody.Contains("xml-schemas/v4.3"))
                         {
                             factura.CodMoneda = G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoTipoMoneda/CodigoMoneda");
-                          
+
                         }
                         else
                         {
                             factura.CodMoneda = G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoMoneda");
-                         
+
                         }
 
                         if (string.IsNullOrWhiteSpace(factura.CodMoneda))
                         {
                             factura.CodMoneda = "CRC";
-                        
+
                         }
 
                         factura.TotalServGravados = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalServGravados", true));
                         factura.TotalServExentos = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalServExentos", true));
                         factura.TotalMercanciasGravadas = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercanciasGravadas", true));
                         factura.TotalMercanciasExentas = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercanciasExentas", true));
-               
+
                         factura.TotalServExonerado = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalServExonerado", true));
                         factura.TotalMercExonerada = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalMercExonerada", true));
                         factura.TotalExonerado = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalExonerado", true));
@@ -415,16 +415,16 @@ namespace CheckIn.API.Controllers
                             det.Cantidad = Convert.ToInt32(Decimal);
                             det.PrecioUnitario = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "PrecioUnitario", true));
                             det.MontoTotal = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "MontoTotal", true));
-                          
+
                             det.MontoDescuento = decimal.Parse(G.ExtraerValorDeNodoXml(item2.Elements().Where(a => a.Name.LocalName == "Descuento").FirstOrDefault(), "MontoDescuento", true));
                             det.SubTotal = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "SubTotal", true));
 
                             //Impuesto
-             
+
                             det.ImpuestoTarifa = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Tarifa", true));
                             det.ImpuestoMonto = decimal.Parse(G.ExtraerValorDeNodoXml(item2, "Impuesto/Monto", true));
 
-                           
+
 
                             det.idTipoGasto = EncontrarGasto(db, det.CodCabys);
 
@@ -694,7 +694,7 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-                
+
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
                     a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
@@ -740,6 +740,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de GET Compras";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -855,7 +862,7 @@ namespace CheckIn.API.Controllers
 
                 if (!string.IsNullOrEmpty(filtro.Texto))
                 {
-             
+
 
                     EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
                     a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
@@ -913,6 +920,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de GET Compras";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -1043,6 +1057,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de GET Compras";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -1149,11 +1170,11 @@ namespace CheckIn.API.Controllers
                     EncCompras.FacturaNoRecibida = compra.EncCompras.FacturaNoRecibida;
                     EncCompras.idTipoGasto = compra.DetCompras.FirstOrDefault().idTipoGasto;
                     EncCompras.idCierre = 0;
- 
+
 
                     if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                     {
-                     
+
                         EncCompras.PdfFactura = "";
                         var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                         EncCompras.PdfFac = _bytes;
@@ -1208,7 +1229,7 @@ namespace CheckIn.API.Controllers
 
                         totalCompr += item.MontoTotalLinea.Value;
                         totalVenta += item.SubTotal.Value;
-                       
+
                         db.DetCompras.Add(Det);
                         db.SaveChanges();
                         i++;
@@ -1302,7 +1323,7 @@ namespace CheckIn.API.Controllers
                         EncCompras.idCierre = 0;
                         if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                         {
-                          
+
                             EncCompras.PdfFactura = "";
                             var _bytes = Convert.FromBase64String(compra.EncCompras.ImagenBase64);
                             EncCompras.PdfFac = _bytes;
@@ -1367,7 +1388,7 @@ namespace CheckIn.API.Controllers
 
                             totalCompr += item.MontoTotalLinea.Value;
                             totalVenta += item.SubTotal.Value;
-                       
+
                             db.DetCompras.Add(Det);
                             db.SaveChanges();
                             i++;
@@ -1386,13 +1407,13 @@ namespace CheckIn.API.Controllers
                             db.SaveChanges();
                         }
                         compra.EncCompras.id = EncCompras.id;
-              
+
 
                     }
                     else
                     {
 
-                        throw new Exception("Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada");
+                        throw new Exception("Esta factura YA existe con el mismo numero de factura y proveedor; ademas de estar asignada por el usuario con id: " + EncCompras.idLoginAsignado);
                     }
 
                 }
@@ -1490,7 +1511,7 @@ namespace CheckIn.API.Controllers
                     }
 
                     db.Entry(Compra).State = EntityState.Modified;
-                  
+
                     if (asig.idNorma > 0)
                     {
                         Compra.idNormaReparto = asig.idNorma;
@@ -1514,6 +1535,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de PUT Compras";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 G.GuardarTxt("ErrorFactura.txt", ex.ToString());
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
@@ -1613,7 +1641,7 @@ namespace CheckIn.API.Controllers
 
                 if (!String.IsNullOrEmpty(compra.EncCompras.ImagenBase64))
                 {
-                 
+
                     Compra.PdfFactura = "";
                     byte[] hex = Convert.FromBase64String(compra.EncCompras.ImagenBase64.Replace("data:image/jpeg;base64,", "").Replace("data:image/png;base64,", ""));
                     Compra.ImagenB64 = hex;
@@ -1680,7 +1708,13 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
-
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Error de Actualizar Factura";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 G.GuardarTxt("ErrorFactura.txt", ex.ToString());
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
