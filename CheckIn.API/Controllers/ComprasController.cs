@@ -1,5 +1,6 @@
 ﻿using CheckIn.API.Models;
 using CheckIn.API.Models.ModelCliente;
+using CheckIn.API.Models.ModelMain;
 using S22.Imap;
 
 using System;
@@ -23,6 +24,8 @@ namespace CheckIn.API.Controllers
     public class ComprasController : ApiController
     {
         ModelCliente db;
+        ModelLicencias dbLogin = new ModelLicencias();
+
         G G = new G();
 
         public string GuardaImagenBase64(string ImagenBase64, string CarpetaImagen, string NomImagen, System.Drawing.Imaging.ImageFormat FormatoImagen)
@@ -1555,7 +1558,10 @@ namespace CheckIn.API.Controllers
             try
             {
                 G.AbrirConexionAPP(out db);
+                var Compañia = G.ObtenerCedulaJuridia();
+                var Licencia = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == Compañia).FirstOrDefault();
 
+                var Pais = Licencia.CadenaConexionSAP;
                 var Compra = db.EncCompras.Where(a => a.id == compra.EncCompras.id).FirstOrDefault();
                 var NumFacturaAnterior = Compra.NumFactura;
                 var ProveedorAnterior = Compra.CodProveedor;
@@ -1626,8 +1632,8 @@ namespace CheckIn.API.Controllers
                 if (compra.EncCompras.NumFactura != Compra.NumFactura)
                 {
                     Compra.NumFactura = compra.EncCompras.NumFactura;
-                    Compra.ClaveHacienda = compra.EncCompras.NumFactura.ToString();
-                    Compra.ConsecutivoHacienda = compra.EncCompras.NumFactura.ToString();
+                    Compra.ClaveHacienda =  Pais == "H" ? compra.EncCompras.ClaveHacienda : compra.EncCompras.NumFactura.ToString();
+                    Compra.ConsecutivoHacienda = Pais == "H" ? compra.EncCompras.ConsecutivoHacienda : compra.EncCompras.NumFactura.ToString();
                 }
 
                 if (compra.EncCompras.FecFactura.Value.Date != Compra.FecFactura.Value.Date)

@@ -151,3 +151,5 @@ Nombre del parámetro: oldValue ->    en System.String.ReplaceInternal(String ol
    en iTextSharp.text.html.simpleparser.HTMLWorker.Parse(TextReader reader)
    en CheckIn.API.Controllers.CierreController.GetEnviarCorreo(InfoLiquid item) en D:\GIT\GestionGastosWA\CheckIn.API\Controllers\CierreController.cs:línea 202
 ------------------------------------------
+07/06/2023 18:00 No se ha podido enviar el correo con la liquidación ->    en CheckIn.API.Controllers.CierreController.GetEnviarCorreo(InfoLiquid item) en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\CierreController.cs:línea 235
+------------------------------------------
