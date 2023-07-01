@@ -597,6 +597,11 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 DateTime time = new DateTime();
+                if (filtro.FechaInicio != time)
+                {
+                    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
+                    
+                }
                 var EncCompras = db.EncCompras.Select(a => new
                 {
                     a.id,
@@ -693,39 +698,36 @@ namespace CheckIn.API.Controllers
                     a.ImagenB64,
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
-                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true)).ToList();
+                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal : true) && (!string.IsNullOrEmpty(filtro.Texto) ? a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
+                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper()) : true) && (filtro.Asignados ? (filtro.Codigo2 > 0 ?   a.idLoginAsignado == null || a.idLoginAsignado == 0 || a.idLoginAsignado == filtro.Codigo2 : a.idLoginAsignado == null || a.idLoginAsignado == 0) : true) ).ToList();
 
-                if (!string.IsNullOrEmpty(filtro.Texto))
-                {
+                //if (!string.IsNullOrEmpty(filtro.Texto))
+                //{
 
 
-                    EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
-                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
-                    ).ToList();
-                }
+                //    EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
+                //    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
+                //    ).ToList();
+                //}
 
-                if (filtro.FechaInicio != time)
-                {
-                    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
-                    EncCompras = EncCompras.Where(a => a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal).ToList();
-                }
+                
 
-                if (filtro.Asignados)
+                //if (filtro.Asignados)
 
-                {
-                    if (filtro.Codigo2 > 0)
-                    {
+                //{
+                //    if (filtro.Codigo2 > 0)
+                //    {
 
-                        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0 || a.idLoginAsignado == filtro.Codigo2).ToList();
+                //        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0 || a.idLoginAsignado == filtro.Codigo2).ToList();
 
 
 
-                    }
-                    else
-                    {
-                        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
-                    }
-                }
+                //    }
+                //    else
+                //    {
+                //        EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
+                //    }
+                //}
 
                 if (filtro.Codigo3 > 0)
                 {
@@ -762,6 +764,14 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
                 DateTime time = new DateTime();
+
+                if (filtro.FechaInicio != time)
+                {
+                    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
+                    // EncCompras = EncCompras.Where(a => a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal).ToList();
+                }
+
+
                 var EncCompras = db.EncCompras.Select(a => new
                 {
                     a.id,
@@ -861,17 +871,18 @@ namespace CheckIn.API.Controllers
                     Usuario = (a.idCierre == 0 ? 0 : db.EncCierre.Where(z => z.idCierre == a.idCierre).FirstOrDefault().idLogin),
                     DetCompras = db.DetCompras.Where(d => d.NumFactura == a.NumFactura && d.TipoDocumento == a.TipoDocumento && d.ClaveHacienda == a.ClaveHacienda && d.ConsecutivoHacienda == a.ConsecutivoHacienda).ToList()
 
-                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio : true) && (filtro.NumCierre > 0 ? a.idCierre == filtro.NumCierre : true)).ToList();
+                }).Where(a => (filtro.FechaInicio != time ? a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal : true)  &&(filtro.NumCierre > 0 ? a.idCierre == filtro.NumCierre : true) && (!string.IsNullOrEmpty(filtro.Texto) ? a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
+                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper()) : true) && (filtro.Asignados ? a.idLoginAsignado == null || a.idLoginAsignado == 0 : true)).ToList();
 
-                if (!string.IsNullOrEmpty(filtro.Texto))
-                {
+                //if (!string.IsNullOrEmpty(filtro.Texto))
+                //{
 
 
-                    EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
-                    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
+                //    EncCompras = EncCompras.Where(a => a.ConsecutivoHacienda.ToString().Contains(filtro.Texto.ToUpper()) ||
+                //    a.ClaveHacienda.ToString().Contains(filtro.Texto.ToUpper())
 
-                    ).ToList();
-                }
+                //    ).ToList();
+                //}
 
                 if (!string.IsNullOrEmpty(filtro.Texto2))
                 {
@@ -882,19 +893,14 @@ namespace CheckIn.API.Controllers
 
 
 
-                if (filtro.FechaInicio != time)
-                {
-                    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
-                    EncCompras = EncCompras.Where(a => a.FecFactura >= filtro.FechaInicio && a.FecFactura <= filtro.FechaFinal).ToList();
-                }
+               
+                //if (filtro.Asignados)
 
-                if (filtro.Asignados)
+                //{
 
-                {
+                //    EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
 
-                    EncCompras = EncCompras.Where(a => a.idLoginAsignado == null || a.idLoginAsignado == 0).ToList();
-
-                }
+                //}
 
                 if (!string.IsNullOrEmpty(filtro.CodMoneda) && filtro.CodMoneda != "NULL")
                 {

@@ -440,7 +440,7 @@ namespace CheckIn.API.Controllers
                 var FecIni = Cierre.FechaInicial.AddDays(-1);
                 var FecFin = Cierre.FechaFinal.AddDays(1);
 
-                var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecIni && a.FecFactura <= FecFin).ToList();
+               // var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecIni && a.FecFactura <= FecFin).ToList();
                 var Logins = db.Login.ToList();
                 var Normas = db.NormasReparto.ToList();
 
@@ -461,7 +461,7 @@ namespace CheckIn.API.Controllers
                     det.Comentario = item.Comentario;
                     i++;
                     db.DetCierre.Add(det);
-                    var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
+                    var Factura = db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault();
                     if (Normas.Where(a => a.idLogin == Cierre.idLogin).FirstOrDefault() == null)
                     {
                         throw new Exception("Este usuario " + login.Nombre + "  no contiene una norma de reparto asignada");
@@ -590,7 +590,7 @@ namespace CheckIn.API.Controllers
 
                     var FecInicial = Cierre.FechaInicial.AddMonths(-1);
                     var FechaFinal = Cierre.FechaFinal.AddMonths(1);
-                    var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecInicial && a.FecFactura <= FechaFinal).ToList();
+                    //var Facturas = db.EncCompras.Where(a => a.FecFactura >= FecInicial && a.FecFactura <= FechaFinal && a.CodMoneda == Cierre.CodMoneda && (a.idLoginAsignado == 0 || a.idLoginAsignado == Cierre.idLogin || a.idLoginAsignado == null) && (a.idCierre == 0 || a.idCierre == gastos.EncCierre.idCierre || a.idCierre == null)).ToList();
                     var Logins = db.Login.ToList();
                     var Normas = db.NormasReparto.ToList();
 
@@ -599,14 +599,10 @@ namespace CheckIn.API.Controllers
 
                     foreach (var item in Detalle)
                     {
-                        var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
+                        var Factura = db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault();
                         db.Entry(Factura).State = EntityState.Modified;
                         Factura.idLoginAsignado = 0;
-                        Factura.FecAsignado = null;
-
-
-               
-
+                        Factura.FecAsignado = null; 
                         Factura.idNormaReparto = 0;
                         Factura.idCierre = 0;
 
@@ -635,7 +631,7 @@ namespace CheckIn.API.Controllers
                         det.Comentario = item.Comentario;
                         i++;
                         db.DetCierre.Add(det);
-                        var Factura = Facturas.Where(a => a.id == item.idFactura).FirstOrDefault();
+                        var Factura = db.EncCompras.Where(a => a.id == item.idFactura).FirstOrDefault();
                         db.Entry(Factura).State = EntityState.Modified;
                         Factura.idLoginAsignado = Cierre.idLogin;
                         Factura.FecAsignado = DateTime.Now;
