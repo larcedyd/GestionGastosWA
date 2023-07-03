@@ -539,7 +539,7 @@ namespace CheckIn.API.Controllers
                 db.SaveChanges();
 
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, be);
             }
         }
 
@@ -768,7 +768,7 @@ namespace CheckIn.API.Controllers
                 db.SaveChanges();
 
                 G.CerrarConexionAPP(db);
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, be);
             }
         }
 
