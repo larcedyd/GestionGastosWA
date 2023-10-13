@@ -124,8 +124,17 @@ namespace CheckIn.API.Controllers
                 de.idRol = user.idRol.Value;
                 de.Seguridad = SeguridadModulos;
                 de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
-                de.CambiarClave = user.CambiarClave;
+                de.CambiarClave = user.FechaVencimientoClave.Date == DateTime.Now.Date ? true : user.CambiarClave;
                 de.Pais = Licencia.CadenaConexionSAP;
+
+                BitacoraLogin bl = new BitacoraLogin();
+                bl.idUsuario = de.idLogin;
+                bl.IP =  HttpContext.Current.Request.UserHostAddress;
+                bl.Detalle = "El usuario " + de.NombreUsuario + ", con el id: " + de.idLogin + " se ha logueado";
+                bl.Fecha = DateTime.Now;
+                db.BitacoraLogin.Add(bl);
+                db.SaveChanges();
+
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
             }
@@ -251,6 +260,8 @@ namespace CheckIn.API.Controllers
                     login.idLoginAceptacion = usuario.idLoginAceptacion;
                     login.CambiarClave = true;
                     login.CambioFecha = false;
+                    var Parametros = db.Parametros.FirstOrDefault();
+                    login.FechaVencimientoClave = Parametros.DiasVencimiento != 0 ? DateTime.Now.AddDays(Parametros.DiasVencimiento) : DateTime.Now.AddYears(99);
                     db.Login.Add(login);
 
                     dbLogin.LicUsuarios.Add(User);
@@ -313,10 +324,15 @@ namespace CheckIn.API.Controllers
 
                     if (!string.IsNullOrEmpty(usuario.Clave))
                     {
-
+                        if (BCrypt.Net.BCrypt.Verify(usuario.Clave, Usuario.Clave))
+                        {
+                            throw new Exception("La clave a cambiar no debe ser igual a la anterior");
+                        }
                         Usuario.Clave = BCrypt.Net.BCrypt.HashPassword(usuario.Clave);
                         User.Clave = Usuario.Clave;
                         User.CambiarClave = false;
+                        var Parametros = db.Parametros.FirstOrDefault();
+                        User.FechaVencimientoClave = DateTime.Now.AddDays(Parametros.DiasVencimiento);
                     }
        
                     if (!string.IsNullOrEmpty(usuario.Nombre))
@@ -369,7 +385,7 @@ namespace CheckIn.API.Controllers
 
                 G.CerrarConexionAPP(db);
                 G.GuardarTxt("ErrorEditarUsuario.txt", ex.Message + " => " + ex.StackTrace);
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 

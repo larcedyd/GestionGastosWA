@@ -40,6 +40,9 @@ namespace CheckIn.API.Models.ModelCliente
         public virtual DbSet<ConexionSAP> ConexionSAP { get; set; }
         public virtual DbSet<BitacoraErrores> BitacoraErrores { get; set; }
         public virtual DbSet<Proveedores> Proveedores { get; set; }
+        public virtual DbSet<BitacoraLogin> BitacoraLogin { get; set; }
+        public virtual DbSet<BitacoraCierres> BitacoraCierres { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CuentasContables>()

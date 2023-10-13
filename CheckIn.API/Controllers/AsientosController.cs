@@ -738,6 +738,29 @@ namespace CheckIn.API.Controllers
                         Message = "Factura creada exitosamente",
                         User = Conexion.Company.UserName
                     };
+
+                    try
+                    {
+                        BitacoraCierres bc = new BitacoraCierres();
+                        bc.idUsuarioEnviador = Cierre.idLogin;
+                        bc.idUsuarioAceptador = Cierre.idLoginAceptacion.Value;
+                        bc.idCierre = Cierre.idCierre;
+                        bc.IP = HttpContext.Current.Request.UserHostAddress;
+                        bc.Detalle = "Se manda a SAP la liquidacion # " + Cierre.idCierre  ;
+                        bc.Fecha = DateTime.Now;
+                        db.BitacoraCierres.Add(bc);
+                        db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        BitacoraErrores be1 = new BitacoraErrores();
+                        be1.Descripcion = ex.Message;
+                        be1.StackTrace = ex.StackTrace;
+                        be1.Metodo = "Envio a SAP";
+                        be1.Fecha = DateTime.Now;
+                        db.BitacoraErrores.Add(be1);
+                        db.SaveChanges();
+                    }
                     G.CerrarConexionAPP(db);
                     Conexion.Desconectar();
                     return Request.CreateResponse(HttpStatusCode.OK, resp);

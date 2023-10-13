@@ -28,5 +28,6 @@ namespace CheckIn.API.Models.ModelCliente
         public string CardCode { get; set; }
         public bool CambiarClave { get; set; }
         public bool CambioFecha { get; set; }
+        public DateTime FechaVencimientoClave { get; set; }
     }
 }

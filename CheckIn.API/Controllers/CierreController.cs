@@ -303,6 +303,28 @@ namespace CheckIn.API.Controllers
                         emailsender.SendV2(item.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
                     }
 
+                    try
+                    {
+                        BitacoraCierres bc = new BitacoraCierres();
+                        bc.idUsuarioEnviador = EncCierre.idLogin;
+                        bc.idUsuarioAceptador = EncCierre.idLoginAceptacion.Value;
+                        bc.idCierre = EncCierre.idCierre;
+                        bc.IP = HttpContext.Current.Request.UserHostAddress;
+                        bc.Detalle = "Se manda a aprobacion la liquidacion # " + EncCierre.idCierre + ", el usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id;
+                        bc.Fecha = DateTime.Now;
+                        db.BitacoraCierres.Add(bc);
+                        db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        BitacoraErrores be = new BitacoraErrores();
+                        be.Descripcion = ex.Message;
+                        be.StackTrace = ex.StackTrace;
+                        be.Metodo = "Cambio de estado";
+                        be.Fecha = DateTime.Now;
+                        db.BitacoraErrores.Add(be);
+                        db.SaveChanges();
+                    }
 
                 }
 
@@ -335,6 +357,29 @@ namespace CheckIn.API.Controllers
                         html += "</ul><p></p> ";
                         html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
 
+                        try
+                        {
+                            BitacoraCierres bc = new BitacoraCierres();
+                            bc.idUsuarioEnviador = EncCierre.idLogin;
+                            bc.idUsuarioAceptador = EncCierre.idLoginAceptacion.Value;
+                            bc.idCierre = EncCierre.idCierre;
+                            bc.IP = HttpContext.Current.Request.UserHostAddress;
+                            bc.Detalle = "Se ha aprobado la liquidacion # " + EncCierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo aprobo el usuario: " + LoginAceptacion.Nombre + ", con el id: " + LoginAceptacion.id;
+                            bc.Fecha = DateTime.Now;
+                            db.BitacoraCierres.Add(bc);
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            BitacoraErrores be = new BitacoraErrores();
+                            be.Descripcion = ex.Message;
+                            be.StackTrace = ex.StackTrace;
+                            be.Metodo = "Cambio de estado";
+                            be.Fecha = DateTime.Now;
+                            db.BitacoraErrores.Add(be);
+                            db.SaveChanges();
+                        }
+
                     }
                     else
                     {
@@ -351,6 +396,30 @@ namespace CheckIn.API.Controllers
                         html += "<li style='text-align: justify; '><strong>Comentarios de la Liquidación</strong>: " + EncCierre.Observacion + "</li>";
                         html += "</ul><p></p> ";
                         html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
+
+                        try
+                        {
+                            BitacoraCierres bc = new BitacoraCierres();
+                            bc.idUsuarioEnviador = EncCierre.idLogin;
+                            bc.idUsuarioAceptador = EncCierre.idLoginAceptacion.Value;
+                            bc.idCierre = EncCierre.idCierre;
+                            bc.IP = HttpContext.Current.Request.UserHostAddress;
+                            bc.Detalle = "Se ha rechazado la liquidacion # " + EncCierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo rechazo el usuario: " + LoginAceptacion.Nombre + ", con el id: " + LoginAceptacion.id;
+                            bc.Fecha = DateTime.Now;
+                            db.BitacoraCierres.Add(bc);
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            BitacoraErrores be = new BitacoraErrores();
+                            be.Descripcion = ex.Message;
+                            be.StackTrace = ex.StackTrace;
+                            be.Metodo = "Cambio de estado";
+                            be.Fecha = DateTime.Now;
+                            db.BitacoraErrores.Add(be);
+                            db.SaveChanges();
+                        }
+
 
                     }
 
@@ -487,6 +556,30 @@ namespace CheckIn.API.Controllers
                 db.SaveChanges();
 
 
+                try
+                {
+                    BitacoraCierres bc = new BitacoraCierres();
+                    bc.idUsuarioEnviador = Cierre.idLogin;
+                    bc.idUsuarioAceptador = Cierre.idLoginAceptacion.Value;
+                    bc.idCierre = Cierre.idCierre;
+                    bc.IP = HttpContext.Current.Request.UserHostAddress;
+                    bc.Detalle = "Se  ha creado la liquidacion # " + Cierre.idCierre + ", el usuario: " + login.Nombre + ", con el id: " + login.id;
+                    bc.Fecha = DateTime.Now;
+                    db.BitacoraCierres.Add(bc);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    BitacoraErrores be = new BitacoraErrores();
+                    be.Descripcion = ex.Message;
+                    be.StackTrace = ex.StackTrace;
+                    be.Metodo = "Cambio de estado";
+                    be.Fecha = DateTime.Now;
+                    db.BitacoraErrores.Add(be);
+                    db.SaveChanges();
+                }
+
+
                 if (gastos.EncCierre.Estado == "E")
                 {
                     SendGridEmail.EmailSender emailsender = new SendGridEmail.EmailSender();
@@ -512,7 +605,28 @@ namespace CheckIn.API.Controllers
 
                     emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
 
-
+                    try
+                    {
+                        BitacoraCierres bc = new BitacoraCierres();
+                        bc.idUsuarioEnviador = Cierre.idLogin;
+                        bc.idUsuarioAceptador = Cierre.idLoginAceptacion.Value;
+                        bc.idCierre = Cierre.idCierre;
+                        bc.IP = HttpContext.Current.Request.UserHostAddress;
+                        bc.Detalle = "Se manda a aprobacion la liquidacion # " + Cierre.idCierre + ", el usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id;
+                        bc.Fecha = DateTime.Now;
+                        db.BitacoraCierres.Add(bc);
+                        db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        BitacoraErrores be = new BitacoraErrores();
+                        be.Descripcion = ex.Message;
+                        be.StackTrace = ex.StackTrace;
+                        be.Metodo = "Cambio de estado";
+                        be.Fecha = DateTime.Now;
+                        db.BitacoraErrores.Add(be);
+                        db.SaveChanges();
+                    }
 
                 }
 
@@ -681,7 +795,28 @@ namespace CheckIn.API.Controllers
 
                         emailsender.SendV2(Login.Email, parametros.RecepcionEmail, "", parametros.RecepcionEmail, "Liquidación", "Liquidación pendiente de revisión", html, parametros.RecepcionHostName, parametros.EnvioPort, parametros.RecepcionUseSSL.Value, parametros.RecepcionEmail, parametros.RecepcionPassword);
 
-
+                        try
+                        {
+                            BitacoraCierres bc = new BitacoraCierres();
+                            bc.idUsuarioEnviador = Cierre.idLogin;
+                            bc.idUsuarioAceptador = Cierre.idLoginAceptacion.Value;
+                            bc.idCierre = Cierre.idCierre;
+                            bc.IP = HttpContext.Current.Request.UserHostAddress;
+                            bc.Detalle = "Se manda a aprobacion la liquidacion # " + Cierre.idCierre + ", el usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id;
+                            bc.Fecha = DateTime.Now;
+                            db.BitacoraCierres.Add(bc);
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            BitacoraErrores be = new BitacoraErrores();
+                            be.Descripcion = ex.Message;
+                            be.StackTrace = ex.StackTrace;
+                            be.Metodo = "Cambio de estado";
+                            be.Fecha = DateTime.Now;
+                            db.BitacoraErrores.Add(be);
+                            db.SaveChanges();
+                        }
 
                     }
 
@@ -713,6 +848,28 @@ namespace CheckIn.API.Controllers
                             html += "</ul><p></p> ";
                             html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
 
+                            try
+                            {
+                                BitacoraCierres bc = new BitacoraCierres();
+                                bc.idUsuarioEnviador = Cierre.idLogin;
+                                bc.idUsuarioAceptador = Cierre.idLoginAceptacion.Value;
+                                bc.idCierre = Cierre.idCierre;
+                                bc.IP = HttpContext.Current.Request.UserHostAddress;
+                                bc.Detalle = "Se ha aprobado la liquidacion # " + Cierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo aprobo el usuario: " + LoginAceptacion.Nombre + ", con el id: " + LoginAceptacion.id;
+                                bc.Fecha = DateTime.Now;
+                                db.BitacoraCierres.Add(bc);
+                                db.SaveChanges();
+                            }
+                            catch (Exception ex)
+                            {
+                                BitacoraErrores be = new BitacoraErrores();
+                                be.Descripcion = ex.Message;
+                                be.StackTrace = ex.StackTrace;
+                                be.Metodo = "Cambio de estado";
+                                be.Fecha = DateTime.Now;
+                                db.BitacoraErrores.Add(be);
+                                db.SaveChanges();
+                            }
                         }
                         else
                         {
@@ -730,6 +887,29 @@ namespace CheckIn.API.Controllers
                             html += "</ul><p></p> ";
                             html += "<p>Favor revisar en la plataforma <a href='" + parametros.UrlSitioPublicado + "'>" + parametros.UrlSitioPublicado + "</a>&nbsp;para ver más detalles de dicha liquidaci&oacute;n.</p>";
 
+
+                            try
+                            {
+                                BitacoraCierres bc = new BitacoraCierres();
+                                bc.idUsuarioEnviador = Cierre.idLogin;
+                                bc.idUsuarioAceptador = Cierre.idLoginAceptacion.Value;
+                                bc.idCierre = Cierre.idCierre;
+                                bc.IP = HttpContext.Current.Request.UserHostAddress;
+                                bc.Detalle = "Se ha rechazado la liquidacion # " + Cierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo rechazo el usuario: " + LoginAceptacion.Nombre + ", con el id: " + LoginAceptacion.id;
+                                bc.Fecha = DateTime.Now;
+                                db.BitacoraCierres.Add(bc);
+                                db.SaveChanges();
+                            }
+                            catch (Exception ex)
+                            {
+                                BitacoraErrores be = new BitacoraErrores();
+                                be.Descripcion = ex.Message;
+                                be.StackTrace = ex.StackTrace;
+                                be.Metodo = "Cambio de estado";
+                                be.Fecha = DateTime.Now;
+                                db.BitacoraErrores.Add(be);
+                                db.SaveChanges();
+                            }
                         }
 
 
