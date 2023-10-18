@@ -359,12 +359,13 @@ namespace CheckIn.API.Controllers
 
                         try
                         {
+                            var LoginBitacora = db.Login.Where(a => a.id == idLoginAceptacion).FirstOrDefault();
                             BitacoraCierres bc = new BitacoraCierres();
                             bc.idUsuarioEnviador = EncCierre.idLogin;
                             bc.idUsuarioAceptador = EncCierre.idLoginAceptacion.Value;
                             bc.idCierre = EncCierre.idCierre;
                             bc.IP = HttpContext.Current.Request.UserHostAddress;
-                            bc.Detalle = "Se ha aprobado la liquidacion # " + EncCierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo aprobo el usuario: " + LoginAceptacion.Nombre + ", con el id: " + LoginAceptacion.id;
+                            bc.Detalle = "Se ha aprobado la liquidacion # " + EncCierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo aprobo el usuario: " + (LoginBitacora == null ? LoginAceptacion.Nombre : LoginBitacora.Nombre ) + ", con el id: " + idLoginAceptacion;
                             bc.Fecha = DateTime.Now;
                             db.BitacoraCierres.Add(bc);
                             db.SaveChanges();
@@ -383,6 +384,7 @@ namespace CheckIn.API.Controllers
                     }
                     else
                     {
+                        var LoginBitacora = db.Login.Where(a => a.id == idLoginAceptacion).FirstOrDefault();
                         var LoginAceptacion = db.Login.Where(a => a.id == EncCierre.idLoginAceptacion).FirstOrDefault();
                         html = "<h3 style='text-align: center; '><strong>Liquidaci&oacute;n  Rechazada</strong></h3>";
                         html += "<p style='text-align: justify; '>Se ha rechazado tú liquidaci&oacute;n de gastos, a continuaci&oacute;n los detalles:</p>";
@@ -404,7 +406,7 @@ namespace CheckIn.API.Controllers
                             bc.idUsuarioAceptador = EncCierre.idLoginAceptacion.Value;
                             bc.idCierre = EncCierre.idCierre;
                             bc.IP = HttpContext.Current.Request.UserHostAddress;
-                            bc.Detalle = "Se ha rechazado la liquidacion # " + EncCierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo rechazo el usuario: " + LoginAceptacion.Nombre + ", con el id: " + LoginAceptacion.id;
+                            bc.Detalle = "Se ha rechazado la liquidacion # " + EncCierre.idCierre + ", del usuario: " + AsignadoCierre.Nombre + ", con el id: " + AsignadoCierre.id + ", lo rechazo el usuario: " + (LoginBitacora == null ? LoginAceptacion.Nombre : LoginBitacora.Nombre) + ", con el id: " + idLoginAceptacion;
                             bc.Fecha = DateTime.Now;
                             db.BitacoraCierres.Add(bc);
                             db.SaveChanges();
