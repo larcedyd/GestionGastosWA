@@ -297,7 +297,7 @@ namespace CheckIn.API.Controllers
                         factura.CodProveedor = G.ExtraerValorDeNodoXml(xml, "Emisor/Identificacion/Numero");
 
                         // si el nombre se pasa de 80 caracteres debemos cortarlo
-
+                        factura.ConsecutivoHacienda = factura.ConsecutivoHacienda.TrimEnd();
                         if (db.EncCompras.Where(m => m.CodEmpresa == factura.CodEmpresa
                    && m.CodProveedor == factura.CodProveedor
                    && m.ConsecutivoHacienda == factura.ConsecutivoHacienda

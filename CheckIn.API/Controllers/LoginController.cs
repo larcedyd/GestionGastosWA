@@ -124,7 +124,7 @@ namespace CheckIn.API.Controllers
                 de.idRol = user.idRol.Value;
                 de.Seguridad = SeguridadModulos;
                 de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
-                de.CambiarClave = user.FechaVencimientoClave.Date == DateTime.Now.Date ? true : user.CambiarClave;
+                de.CambiarClave = user.FechaVencimientoClave.Date <= DateTime.Now.Date ? true : user.CambiarClave;
                 de.Pais = Licencia.CadenaConexionSAP;
 
                 BitacoraLogin bl = new BitacoraLogin();
