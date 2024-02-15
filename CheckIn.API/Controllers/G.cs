@@ -25,6 +25,7 @@ using System.Text;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using System.Xml;
 
 namespace CheckIn.API.Controllers
 {
@@ -322,6 +323,88 @@ namespace CheckIn.API.Controllers
             }
             return facturaxml;
         }
+
+        public static FacturaXml ObtenerDatosXmlRechazadoEcuador(string xml)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            string palabraInicio = "<comprobante><![CDATA[";
+            string palabraFin = "]]></comprobante>";
+
+            // Encontrar las posiciones de las palabras clave
+            int indiceInicio = xml.IndexOf(palabraInicio);
+            int indiceFin = xml.IndexOf(palabraFin);
+            string subcadena = "";
+            // Verificar si se encontraron ambas palabras clave
+            if (indiceInicio != -1 && indiceFin != -1)
+            {
+                // Calcular la longitud de la subcadena
+                int longitudSubcadena = indiceFin - (indiceInicio + palabraInicio.Length);
+
+                // Extraer la subcadena
+                 subcadena = xml.Substring(indiceInicio + palabraInicio.Length, longitudSubcadena);
+
+                // Mostrar la subcadena
+                Console.WriteLine("Subcadena extraída:");
+                Console.WriteLine(subcadena);
+            }
+
+            string xmlOriginal = subcadena;
+            try
+            {
+
+                // Cargar la cadena XML en el documento XML
+                xmlDoc.LoadXml(xmlOriginal);
+                XmlNode nodo = xmlDoc.SelectSingleNode("comprobante");
+                // Mostrar el documento XML en la consola (opcional)
+                Console.WriteLine("Documento XML creado:");
+                Console.WriteLine(xmlDoc.OuterXml);
+            }
+            catch (XmlException ex)
+            {
+                Console.WriteLine("Error al cargar la cadena XML: " + ex.Message);
+            }
+            Regex GETXMLGENERAL = new Regex("<secuencial>([^\"]*)</secuencial>");
+            Regex GetXmlNumeroConsecutivo = new Regex("<secuencial>([^\"]*)</secuencial>");
+            Regex GetXmlFechaEmision = new Regex("<fechaEmision>([^\"]*)</fechaEmision>");
+            Regex GetXmlEmisor = new Regex("<Emisor>([^\"]*)</Emisor>");
+            Regex GetXmlEmisorNombre = new Regex("<razonSocial>([^\"]*)</razonSocial>");
+            Regex GetXmlNumero = new Regex("<ruc>([^\"]*)</ruc>");
+            Regex GetXmlCodigoMoneda = new Regex("<moneda>([^\"]*)</moneda>");
+            Regex GetXmlTotalComprobante = new Regex("<importeTotal>([^\"]*)</importeTotal>");
+
+            Regex GetXmlReceptor = new Regex("<Receptor>([^\"]*)</Receptor>");
+            Regex GetXmlIdReceptor = new Regex("<identificacionComprador>([^\"]*)</identificacionComprador>");
+
+            FacturaXml facturaxml = new FacturaXml();
+            string xmlString = GETXMLGENERAL.Match(xmlOriginal).ToString();
+            try
+            {
+                facturaxml.NumeroConsecutivo = GETXMLGENERAL.Match(xmlOriginal).ToString().Replace("<secuencial>", "").Replace("</secuencial>", "");
+                facturaxml.TipoDocumento = "01";
+                 
+                facturaxml.TipoDocumentoDescripcion = "Factura Electrónica";
+                
+                string _FechaEmision = GetXmlFechaEmision.Match(xmlOriginal).ToString().Replace("<fechaEmision>", "").Replace("</fechaEmision>", "");
+                string[] Array_FechaEmision = _FechaEmision.Split('/');
+                if (Array_FechaEmision.Length == 3)
+                    facturaxml.FechaEmision = Array_FechaEmision[2] + "/" + Array_FechaEmision[1] + "/" + Array_FechaEmision[0];
+                facturaxml.NombreEmisor = GetXmlEmisorNombre.Match(xmlOriginal).ToString().Replace("<razonSocial>", "").Replace("</razonSocial>", "");
+                facturaxml.Numero = GetXmlNumero.Match(xmlOriginal).ToString().Replace("<ruc>", "").Replace("</ruc>", "");
+                facturaxml.CodigoMoneda = GetXmlCodigoMoneda.Match(xmlOriginal).ToString().Replace("<moneda>", "").Replace("</moneda>", "");
+                var Total = GetXmlTotalComprobante.Match(xmlOriginal).ToString().Replace("<importeTotal>", "").Replace("</importeTotal>", "");
+
+                facturaxml.TotalComprobante = Convert.ToDecimal(Total);
+
+
+                facturaxml.IdReceptor = GetXmlIdReceptor.Match(xmlOriginal).ToString().Replace("<identificacionComprador>", "").Replace("</identificacionComprador>", "");
+            }
+            catch (Exception ex)
+            {
+                facturaxml = null;
+            }
+            return facturaxml;
+        }
+
         internal string StringToBase64(string xmlStringFirmado)
         {
             try
