@@ -270,6 +270,11 @@ namespace CheckIn.API.Controllers
 
                             // Encontrar las posiciones de las palabras clave
                             int indiceInicio = xmlBase64.IndexOf(palabraInicio);
+                            if(indiceInicio == -1)
+                            {
+                                palabraInicio = "<comprobante> <![CDATA[";
+                                indiceInicio = xmlBase64.IndexOf(palabraInicio);
+                            }
                             int indiceFin = xmlBase64.IndexOf(palabraFin);
                             string subcadena = "";
                             // Verificar si se encontraron ambas palabras clave
@@ -289,7 +294,7 @@ namespace CheckIn.API.Controllers
 
 
 
-                        var xml = G.ConvertirArchivoaXElement(xmlBase64, G.ObtenerCedulaJuridia());
+                        var xml = G.ConvertirArchivoaXElement(xmlBase64.Trim(), G.ObtenerCedulaJuridia());
 
                         
                         if (!xmlBase64.Contains("FacturaElectronica") && !xmlBase64.Contains("comprobante")

@@ -332,6 +332,11 @@ namespace CheckIn.API.Controllers
 
             // Encontrar las posiciones de las palabras clave
             int indiceInicio = xml.IndexOf(palabraInicio);
+            if(indiceInicio == -1)
+            {
+                palabraInicio = "<comprobante> <![CDATA[";
+                indiceInicio = xml.IndexOf(palabraInicio);
+            }
             int indiceFin = xml.IndexOf(palabraFin);
             string subcadena = "";
             // Verificar si se encontraron ambas palabras clave
@@ -351,7 +356,7 @@ namespace CheckIn.API.Controllers
             string xmlOriginal = subcadena;
             try
             {
-
+                xmlOriginal = xmlOriginal.Trim();
                 // Cargar la cadena XML en el documento XML
                 xmlDoc.LoadXml(xmlOriginal);
                 XmlNode nodo = xmlDoc.SelectSingleNode("comprobante");
