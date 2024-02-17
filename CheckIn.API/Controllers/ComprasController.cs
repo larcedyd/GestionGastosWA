@@ -305,7 +305,24 @@ namespace CheckIn.API.Controllers
 
                         factura.ClaveHacienda = Pais == "E" ? G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial") : G.ExtraerValorDeNodoXml(xml, "Clave");
                         factura.ConsecutivoHacienda = Pais == "E" ? G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial") : G.ExtraerValorDeNodoXml(xml, "NumeroConsecutivo");
-                        factura.FecFactura = Pais == "E" ? DateTime.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/fechaEmision")) : DateTime.Parse(G.ExtraerValorDeNodoXml(xml, "FechaEmision"));
+                        if(Pais == "E")
+                        {
+                            string _FechaEmision = G.ExtraerValorDeNodoXml(xml, "infoFactura/fechaEmision");
+                            string[] Array_FechaEmision = _FechaEmision.Split('/');
+                            var FechaEmision2 = "";
+                            if (Array_FechaEmision.Length == 3)
+                            {
+                                FechaEmision2 = Array_FechaEmision[2] + "/" + Array_FechaEmision[1] + "/" + Array_FechaEmision[0];
+                            }
+
+                            factura.FecFactura = DateTime.Parse(FechaEmision2);
+
+                        }
+                        else
+                        {
+                            factura.FecFactura = DateTime.Parse(G.ExtraerValorDeNodoXml(xml, "FechaEmision"));
+
+                        }
                         factura.CodigoActividadEconomica = Pais == "E" ? "" : G.ExtraerValorDeNodoXml(xml, "CodigoActividad");
                         factura.FechaGravado = DateTime.Now;
                         factura.CodEmpresa = G.ObtenerCedulaJuridia();
