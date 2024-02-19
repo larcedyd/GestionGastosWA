@@ -263,6 +263,7 @@ namespace CheckIn.API.Controllers
                         var attachmentBody = G.Unzip(item.XmlFactura);
                         EncCompras factura = new EncCompras();
                         string xmlBase64 = attachmentBody;
+                        xmlBase64 = xmlBase64.Replace("\n", "");
                         if (Pais == "E")
                         {
                             string palabraInicio = "<comprobante><![CDATA[";
