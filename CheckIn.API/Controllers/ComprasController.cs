@@ -304,8 +304,8 @@ namespace CheckIn.API.Controllers
                             && !xmlBase64.Contains("NotaDebitoElectronica"))
                             throw new Exception("No es un documento electrónico");
 
-                        factura.ClaveHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") +  G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "Clave");
-                        factura.ConsecutivoHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "NumeroConsecutivo");
+                        factura.ClaveHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" +  G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "Clave");
+                        factura.ConsecutivoHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "NumeroConsecutivo");
                         if(Pais == "E")
                         {
                             string _FechaEmision = G.ExtraerValorDeNodoXml(xml, "infoFactura/fechaEmision");
