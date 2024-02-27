@@ -150,7 +150,7 @@ namespace CheckIn.API.Controllers
                             TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
                         }
                     }
-                    else //Panama, Nicaragua, Dominicana, Honduras
+                    else //Panama, Nicaragua, Dominicana, Honduras, Ecuador
                     {
                         TipoGasto = db.Gastos.Where(a => a.idTipoGasto == item.idTipoGasto).FirstOrDefault();
                     }
@@ -187,9 +187,14 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
 
                     }
+                    else if (Pais == "E")
+                    {
+                        oInvoice.Lines.ItemDescription = item.CodProveedor.Split('[')[0] + "-" + item.NomProveedor;//"3102751358 - D y D Consultores"; // Factura -> Cedula 
+
+                    }
                     oInvoice.Lines.AccountCode = Cuenta.CodSAP;   //Cuenta contable del gasto
 
-                    if (Pais == "C" || Pais == "N" || Pais == "D" || Pais == "H")
+                    if (Pais == "C" || Pais == "N" || Pais == "D" || Pais == "H" || Pais == "E")
                     {
                         oInvoice.Lines.TaxCode = param.IMPEX; //Exento para Panama -> Verificar el codigo C0
 
@@ -221,6 +226,13 @@ namespace CheckIn.API.Controllers
                         imp2 += item.Impuesto2; // 15%
                         imp4 += item.Impuesto4; // 10%
                         imp8 += item.Impuesto8; // 4%
+                    }
+                    else if (Pais == "E")
+                    {
+                        
+                        imp4 += item.Impuesto4; // 10% propinas
+                        imp8 += item.Impuesto8; // 12% Otros cargos
+                        imp13 += item.Impuesto13; //12% IVA
                     }
                     else //Panama y Nicaragua
                     {
@@ -500,6 +512,30 @@ namespace CheckIn.API.Controllers
 
                         oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
                     }
+                    else if (Pais == "E")
+                    {
+                        G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
+                        if (TipoGasto.Nombre.ToUpper().Contains("Comb".ToUpper()))
+                        {
+                            var DetalleFac = db.DetCompras.Where(a => a.NumFactura == item.NumFactura && a.ClaveHacienda == item.ClaveHacienda && a.ConsecutivoHacienda == item.ConsecutivoHacienda).FirstOrDefault();
+                            if (DetalleFac != null)
+                            {
+                                oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = int.Parse(Math.Round(DetalleFac.Cantidad.Value).ToString());
+                                oInvoice.Lines.UserFields.Fields.Item("U_Tipo").Value = (DetalleFac.NomPro.ToUpper().Contains("Super".ToUpper()) ? "Gasolina Super" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Eco".ToUpper()) ? "Gasolina Regular" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Diesel".ToUpper()) ? "Diesel"  : "Diesel");
+
+                            }
+                            else
+                            {
+                                G.GuardarTxt("ErrorSAP.txt", "Esta vacio el detalle: " + DetalleFac.ToString());
+
+                            }
+                        }
+
+                        oInvoice.Lines.UserFields.Fields.Item("U_RUC").Value = item.CodProveedor.Split('[')[0]; 
+                        oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
+                        oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value = item.ClaveHacienda.ToString();
+                        oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
+                    }
 
 
                     oInvoice.Lines.Add();
@@ -710,7 +746,46 @@ namespace CheckIn.API.Controllers
                         i++;
                     }
                 }
+                else if (Pais == "E")
+                {
+                    if (imp4 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Otros Cargos(12%)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
+                        //oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI1;
 
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp8 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Propinas(10%)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
+                        //oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI2;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp13 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "IVA (12&)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp13);
+                        // oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI13;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+                    
+                }
 
 
 
