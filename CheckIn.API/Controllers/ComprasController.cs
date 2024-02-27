@@ -394,6 +394,11 @@ namespace CheckIn.API.Controllers
                             {
                                 factura.CodMoneda = "USD";
                             }
+
+                            if(Pais == "E" && string.IsNullOrWhiteSpace(factura.CodMoneda))
+                            {
+                                factura.CodMoneda = "USD";
+                            }
                         }
 
                         if (string.IsNullOrWhiteSpace(factura.CodMoneda))
