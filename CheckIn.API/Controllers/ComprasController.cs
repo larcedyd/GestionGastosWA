@@ -389,7 +389,7 @@ namespace CheckIn.API.Controllers
                         }
                         else
                         {
-                            factura.CodMoneda = Pais == "E" ? G.ExtraerValorDeNodoXml(xml, "infoFactura/moneda") : G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoMoneda");
+                            factura.CodMoneda = Pais == "E" ? "USD" : G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoMoneda");
                             if (Pais == "E" && factura.CodMoneda == "DOLAR")
                             {
                                 factura.CodMoneda = "USD";
