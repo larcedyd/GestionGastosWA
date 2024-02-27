@@ -909,7 +909,7 @@ namespace CheckIn.API.Controllers
                             string procesado = "1";
 
                             db.Database.ExecuteSqlCommand("Update BandejaEntrada SET Mensaje=@Mensaje, Procesado=@Procesado WHERE Id=@Id",
-                                 new SqlParameter("@Mensaje", ex.Message),
+                                 new SqlParameter("@Mensaje", ex.Message + " -> " + ex.StackTrace),
                                  new SqlParameter("@Procesado", procesado),
                                  new SqlParameter("@Id", item.Id));
 
