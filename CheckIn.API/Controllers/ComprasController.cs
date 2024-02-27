@@ -330,11 +330,11 @@ namespace CheckIn.API.Controllers
 
                         try
                         {
-                            factura.NumFactura = Pais == "E" ? int.Parse(factura.ConsecutivoHacienda) : int.Parse(factura.ConsecutivoHacienda.Substring(10, 10));
+                            factura.NumFactura = Pais == "E" ? int.Parse(G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : int.Parse(factura.ConsecutivoHacienda.Substring(10, 10));
                         }
                         catch (Exception ex)
                         {
-                            factura.NumFactura = Pais == "E" ? int.Parse(factura.ConsecutivoHacienda) : int.Parse(factura.ConsecutivoHacienda.Substring(11, 9));
+                            factura.NumFactura = Pais == "E" ? int.Parse(G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : int.Parse(factura.ConsecutivoHacienda.Substring(11, 9));
 
                         }
 
