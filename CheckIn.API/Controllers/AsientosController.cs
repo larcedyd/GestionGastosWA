@@ -303,7 +303,7 @@ namespace CheckIn.API.Controllers
                             }
                     }
 
-                    oInvoice.Lines.LineTotal = Convert.ToDouble(item.TotalComprobante.Value - item.TotalImpuesto);
+                    oInvoice.Lines.LineTotal = Pais == "E" ? Convert.ToDouble(item.TotalComprobante.Value - item.Impuesto13) : Convert.ToDouble(item.TotalComprobante.Value - item.TotalImpuesto);
 
 
                     if (Pais == "C")
@@ -748,30 +748,30 @@ namespace CheckIn.API.Controllers
                 }
                 else if (Pais == "E")
                 {
-                    if (imp4 > 0)
-                    {
-                        oInvoice.Lines.SetCurrentLine(i);
-                        oInvoice.Lines.ItemDescription = "Otros Cargos(12%)";
-                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
-                        //oInvoice.Lines.VatGroup = param.IMPEX;
-                        oInvoice.Lines.TaxCode = param.IMPEX;
-                        oInvoice.Lines.AccountCode = param.CI1;
+                    //if (imp4 > 0)
+                    //{
+                    //    oInvoice.Lines.SetCurrentLine(i);
+                    //    oInvoice.Lines.ItemDescription = "Otros Cargos(12%)";
+                    //    oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
+                    //    //oInvoice.Lines.VatGroup = param.IMPEX;
+                    //    oInvoice.Lines.TaxCode = param.IMPEX;
+                    //    oInvoice.Lines.AccountCode = param.CI1;
 
-                        oInvoice.Lines.Add();
-                        i++;
-                    }
+                    //    oInvoice.Lines.Add();
+                    //    i++;
+                    //}
 
-                    if (imp8 > 0)
-                    {
-                        oInvoice.Lines.SetCurrentLine(i);
-                        oInvoice.Lines.ItemDescription = "Propinas(10%)";
-                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
-                        //oInvoice.Lines.VatGroup = param.IMPEX;
-                        oInvoice.Lines.TaxCode = param.IMPEX;
-                        oInvoice.Lines.AccountCode = param.CI2;
-                        oInvoice.Lines.Add();
-                        i++;
-                    }
+                    //if (imp8 > 0)
+                    //{
+                    //    oInvoice.Lines.SetCurrentLine(i);
+                    //    oInvoice.Lines.ItemDescription = "Propinas(10%)";
+                    //    oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
+                    //    //oInvoice.Lines.VatGroup = param.IMPEX;
+                    //    oInvoice.Lines.TaxCode = param.IMPEX;
+                    //    oInvoice.Lines.AccountCode = param.CI2;
+                    //    oInvoice.Lines.Add();
+                    //    i++;
+                    //}
 
                     if (imp13 > 0)
                     {
