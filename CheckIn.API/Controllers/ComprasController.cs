@@ -595,7 +595,33 @@ namespace CheckIn.API.Controllers
                             }
 
                         }
+                        if (Pais == "E")
+                        {
+                            try
+                            {
+                                iva8 += decimal.Parse(G.ExtraerValorDeNodoXml(xml, "otrosRubrosTerceros/rubro/total", true));
 
+
+
+                            }
+                            catch (Exception)
+                            {
+
+                                try
+                                {
+                                    iva8 += decimal.Parse(G.ExtraerValorDeNodoXml(xml, "otrosRubrosTerceros/rubro/total", true).Replace(".", ","));
+
+                                }
+                                catch (Exception)
+                                {
+
+
+                                }
+
+
+                            }
+
+                        }
                         List<DetCompras> detCpmpras = new List<DetCompras>();
 
                         if (Pais == "E")
