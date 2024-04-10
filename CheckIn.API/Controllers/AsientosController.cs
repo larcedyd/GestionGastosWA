@@ -229,7 +229,7 @@ namespace CheckIn.API.Controllers
                     }
                     else if (Pais == "E")
                     {
-                        
+                        imp1 += item.Impuesto1; // 15% provisional Ecuador
                         imp4 += item.Impuesto4; // 10% propinas
                         imp8 += item.Impuesto8; // 12% Otros cargos
                         imp13 += item.Impuesto13; //12% IVA
@@ -784,7 +784,18 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.Add();
                         i++;
                     }
-                    
+
+                    if (imp1 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "IVA (15&)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
+                        // oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI13;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
                 }
 
 

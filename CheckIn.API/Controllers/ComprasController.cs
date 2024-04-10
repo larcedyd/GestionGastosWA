@@ -780,7 +780,22 @@ namespace CheckIn.API.Controllers
                                             }
                                             break;
                                         }
-                                    
+                                    case 15:
+                                        {
+                                            if (!bandera)
+                                            {
+                                                iva1 += det.ImpuestoMonto.Value;
+                                            }
+                                            else
+                                            {
+                                                if (cantidadImpuesto > 0)
+                                                {
+                                                    iva1 += ((det.SubTotal.Value - det.MontoDescuento.Value) * (cantidadImpuesto / 100));
+                                                }
+                                            }
+                                            break;
+                                        }
+
                                 }
 
 
@@ -1592,6 +1607,21 @@ namespace CheckIn.API.Controllers
                                                 if (cantidadImpuesto > 0)
                                                 {
                                                     iva13 += ((det.SubTotal.Value - det.MontoDescuento.Value) * (cantidadImpuesto / 100));
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    case 15:
+                                        {
+                                            if (!bandera)
+                                            {
+                                                iva1 += det.ImpuestoMonto.Value;
+                                            }
+                                            else
+                                            {
+                                                if (cantidadImpuesto > 0)
+                                                {
+                                                    iva1 += ((det.SubTotal.Value - det.MontoDescuento.Value) * (cantidadImpuesto / 100));
                                                 }
                                             }
                                             break;
