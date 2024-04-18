@@ -273,7 +273,7 @@ namespace CheckIn.API.Controllers
 
                             // Encontrar las posiciones de las palabras clave
                             int indiceInicio = xmlBase64.IndexOf(palabraInicio);
-                            if(indiceInicio == -1)
+                            if (indiceInicio == -1)
                             {
                                 palabraInicio = "<comprobante> <![CDATA[";
                                 indiceInicio = xmlBase64.IndexOf(palabraInicio);
@@ -299,16 +299,16 @@ namespace CheckIn.API.Controllers
 
                         var xml = G.ConvertirArchivoaXElement(xmlBase64.Trim(), G.ObtenerCedulaJuridia());
 
-                        
+
                         if (!xmlBase64.Contains("FacturaElectronica") && !xmlBase64.Contains("comprobante")
                             && !xmlBase64.Contains("TiqueteElectronico")
                             && !xmlBase64.Contains("NotaCreditoElectronica")
                             && !xmlBase64.Contains("NotaDebitoElectronica"))
                             throw new Exception("No es un documento electrónico");
 
-                        factura.ClaveHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" +  G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "Clave");
+                        factura.ClaveHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "Clave");
                         factura.ConsecutivoHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "NumeroConsecutivo");
-                        if(Pais == "E")
+                        if (Pais == "E")
                         {
                             string _FechaEmision = G.ExtraerValorDeNodoXml(xml, "infoFactura/fechaEmision");
                             string[] Array_FechaEmision = _FechaEmision.Split('/');
@@ -353,7 +353,7 @@ namespace CheckIn.API.Controllers
                         factura.ConsecutivoHacienda = factura.ConsecutivoHacienda.TrimEnd();
                         if (db.EncCompras.Where(m => m.CodEmpresa == factura.CodEmpresa
                    && m.CodProveedor == factura.CodProveedor
-                   && m.ConsecutivoHacienda == factura.ConsecutivoHacienda
+                   && m.ConsecutivoHacienda.Contains(factura.ConsecutivoHacienda)
                    && m.TipoDocumento == factura.TipoDocumento).Count() > 0)
                         {
                             throw new Exception($"El documento ya existe [Clave={factura.ClaveHacienda}] [Consecutivo={factura.ConsecutivoHacienda}]");
@@ -397,7 +397,7 @@ namespace CheckIn.API.Controllers
                                 factura.CodMoneda = "USD";
                             }
 
-                            if(Pais == "E" && string.IsNullOrWhiteSpace(factura.CodMoneda))
+                            if (Pais == "E" && string.IsNullOrWhiteSpace(factura.CodMoneda))
                             {
                                 factura.CodMoneda = "USD";
                             }
@@ -431,7 +431,7 @@ namespace CheckIn.API.Controllers
 
                         factura.TotalExento = Pais == "E" ? 0 : decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalExento", true));
 
-                        if(Pais == "E")
+                        if (Pais == "E")
                         {
                             try
                             {
@@ -440,7 +440,7 @@ namespace CheckIn.API.Controllers
                             catch (Exception)
                             {
 
-                                factura.TotalVenta = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true).Replace(".",","));
+                                factura.TotalVenta = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true).Replace(".", ","));
                             }
 
                         }
@@ -449,24 +449,24 @@ namespace CheckIn.API.Controllers
                             factura.TotalVenta = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalVenta", true));
                         }
 
-                       if(Pais == "E")
+                        if (Pais == "E")
                         {
                             try
                             {
-                                factura.TotalDescuentos =   decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalDescuento", true));
+                                factura.TotalDescuentos = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalDescuento", true));
 
                             }
                             catch (Exception)
                             {
 
-                            factura.TotalDescuentos =  decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalDescuento", true).Replace(".", ","));
+                                factura.TotalDescuentos = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalDescuento", true).Replace(".", ","));
 
                             }
 
                         }
                         else
                         {
-                            factura.TotalDescuentos =   decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalDescuentos", true));
+                            factura.TotalDescuentos = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalDescuentos", true));
 
                         }
 
@@ -474,7 +474,7 @@ namespace CheckIn.API.Controllers
                         {
                             try
                             {
-                                factura.TotalVentaNeta =  decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true)) ;
+                                factura.TotalVentaNeta = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true));
 
 
                             }
@@ -489,7 +489,7 @@ namespace CheckIn.API.Controllers
                         }
                         else
                         {
-                            factura.TotalVentaNeta =  decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalVentaNeta", true));
+                            factura.TotalVentaNeta = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalVentaNeta", true));
 
 
                         }
@@ -499,7 +499,7 @@ namespace CheckIn.API.Controllers
                         {
                             try
                             {
-                                factura.TotalImpuesto =  (factura.TotalVentaNeta - decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalSinImpuestos", true)));
+                                factura.TotalImpuesto = (factura.TotalVentaNeta - decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalSinImpuestos", true)));
 
 
 
@@ -507,8 +507,8 @@ namespace CheckIn.API.Controllers
                             catch (Exception)
                             {
 
-                                
-                                factura.TotalImpuesto =   (factura.TotalVentaNeta - decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalSinImpuestos", true).Replace(".", ",")));
+
+                                factura.TotalImpuesto = (factura.TotalVentaNeta - decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/totalSinImpuestos", true).Replace(".", ",")));
 
 
                             }
@@ -516,9 +516,9 @@ namespace CheckIn.API.Controllers
                         }
                         else
                         {
-                            
 
-                            factura.TotalImpuesto =  decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalImpuesto", true));
+
+                            factura.TotalImpuesto = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalImpuesto", true));
 
                         }
 
@@ -526,7 +526,7 @@ namespace CheckIn.API.Controllers
                         {
                             try
                             {
-                                factura.TotalComprobante =  decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true));
+                                factura.TotalComprobante = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true));
 
 
 
@@ -536,8 +536,8 @@ namespace CheckIn.API.Controllers
                             {
 
 
- 
-                                factura.TotalComprobante =   decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true).Replace(".", ",")) ;
+
+                                factura.TotalComprobante = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/importeTotal", true).Replace(".", ","));
 
 
                             }
@@ -547,8 +547,8 @@ namespace CheckIn.API.Controllers
                         {
 
 
-                            
-                            factura.TotalComprobante =   decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalComprobante", true));
+
+                            factura.TotalComprobante = decimal.Parse(G.ExtraerValorDeNodoXml(xml, "ResumenFactura/TotalComprobante", true));
 
                         }
 
@@ -680,7 +680,7 @@ namespace CheckIn.API.Controllers
                                 }
                                 decimal MontoTotalImpuestos = 0;
                                 var Tarifa = "";
-                                foreach(var item3 in item2.Elements().Where(a => a.Name.LocalName == "impuestos").Elements())
+                                foreach (var item3 in item2.Elements().Where(a => a.Name.LocalName == "impuestos").Elements())
                                 {
                                     try
                                     {
@@ -740,7 +740,7 @@ namespace CheckIn.API.Controllers
                                 }
                                 catch (Exception)
                                 {
-                                    det.ImpuestoTarifa = decimal.Parse(Tarifa.Replace(".",","));
+                                    det.ImpuestoTarifa = decimal.Parse(Tarifa.Replace(".", ","));
 
                                 }
                                 det.ImpuestoMonto = MontoTotalImpuestos;
@@ -1030,7 +1030,7 @@ namespace CheckIn.API.Controllers
 
                 var Pais = Licencia.CadenaConexionSAP;
 
-                string carpeta =G.ObtenerConfig("CarpetaXML"); // Ruta de la carpeta que contiene los archivos XML
+                string carpeta = G.ObtenerConfig("CarpetaXML"); // Ruta de la carpeta que contiene los archivos XML
 
                 // Enumerar los archivos XML en la carpeta
                 string[] archivosXml = Directory.GetFiles(carpeta, "*.xml");
@@ -1038,9 +1038,9 @@ namespace CheckIn.API.Controllers
                 foreach (string archivoXml in archivosXml)
                 {
                     var nombre = "";
-                    byte[] ByteArrayPDF ;
+                    byte[] ByteArrayPDF;
 
-                   
+
 
                     try
                     {
@@ -1049,7 +1049,7 @@ namespace CheckIn.API.Controllers
                         documentoXml.Load(archivoXml);
                         nombre = Path.GetFileName(documentoXml.BaseURI);
 
-                       
+
 
 
                         string xmlBase64 = documentoXml.InnerXml.ToString();
@@ -1091,7 +1091,7 @@ namespace CheckIn.API.Controllers
                             throw new Exception("No es un documento electrónico");
 
 
-                        EncCompras factura = new EncCompras(); 
+                        EncCompras factura = new EncCompras();
                         factura.ClaveHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "Clave");
                         factura.ConsecutivoHacienda = Pais == "E" ? (G.ExtraerValorDeNodoXml(xml, "infoTributaria/estab") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/ptoEmi") + "-" + G.ExtraerValorDeNodoXml(xml, "infoTributaria/secuencial")) : G.ExtraerValorDeNodoXml(xml, "NumeroConsecutivo");
                         if (Pais == "E")
@@ -1384,10 +1384,10 @@ namespace CheckIn.API.Controllers
                         {
 
 
-                        } 
+                        }
 
                         factura.PdfFactura = pdfResp;
-                         if(pdfResp == "")
+                        if (pdfResp == "")
                         {
                             factura.PdfFac = null;
 
@@ -1403,7 +1403,7 @@ namespace CheckIn.API.Controllers
                         {
                             try
                             {
-                                iva4 +=  decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/propina", true)) ;
+                                iva4 += decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/propina", true));
 
 
 
@@ -1413,13 +1413,13 @@ namespace CheckIn.API.Controllers
 
                                 try
                                 {
-                                    iva4 +=   decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/propina", true).Replace(".", ",")) ;
+                                    iva4 += decimal.Parse(G.ExtraerValorDeNodoXml(xml, "infoFactura/propina", true).Replace(".", ","));
 
                                 }
                                 catch (Exception)
                                 {
 
-                                    
+
                                 }
 
 
@@ -1810,10 +1810,10 @@ namespace CheckIn.API.Controllers
                         catch (Exception)
                         {
 
-                            
+
                         }
                     }
-                    catch (Exception ex )
+                    catch (Exception ex)
                     {
                         try
                         {
@@ -1824,7 +1824,7 @@ namespace CheckIn.API.Controllers
                         catch (Exception)
                         {
 
-                            
+
                         }
 
                         BitacoraErrores be = new BitacoraErrores();
@@ -1836,7 +1836,7 @@ namespace CheckIn.API.Controllers
                         db.SaveChanges();
 
                     }
-                   
+
 
 
 
