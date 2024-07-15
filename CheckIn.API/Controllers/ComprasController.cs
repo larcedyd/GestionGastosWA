@@ -1081,6 +1081,8 @@ namespace CheckIn.API.Controllers
 
                             }
                         }
+
+
                         var xml = G.ConvertirArchivoaXElement(xmlBase64.Trim(), G.ObtenerCedulaJuridia());
 
 
@@ -1859,6 +1861,503 @@ namespace CheckIn.API.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
+
+        [Route("api/Compras/RealizarLecturaXMLCarpetaGuatemala")]
+
+        public async Task<HttpResponseMessage> GetRealizarLecturaXMLCarpetaGuatemalaAsync()
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var Compañia = G.ObtenerCedulaJuridia();
+
+                var Licencia = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == Compañia).FirstOrDefault();
+
+                var Pais = Licencia.CadenaConexionSAP;
+
+                string carpeta = G.ObtenerConfig("CarpetaXML"); // Ruta de la carpeta que contiene los archivos XML
+
+                // Enumerar los archivos XML en la carpeta
+                string[] archivosXml = Directory.GetFiles(carpeta, "*.xml");
+
+                foreach (string archivoXml in archivosXml)
+                {
+                    var nombre = "";
+                    byte[] ByteArrayPDF;
+
+
+
+                    try
+                    {
+                        // Leer el archivo XML
+                        XmlDocument documentoXml = new XmlDocument();
+                        documentoXml.Load(archivoXml);
+                        nombre = Path.GetFileName(documentoXml.BaseURI);
+
+
+
+
+                        string xmlBase64 = documentoXml.InnerXml.ToString();
+                        xmlBase64 = xmlBase64.Replace("\n", "");
+
+                        if (Pais == "G")
+                        {
+
+                        }
+
+
+                        var xml = G.ConvertirArchivoaXElement(xmlBase64.Trim(), G.ObtenerCedulaJuridia());
+
+
+                        if (!xmlBase64.Contains("FacturaElectronica") && !xmlBase64.Contains("GTDocumento")
+                            && !xmlBase64.Contains("TiqueteElectronico")
+                            && !xmlBase64.Contains("NotaCreditoElectronica")
+                            && !xmlBase64.Contains("NotaDebitoElectronica"))
+                            throw new Exception("No es un documento electrónico");
+
+                        // Acceder a elementos específicos
+                        XmlNamespaceManager nsmgr = new XmlNamespaceManager(documentoXml.NameTable);
+                        nsmgr.AddNamespace("dte", "http://www.sat.gob.gt/dte/fel/0.2.0");
+
+                        EncCompras factura = new EncCompras();
+
+                        // Buscar el nodo NumeroAutorizacion
+                        XmlNode autorizacionNode = documentoXml.SelectSingleNode("//dte:NumeroAutorizacion", nsmgr);
+
+                        factura.ClaveHacienda = autorizacionNode.Attributes["Numero"].Value;
+                        factura.ConsecutivoHacienda = factura.ClaveHacienda;
+
+                        XmlNode datosEmisionNode = documentoXml.SelectSingleNode("//dte:DatosEmision", nsmgr);
+                        if (Pais == "G")
+                        {
+                            string _FechaEmision = datosEmisionNode.SelectSingleNode("dte:DatosGenerales", nsmgr)?.Attributes["FechaHoraEmision"]?.Value;
+                            //string[] Array_FechaEmision = _FechaEmision.Split('-');
+                            //var FechaEmision2 = "";
+                            //if (Array_FechaEmision.Length >= 3)
+                            //{
+                            //    FechaEmision2 = Array_FechaEmision[0] + "/" + Array_FechaEmision[1] + "/" + Array_FechaEmision[2];
+                            //}
+
+                            factura.FecFactura = DateTime.Parse(_FechaEmision);
+
+                        }
+
+                        factura.CodigoActividadEconomica = "";
+                        factura.FechaGravado = DateTime.Now;
+                        factura.CodEmpresa = G.ObtenerCedulaJuridia();
+
+
+                        try
+                        {
+                            factura.NumFactura = int.Parse(autorizacionNode.Attributes["Numero"].Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            factura.NumFactura = 0;
+
+                        }
+
+                        factura.TipoDocumento = "01";
+                        if (factura.TipoDocumento == "04")
+                            throw new Exception($"El documento es un Tiquete Electrónico, que no puede ser utilizado como gasto deducible. Debe solicitar al proveedor que genere una Factura Electrónica.");
+
+
+                        //Informacion del Proveedor o emisor de la factura
+
+                        factura.CodProveedor = datosEmisionNode.SelectSingleNode("dte:Emisor", nsmgr)?.Attributes["NITEmisor"]?.Value;
+
+                        // si el nombre se pasa de 80 caracteres debemos cortarlo
+                        factura.ConsecutivoHacienda = factura.ConsecutivoHacienda.TrimEnd();
+                        if (db.EncCompras.Where(m => m.CodEmpresa == factura.CodEmpresa
+                   && m.CodProveedor == factura.CodProveedor
+                   && m.ConsecutivoHacienda == factura.ConsecutivoHacienda
+                   && m.TipoDocumento == factura.TipoDocumento).Count() > 0)
+                        {
+                            throw new Exception($"El documento ya existe [Clave={factura.ClaveHacienda}] [Consecutivo={factura.ConsecutivoHacienda}]");
+                        }
+
+                        //Información del Cliente o Receptor de la factura
+                        factura.TipoIdentificacionCliente = "04";
+                        factura.CodCliente = datosEmisionNode.SelectSingleNode("dte:Receptor", nsmgr)?.Attributes["IDReceptor"]?.Value;
+                        factura.NomCliente = datosEmisionNode.SelectSingleNode("dte:Receptor", nsmgr)?.Attributes["NombreReceptor"]?.Value;
+                        if (factura.NomCliente.Length > 50)
+                            factura.NomCliente = factura.NomCliente.Substring(0, 50);
+                        factura.EmailCliente = datosEmisionNode.SelectSingleNode("dte:Receptor", nsmgr)?.Attributes["CorreoReceptor"]?.Value;
+
+                        factura.CondicionVenta = "";
+
+                        if (factura.CodCliente != factura.CodEmpresa)
+                        {
+                            throw new Exception($"El documento no fue dirigido para esta compañia [Empresa={factura.CodEmpresa}] [Cliente de Factura={factura.CodCliente}]");
+                        }
+
+                        try
+                        {
+                            factura.DiasCredito = 0;
+                        }
+                        catch
+                        {
+                            factura.DiasCredito = 0;
+                        }
+
+                        factura.MedioPago = "";
+
+                        factura.CodMoneda = datosEmisionNode.SelectSingleNode("dte:DatosGenerales", nsmgr)?.Attributes["CodigoMoneda"]?.Value;
+
+
+
+                        if (string.IsNullOrWhiteSpace(factura.CodMoneda))
+                        {
+                            factura.CodMoneda = "CRC";
+
+                        }
+
+                        factura.TotalServGravados = 0;
+                        factura.TotalServExentos = 0;
+                        factura.TotalMercanciasGravadas = 0;
+                        factura.TotalMercanciasExentas = 0;
+
+                        factura.TotalServExonerado = 0;
+                        factura.TotalMercExonerada = 0;
+                        factura.TotalExonerado = 0;
+                        factura.TotalIVADevuelto = 0;
+                        factura.TotalOtrosCargos = 0;
+
+
+                        factura.TotalExento = 0;
+
+
+
+
+                        var NomProveedor = datosEmisionNode.SelectSingleNode("dte:Emisor", nsmgr)?.Attributes["NombreEmisor"]?.Value;
+                        factura.XmlFacturaRecibida = G.StringToBase64(xmlBase64);
+                        factura.NomProveedor = NomProveedor;
+                        Random i = new Random();
+                        int o = i.Next(0, 10000);
+                        var pdfResp = "";
+                        try
+                        {
+                            string[] archivosPdf = Directory.GetFiles(carpeta, nombre.Replace(".xml", "") + ".pdf");
+
+                            if (archivosPdf.Length > 0)
+                            {
+                                using (MemoryStream stream = new MemoryStream())
+                                {
+                                    using (PdfReader reader = new PdfReader(archivosPdf[0]))
+                                    {
+                                        // Crear un escritor de PDF para el stream
+                                        using (PdfStamper stamper = new PdfStamper(reader, stream))
+                                        {
+                                            // No se hacen cambios en el documento, simplemente se copia
+                                        }
+                                    }
+
+                                    // Convertir el contenido del MemoryStream a un arreglo de bytes
+                                    ByteArrayPDF = stream.ToArray();
+                                    pdfResp = G.GuardarPDF(ByteArrayPDF, G.ObtenerCedulaJuridia(), o + "_" + factura.NumFactura.ToString());
+                                    factura.PdfFac = ByteArrayPDF;
+                                    try
+                                    {
+                                        // Eliminar el archivo
+                                        File.Delete(archivosPdf[0]);
+                                    }
+                                    catch (Exception)
+                                    {
+
+
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (Exception)
+                        {
+
+
+                        }
+
+                        factura.PdfFactura = pdfResp;
+                        if (pdfResp == "")
+                        {
+                            factura.PdfFac = null;
+
+                        }
+                        decimal iva1 = 0;
+                        decimal iva2 = 0;
+                        decimal iva4 = 0;
+                        decimal iva8 = 0;
+                        decimal iva13 = 0;
+
+
+
+
+                        List<DetCompras> detCpmpras = new List<DetCompras>();
+
+                        if (Pais == "G")
+                        {
+                            var NumLinea = 0;
+                            // Seleccionar todos los nodos de Item
+                            XmlNodeList itemNodes = documentoXml.SelectNodes("//dte:Item", nsmgr);
+                            foreach (XmlNode itemNode in itemNodes)
+                            {
+                                var det = new DetCompras();
+                                det.CodEmpresa = factura.CodEmpresa;
+                                det.NumFactura = factura.NumFactura;
+                                det.CodProveedor = factura.CodProveedor;
+                                det.TipoDocumento = factura.TipoDocumento;
+                                det.ClaveHacienda = factura.ClaveHacienda;
+                                det.ConsecutivoHacienda = factura.ConsecutivoHacienda;
+                                det.NomProveedor = NomProveedor;
+                                det.NumLinea = NumLinea;
+                                NumLinea++;
+
+
+
+                                det.CodPro = "";
+                                if (det.CodPro.Length > 20)
+                                    det.CodPro = det.CodPro.Substring(0, 20);
+
+
+                                det.NomPro = itemNode.SelectSingleNode("dte:Descripcion", nsmgr)?.InnerText;
+                                det.CodCabys = "";
+                                if (det.NomPro.Length > 60)
+                                    det.NomPro = det.NomPro.Substring(0, 60);
+
+
+                                det.UnidadMedida = itemNode.SelectSingleNode("dte:UnidadMedida", nsmgr)?.InnerText;
+                                try
+                                {
+                                    var Decimal = Convert.ToDecimal(itemNode.SelectSingleNode("dte:Cantidad", nsmgr)?.InnerText);
+                                    det.Cantidad = Convert.ToInt32(Decimal);
+                                }
+                                catch (Exception)
+                                {
+
+                                    var Decimal = Convert.ToDecimal(itemNode.SelectSingleNode("dte:Cantidad", nsmgr)?.InnerText.Replace(".", ","));
+
+                                    det.Cantidad = Convert.ToInt32(Decimal);
+                                }
+
+                                try
+                                {
+                                    det.PrecioUnitario = decimal.Parse(itemNode.SelectSingleNode("dte:PrecioUnitario", nsmgr)?.InnerText);
+
+                                }
+                                catch (Exception)
+                                {
+
+                                    det.PrecioUnitario = decimal.Parse(itemNode.SelectSingleNode("dte:PrecioUnitario", nsmgr)?.InnerText.Replace(".", ","));
+
+                                }
+                                decimal MontoTotalImpuestos = 0;
+                                var Tarifa = "12";
+                                XmlNodeList impuestoNodes = itemNode.SelectNodes("dte:Impuestos/dte:Impuesto", nsmgr);
+                                foreach (XmlNode impuestoNode in impuestoNodes)
+                                {
+                                    try
+                                    {
+                                        MontoTotalImpuestos += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText);
+
+                                    }
+                                    catch (Exception)
+                                    {
+
+                                        MontoTotalImpuestos += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText.Replace(".", ","));
+
+                                    }
+                                    // Tarifa = G.ExtraerValorDeNodoXml(item3, "tarifa");
+                                }
+
+                                try
+                                {
+                                    det.MontoTotal = decimal.Parse(itemNode.SelectSingleNode("dte:Total", nsmgr)?.InnerText);
+
+                                }
+                                catch (Exception)
+                                {
+
+                                    det.MontoTotal = decimal.Parse(itemNode.SelectSingleNode("dte:Total", nsmgr)?.InnerText.Replace(".", ","));
+
+                                }
+
+                                try
+                                {
+                                    det.MontoDescuento = decimal.Parse(itemNode.SelectSingleNode("dte:Descuento", nsmgr)?.InnerText);
+
+                                }
+                                catch (Exception)
+                                {
+
+                                    det.MontoDescuento = decimal.Parse(itemNode.SelectSingleNode("dte:Descuento", nsmgr)?.InnerText.Replace(".", ","));
+
+                                }
+                                try
+                                {
+                                    det.SubTotal = det.MontoTotal - MontoTotalImpuestos;
+
+                                }
+                                catch (Exception)
+                                {
+
+                                    det.SubTotal = det.MontoTotal - MontoTotalImpuestos;
+
+                                }
+
+                                //Impuesto
+
+                                try
+                                {
+                                    det.ImpuestoTarifa = decimal.Parse(Tarifa);
+
+                                }
+                                catch (Exception)
+                                {
+                                    det.ImpuestoTarifa = decimal.Parse(Tarifa.Replace(".", ","));
+
+                                }
+                                det.ImpuestoMonto = MontoTotalImpuestos;
+
+
+
+                                det.idTipoGasto = 0;
+
+
+                                det.MontoTotalLinea = det.MontoTotal;
+
+
+                                var ExoneracionPorcentajeCompra = 0;
+
+                                int opcion = Convert.ToInt32(det.ImpuestoTarifa);
+                                decimal cantidadImpuesto = 0;
+                                bool bandera = false;
+                                if (ExoneracionPorcentajeCompra > 0)
+                                {
+                                    bandera = true;
+                                    cantidadImpuesto = opcion - ExoneracionPorcentajeCompra;
+                                }
+                                switch (opcion)
+                                {
+                                    case 12:
+                                        {
+                                            if (!bandera)
+                                            {
+                                                iva13 += det.ImpuestoMonto.Value;
+                                            }
+                                            else
+                                            {
+                                                if (cantidadImpuesto > 0)
+                                                {
+                                                    iva13 += ((det.SubTotal.Value - det.MontoDescuento.Value) * (cantidadImpuesto / 100));
+                                                }
+                                            }
+                                            break;
+                                        }
+
+
+                                }
+
+
+                                db.DetCompras.Add(det);
+                                detCpmpras.Add(det);
+                            }
+                        }
+
+
+
+
+                        factura.Impuesto1 = iva1;
+                        factura.Impuesto2 = iva2;
+                        factura.Impuesto4 = iva4;
+                        factura.Impuesto8 = iva8;
+                        factura.Impuesto13 = iva13;
+                        factura.idCierre = 0;
+                        factura.RegimenSimplificado = false;
+                        factura.FacturaExterior = false;
+                        factura.GastosVarios = false;
+                        factura.FacturaNoRecibida = false;
+                        factura.Comentario = "";
+                        factura.idTipoGasto = detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault() == null ? 0 : detCpmpras.Where(a => a.NumFactura == factura.NumFactura && a.ClaveHacienda == factura.ClaveHacienda && a.ConsecutivoHacienda == factura.ConsecutivoHacienda).FirstOrDefault().idTipoGasto;
+
+                        XmlNode granTotalNode = documentoXml.SelectSingleNode("//dte:GranTotal", nsmgr);
+                        try
+                        {
+                            factura.TotalVenta = decimal.Parse(granTotalNode.InnerText);
+                        }
+                        catch (Exception)
+                        {
+
+                            factura.TotalVenta = decimal.Parse(granTotalNode.InnerText.Replace(".", ","));
+                        }
+
+                        factura.TotalDescuentos = detCpmpras.Sum(a => a.MontoDescuento).Value;
+
+                        factura.TotalVentaNeta = detCpmpras.Sum(a => a.MontoTotal).Value;
+
+                        factura.TotalImpuesto = detCpmpras.Sum(a => a.ImpuestoMonto).Value;
+
+                        factura.TotalComprobante = detCpmpras.Sum(a => a.MontoTotal).Value; 
+                        db.EncCompras.Add(factura);
+                        db.SaveChanges();
+
+                        try
+                        {
+                            // Eliminar el archivo
+                            File.Delete(archivoXml);
+                        }
+                        catch (Exception)
+                        {
+
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            var destino = G.ObtenerConfig("CarpetaXMLError") + "\\" + nombre;
+                            // Mover el archivo
+                            File.Move(archivoXml, destino);
+                        }
+                        catch (Exception)
+                        {
+
+
+                        }
+
+                        BitacoraErrores be = new BitacoraErrores();
+                        be.Descripcion = ex.Message;
+                        be.StackTrace = ex.StackTrace;
+                        be.Metodo = "Lectura de XML en Carpeta Guatemala";
+                        be.Fecha = DateTime.Now;
+                        db.BitacoraErrores.Add(be);
+                        db.SaveChanges();
+
+                    }
+
+
+
+
+                }
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Lectura de XML en Carpeta Guatemala";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
 
 
         public async Task<HttpResponseMessage> Get([FromUri] Filtros filtro)
