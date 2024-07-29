@@ -2157,12 +2157,52 @@ namespace CheckIn.API.Controllers
                                 {
                                     try
                                     {
+
+                                        var NombreIVA = impuestoNode.SelectSingleNode("dte:NombreCorto", nsmgr)?.InnerText;
+                                        switch(NombreIVA)
+                                        {
+                                            case "IVA":
+                                                {
+                                                    iva13 += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText);
+                                                    break;
+                                                }
+                                            case "PETROLEO":
+                                                {
+                                                    iva8 += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText);
+                                                    break;
+                                                }
+                                            case "TURISMO HOSPEDAJE":
+                                                {
+                                                    iva4 += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText);
+
+                                                    break;
+                                                }
+                                        }
                                         MontoTotalImpuestos += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText);
 
                                     }
                                     catch (Exception)
                                     {
+                                        var NombreIVA = impuestoNode.SelectSingleNode("dte:NombreCorto", nsmgr)?.InnerText;
+                                        switch (NombreIVA)
+                                        {
+                                            case "IVA":
+                                                {
+                                                    iva13 += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText.Replace(".", ","));
+                                                    break;
+                                                }
+                                            case "PETROLEO":
+                                                {
+                                                    iva8 += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText.Replace(".", ","));
+                                                    break;
+                                                }
+                                            case "TURISMO HOSPEDAJE":
+                                                {
+                                                    iva4 += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText.Replace(".", ","));
 
+                                                    break;
+                                                }
+                                        }
                                         MontoTotalImpuestos += decimal.Parse(impuestoNode.SelectSingleNode("dte:MontoImpuesto", nsmgr)?.InnerText.Replace(".", ","));
 
                                     }
@@ -2226,36 +2266,36 @@ namespace CheckIn.API.Controllers
                                 det.MontoTotalLinea = det.MontoTotal;
 
 
-                                var ExoneracionPorcentajeCompra = 0;
+                                //var ExoneracionPorcentajeCompra = 0;
 
-                                int opcion = Convert.ToInt32(det.ImpuestoTarifa);
-                                decimal cantidadImpuesto = 0;
-                                bool bandera = false;
-                                if (ExoneracionPorcentajeCompra > 0)
-                                {
-                                    bandera = true;
-                                    cantidadImpuesto = opcion - ExoneracionPorcentajeCompra;
-                                }
-                                switch (opcion)
-                                {
-                                    case 12:
-                                        {
-                                            if (!bandera)
-                                            {
-                                                iva13 += det.ImpuestoMonto.Value;
-                                            }
-                                            else
-                                            {
-                                                if (cantidadImpuesto > 0)
-                                                {
-                                                    iva13 += ((det.SubTotal.Value - det.MontoDescuento.Value) * (cantidadImpuesto / 100));
-                                                }
-                                            }
-                                            break;
-                                        }
+                                //int opcion = Convert.ToInt32(det.ImpuestoTarifa);
+                                //decimal cantidadImpuesto = 0;
+                                //bool bandera = false;
+                                //if (ExoneracionPorcentajeCompra > 0)
+                                //{
+                                //    bandera = true;
+                                //    cantidadImpuesto = opcion - ExoneracionPorcentajeCompra;
+                                //}
+                                //switch (opcion)
+                                //{
+                                //    case 12:
+                                //        {
+                                //            if (!bandera)
+                                //            {
+                                //                iva13 += det.ImpuestoMonto.Value;
+                                //            }
+                                //            else
+                                //            {
+                                //                if (cantidadImpuesto > 0)
+                                //                {
+                                //                    iva13 += ((det.SubTotal.Value - det.MontoDescuento.Value) * (cantidadImpuesto / 100));
+                                //                }
+                                //            }
+                                //            break;
+                                //        }
 
 
-                                }
+                                //}
 
 
                                 db.DetCompras.Add(det);
