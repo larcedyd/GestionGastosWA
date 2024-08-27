@@ -1876,7 +1876,7 @@ namespace CheckIn.API.Controllers
 
                 var Pais = Licencia.CadenaConexionSAP;
 
-                string carpeta = G.ObtenerConfig("CarpetaXML"); // Ruta de la carpeta que contiene los archivos XML
+                string carpeta = G.ObtenerConfig("CarpetaXMLGuatemala"); // Ruta de la carpeta que contiene los archivos XML
 
                 // Enumerar los archivos XML en la carpeta
                 string[] archivosXml = Directory.GetFiles(carpeta, "*.xml");
