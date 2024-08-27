@@ -2062,10 +2062,10 @@ namespace CheckIn.API.Controllers
                                         // Eliminar el archivo
                                         File.Delete(archivosPdf[0]);
                                     }
-                                    catch (Exception)
+                                    catch (Exception ex)
                                     {
 
-
+                                        G.GuardarTxt("BitacoraBorradoCarpeta.txt", ex.ToString());
                                     }
                                 }
                             }
@@ -2345,9 +2345,10 @@ namespace CheckIn.API.Controllers
                             // Eliminar el archivo
                             File.Delete(archivoXml);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
 
+                            G.GuardarTxt("BitacoraBorradoCarpeta.txt", ex.ToString());
 
                         }
                     }
@@ -2359,8 +2360,9 @@ namespace CheckIn.API.Controllers
                             // Mover el archivo
                             File.Move(archivoXml, destino);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            G.GuardarTxt("BitacoraBorradoCarpeta.txt", ex.ToString());
 
 
                         }
