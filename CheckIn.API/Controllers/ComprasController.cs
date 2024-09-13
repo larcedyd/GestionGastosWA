@@ -2360,9 +2360,9 @@ namespace CheckIn.API.Controllers
                             // Mover el archivo
                             File.Move(archivoXml, destino);
                         }
-                        catch (Exception ex)
+                        catch (Exception ex2)
                         {
-                            G.GuardarTxt("BitacoraBorradoCarpeta.txt", ex.ToString());
+                            G.GuardarTxt("BitacoraBorradoCarpeta.txt", ex2.ToString());
 
 
                         }
