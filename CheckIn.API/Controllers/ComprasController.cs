@@ -2036,10 +2036,11 @@ namespace CheckIn.API.Controllers
                         Random i = new Random();
                         int o = i.Next(0, 10000);
                         var pdfResp = "";
+                       
                         try
                         {
                             string[] archivosPdf = Directory.GetFiles(carpeta, nombre.Replace(".xml", "") + ".pdf");
-
+                          
                             if (archivosPdf.Length > 0)
                             {
                                 using (MemoryStream stream = new MemoryStream())
@@ -2073,7 +2074,19 @@ namespace CheckIn.API.Controllers
                         }
                         catch (Exception)
                         {
+                            try
+                            {
+                                string[] archivosPdf = Directory.GetFiles(carpeta, nombre.Replace(".xml", "") + ".pdf");
+                                var destino = G.ObtenerConfig("CarpetaXMLError") + "\\" + nombre.Replace(".xml", "") + ".pdf";
+                                // Mover el archivo
+                                File.Move(archivosPdf[0], destino);
+                            }
+                            catch (Exception ex2)
+                            {
+                                G.GuardarTxt("BitacoraBorradoCarpeta.txt", ex2.ToString());
 
+
+                            }
 
                         }
 
