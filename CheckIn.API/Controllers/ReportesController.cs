@@ -24,77 +24,128 @@ namespace CheckIn.API.Controllers
             {
                 G.AbrirConexionAPP(out db);
 
-                var time = new DateTime();
-                var Liquidaciones = db.EncCierre.Where(a => a.Estado != "R" && (filtro.FechaInicio != time ? a.FechaCierre >= filtro.FechaInicio : true)).ToList();
-
-                if(filtro.FechaInicio.Date != new DateTime().Date )
+                var time = DateTime.Now;
+                if (filtro.FechaInicio.Date != DateTime.MinValue.Date)
                 {
                     filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
-                    Liquidaciones = Liquidaciones.Where(a => a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal).ToList();
                 }
 
-                if(filtro.Codigo1 > 0)
+                var liquidaciones = db.EncCierre
+                    .Where(a => a.Estado != "R" &&
+                                (filtro.FechaInicio != time ? a.FechaCierre >= filtro.FechaInicio : true) &&
+                                (filtro.FechaInicio.Date != DateTime.MinValue.Date ? a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal : true) &&
+                                (filtro.Codigo1 > 0 ? a.idLogin == filtro.Codigo1 : true) &&
+                                (!string.IsNullOrEmpty(filtro.CodMoneda) ? a.CodMoneda == filtro.CodMoneda : true))
+                    .ToList();
+
+                var montoAcumulado = liquidaciones.Sum(a => a.Total);
+                var detCierre = db.DetCierre.ToList();
+                var encComprasDB = db.EncCompras.ToList();
+                var normas = db.NormasReparto.ToList();
+                var login = db.Login.ToList();
+
+                var compa = from liquidacion in liquidaciones
+                            join detalle in detCierre on liquidacion.idCierre equals detalle.idCierre
+                            join encCompra in encComprasDB on detalle.idFactura equals encCompra.id
+                            join log in login on encCompra.idLoginAsignado equals log.id
+                            join norma in normas on log.id equals norma.idLogin
+                            where norma.id != encCompra.idNormaReparto
+                            select encCompra;
+
+                decimal total = compa.Sum(item => ((item.TotalVenta - item.TotalDescuentos) + (item.TotalImpuesto + item.TotalOtrosCargos)).Value);
+                montoAcumulado -= total;
+
+                HeaderReportViewModel he = new HeaderReportViewModel
                 {
-                    Liquidaciones = Liquidaciones.Where(a => a.idLogin == filtro.Codigo1).ToList();
-                }
-
-                if(!string.IsNullOrEmpty(filtro.CodMoneda))
-                {
-                    Liquidaciones = Liquidaciones.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
-                }
-
-                var MontoAcumulado = Liquidaciones.Sum(a => a.Total);
-
-           
-                List<EncCompras> comp = new List<EncCompras>();
-                List<EncCompras> compa = new List<EncCompras>();
-
-                var DetCierre = db.DetCierre.ToList();
-                var EncComprasDB = db.EncCompras.ToList();
-
-                foreach (var item in Liquidaciones)
-                {
-                    var detalle = DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
-                    var EncCompras = EncComprasDB.Where(a => a.idCierre == item.idCierre).ToList();
-                    foreach (var ite in detalle)
-                    {
-                        var fac = EncCompras.Where(a => a.id == ite.idFactura).FirstOrDefault();
-                        comp.Add(fac);
-                    }
-
-                }
-
-
-                var Normas = db.NormasReparto.ToList();
-                var Login = db.Login.ToList();
-
-
-                foreach (var item in comp)
-                {
-                    var login = Login.Where(a => a.id == item.idLoginAsignado).FirstOrDefault();
-                    var NormaRepartoActual = Normas.Where(a => a.idLogin == login.id).FirstOrDefault();
-
-                    if (NormaRepartoActual.id != item.idNormaReparto)
-                    {
-                        compa.Add(item);
-                    }
-                }
-
-              
-
-
-                decimal Total = 0;
-
-                foreach(var item in compa)
-                {
-                    Total += ((item.TotalVenta - item.TotalDescuentos) + (item.TotalImpuesto + item.TotalOtrosCargos)).Value;
-                }
-
-                MontoAcumulado = MontoAcumulado - Total;
-                HeaderReportViewModel he = new HeaderReportViewModel();
-                he.MontoAcumulado = MontoAcumulado.Value;
+                    MontoAcumulado = montoAcumulado.Value
+                };
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, he);
+
+                //G.AbrirConexionAPP(out db);
+
+                //var time = new DateTime();
+                //if (filtro.FechaInicio.Date != new DateTime().Date)
+                //{
+                //    filtro.FechaFinal = filtro.FechaFinal.AddDays(1);
+                //}
+                //    var Liquidaciones = db.EncCierre
+                //    .Where(a => a.Estado != "R" && (filtro.FechaInicio != time ? a.FechaCierre >= filtro.FechaInicio : true)
+                //    && (filtro.FechaInicio.Date != new DateTime().Date ? a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal : true)
+                //    && (filtro.Codigo1 > 0 ? a.idLogin == filtro.Codigo1 : true)
+                //    && (!string.IsNullOrEmpty(filtro.CodMoneda) ? a.CodMoneda == filtro.CodMoneda : true) 
+                //    )
+
+                //    .ToList();
+
+                ////if(filtro.FechaInicio.Date != new DateTime().Date )
+                ////{
+
+                ////    Liquidaciones = Liquidaciones.Where(a => a.FechaCierre >= filtro.FechaInicio && a.FechaCierre <= filtro.FechaFinal).ToList();
+                ////}
+
+                ////if(filtro.Codigo1 > 0)
+                ////{
+                ////    Liquidaciones = Liquidaciones.Where(a => a.idLogin == filtro.Codigo1).ToList();
+                ////}
+
+                ////if(!string.IsNullOrEmpty(filtro.CodMoneda))
+                ////{
+                ////    Liquidaciones = Liquidaciones.Where(a => a.CodMoneda == filtro.CodMoneda).ToList();
+                ////}
+
+                //var MontoAcumulado = Liquidaciones.Sum(a => a.Total);
+
+
+                //List<EncCompras> comp = new List<EncCompras>();
+                //List<EncCompras> compa = new List<EncCompras>();
+
+                //var DetCierre = db.DetCierre.ToList();
+                //var EncComprasDB = db.EncCompras.ToList();
+
+                //foreach (var item in Liquidaciones)
+                //{
+                //    var detalle = DetCierre.Where(a => a.idCierre == item.idCierre).ToList();
+                //    var EncCompras = EncComprasDB.Where(a => a.idCierre == item.idCierre).ToList();
+                //    foreach (var ite in detalle)
+                //    {
+                //        var fac = EncCompras.Where(a => a.id == ite.idFactura).FirstOrDefault();
+                //        comp.Add(fac);
+                //    }
+
+                //}
+
+
+                //var Normas = db.NormasReparto.ToList();
+                //var Login = db.Login.ToList();
+
+
+                //foreach (var item in comp)
+                //{
+                //    var login = Login.Where(a => a.id == item.idLoginAsignado).FirstOrDefault();
+                //    var NormaRepartoActual = Normas.Where(a => a.idLogin == login.id).FirstOrDefault();
+
+                //    if (NormaRepartoActual.id != item.idNormaReparto)
+                //    {
+                //        compa.Add(item);
+                //    }
+                //}
+
+
+
+
+                //decimal Total = 0;
+
+                //foreach(var item in compa)
+                //{
+                //    Total += ((item.TotalVenta - item.TotalDescuentos) + (item.TotalImpuesto + item.TotalOtrosCargos)).Value;
+                //}
+
+                //MontoAcumulado = MontoAcumulado - Total;
+                //HeaderReportViewModel he = new HeaderReportViewModel();
+                //he.MontoAcumulado = MontoAcumulado.Value;
+                //G.CerrarConexionAPP(db);
+                //return Request.CreateResponse(HttpStatusCode.OK, he);
 
             }
             catch (Exception ex)
