@@ -122,7 +122,7 @@ namespace CheckIn.API.Controllers
                     oInvoice.DocDueDate = Cierre.FechaFinal; //Final del periodo de cierre
                 }
 
-                oInvoice.DocCurrency = (Cierre.CodMoneda == "CRC" ? "COL" : Cierre.CodMoneda == "HNL" ? "LPS" : Cierre.CodMoneda); //Moneda de la liquidacion
+                oInvoice.DocCurrency = (Cierre.CodMoneda == "CRC" ? "COL" : Cierre.CodMoneda == "HNL" ? "LPS" : Cierre.CodMoneda == "GTQ" ? "QTZ" : Cierre.CodMoneda); //Moneda de la liquidacion
                 if (Pais == "P")
                 {
                     if (Cierre.CodMoneda == "USD")
@@ -194,7 +194,7 @@ namespace CheckIn.API.Controllers
                     }
                     oInvoice.Lines.AccountCode = Cuenta.CodSAP;   //Cuenta contable del gasto
 
-                    if (Pais == "C" || Pais == "N" || Pais == "D" || Pais == "H" || Pais == "E")
+                    if (Pais == "C" || Pais == "N" || Pais == "D" || Pais == "H" || Pais == "E" || Pais == "G")
                     {
                         oInvoice.Lines.TaxCode = param.IMPEX; //Exento para Panama -> Verificar el codigo C0
 
@@ -232,6 +232,13 @@ namespace CheckIn.API.Controllers
                         imp1 += item.Impuesto1; // 15% provisional Ecuador
                         imp4 += item.Impuesto4; // 10% propinas
                         imp8 += item.Impuesto8; // 12% Otros cargos
+                        imp13 += item.Impuesto13; //12% IVA
+                    }
+                    else if (Pais == "G")
+                    {
+                       
+                        imp4 += item.Impuesto4; // Hospedaje
+                        imp8 += item.Impuesto8; // PETROLEO
                         imp13 += item.Impuesto13; //12% IVA
                     }
                     else //Panama y Nicaragua
@@ -536,6 +543,31 @@ namespace CheckIn.API.Controllers
                         oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value = item.ClaveHacienda.ToString();
                         oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
                     }
+                    else if (Pais == "G")
+                    {
+                        G.GuardarTxt("ErrorSAP.txt", "Entro en: " + Pais);
+                        if (TipoGasto.Nombre.ToUpper().Contains("Comb".ToUpper()))
+                        {
+                            var DetalleFac = db.DetCompras.Where(a => a.NumFactura == item.NumFactura && a.ClaveHacienda == item.ClaveHacienda && a.ConsecutivoHacienda == item.ConsecutivoHacienda).FirstOrDefault();
+                            if (DetalleFac != null)
+                            {
+                                oInvoice.Lines.UserFields.Fields.Item("U_CantLitrosKw").Value = int.Parse(Math.Round(DetalleFac.Cantidad.Value).ToString());
+                                oInvoice.Lines.UserFields.Fields.Item("U_Tipo_G").Value = (DetalleFac.NomPro.ToUpper().Contains("Super".ToUpper()) ? "Gasolina Super" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Eco".ToUpper()) ? "Gasolina Regular" : QuitarTilde(DetalleFac.NomPro).ToUpper().Contains("Diesel".ToUpper()) ? "Diesel" : "Diesel");
+
+                            }
+                            else
+                            {
+                                G.GuardarTxt("ErrorSAP.txt", "Esta vacio el detalle: " + DetalleFac.ToString());
+
+                            }
+                        }
+
+                        oInvoice.Lines.UserFields.Fields.Item("U_RUC").Value = item.CodProveedor.Split('[')[0];
+                        oInvoice.Lines.UserFields.Fields.Item("U_Proveedor").Value = item.NomProveedor;
+                        oInvoice.Lines.UserFields.Fields.Item("U_NumFactura").Value = item.ClaveHacienda.ToString();
+                        oInvoice.Lines.UserFields.Fields.Item("U_FechaFactura").Value = item.FecFactura;
+                    }
+
 
 
                     oInvoice.Lines.Add();
@@ -751,6 +783,57 @@ namespace CheckIn.API.Controllers
                     if (imp4 > 0)
                     {
                         oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Hospedaje";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
+                        //oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI1;
+
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp8 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "Petroleo";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
+                        //oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI2;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp13 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "IVA (12&)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp13);
+                        // oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI13;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+
+                    if (imp1 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
+                        oInvoice.Lines.ItemDescription = "IVA (15&)";
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
+                        // oInvoice.Lines.VatGroup = param.IMPEX;
+                        oInvoice.Lines.TaxCode = param.IMPEX;
+                        oInvoice.Lines.AccountCode = param.CI13;
+                        oInvoice.Lines.Add();
+                        i++;
+                    }
+                }
+                else if (Pais == "G")
+                {
+                    if (imp4 > 0)
+                    {
+                        oInvoice.Lines.SetCurrentLine(i);
                         oInvoice.Lines.ItemDescription = "Otros Cargos(12%)";
                         oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
                         //oInvoice.Lines.VatGroup = param.IMPEX;
@@ -785,17 +868,7 @@ namespace CheckIn.API.Controllers
                         i++;
                     }
 
-                    if (imp1 > 0)
-                    {
-                        oInvoice.Lines.SetCurrentLine(i);
-                        oInvoice.Lines.ItemDescription = "IVA (15&)";
-                        oInvoice.Lines.LineTotal = Convert.ToDouble(imp1);
-                        // oInvoice.Lines.VatGroup = param.IMPEX;
-                        oInvoice.Lines.TaxCode = param.IMPEX;
-                        oInvoice.Lines.AccountCode = param.CI13;
-                        oInvoice.Lines.Add();
-                        i++;
-                    }
+                    
                 }
 
 
