@@ -834,7 +834,7 @@ namespace CheckIn.API.Controllers
                     if (imp4 > 0)
                     {
                         oInvoice.Lines.SetCurrentLine(i);
-                        oInvoice.Lines.ItemDescription = "Otros Cargos(12%)";
+                        oInvoice.Lines.ItemDescription = "Hospedaje";
                         oInvoice.Lines.LineTotal = Convert.ToDouble(imp4);
                         //oInvoice.Lines.VatGroup = param.IMPEX;
                         oInvoice.Lines.TaxCode = param.IMPEX;
@@ -847,7 +847,7 @@ namespace CheckIn.API.Controllers
                     if (imp8 > 0)
                     {
                         oInvoice.Lines.SetCurrentLine(i);
-                        oInvoice.Lines.ItemDescription = "Propinas(10%)";
+                        oInvoice.Lines.ItemDescription = "Petróleo";
                         oInvoice.Lines.LineTotal = Convert.ToDouble(imp8);
                         //oInvoice.Lines.VatGroup = param.IMPEX;
                         oInvoice.Lines.TaxCode = param.IMPEX;
