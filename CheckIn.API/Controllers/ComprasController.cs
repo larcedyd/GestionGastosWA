@@ -2344,6 +2344,7 @@ namespace CheckIn.API.Controllers
                         }
 
                         factura.TotalDescuentos = detCpmpras.Sum(a => a.MontoDescuento).Value;
+                        
 
                         factura.TotalVentaNeta = detCpmpras.Sum(a => a.MontoTotal).Value;
 

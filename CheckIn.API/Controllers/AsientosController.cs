@@ -310,7 +310,17 @@ namespace CheckIn.API.Controllers
                             }
                     }
 
-                    oInvoice.Lines.LineTotal =   Convert.ToDouble(item.TotalComprobante.Value - item.TotalImpuesto);
+                    if(Pais == "G")
+                    {
+                        oInvoice.Lines.LineTotal = Convert.ToDouble((item.TotalComprobante.Value - item.TotalImpuesto) - item.TotalDescuentos);
+
+                    }
+                    else
+                    {
+                        oInvoice.Lines.LineTotal = Convert.ToDouble(item.TotalComprobante.Value - item.TotalImpuesto);
+
+                    }
+
 
 
                     if (Pais == "C")
