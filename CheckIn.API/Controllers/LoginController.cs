@@ -109,11 +109,36 @@ namespace CheckIn.API.Controllers
                 {
                     throw new Exception("Usuario no existe");
                 }
+                if (!BCrypt.Net.BCrypt.Verify(clave, LicenciaUsuarios.Clave))
+                {
+                    db.Entry(user).State = EntityState.Modified;
+                    user.Contador += 1;
+                    if (user.Contador > 3)
+                    {
+                        user.Activo = false;
+                    }
+                    db.SaveChanges();
+                    if (user.Contador > 3)
+                    {
+                        dbLogin.Entry(LicenciaUsuarios).State = EntityState.Modified;
+                        LicenciaUsuarios.Activo = false;
+                        dbLogin.SaveChanges();
+                    }
 
+                    if (!user.Activo.Value)
+                    {
+                        throw new Exception("Clave o Usuario incorrectos, se ha inactivado su usuario, favor contactar con el administrador del sistema");
+
+                    }
+                    throw new Exception("Clave o Usuario incorrectos");
+                }
 
                 var SeguridadModulos = db.SeguridadRolesModulos.Where(a => a.CodRol == user.idRol).ToList();
                 var param = db.Parametros.FirstOrDefault();
 
+                db.Entry(user).State = EntityState.Modified;
+                user.Codigo = G.GenerarCodigo();
+                db.SaveChanges();
 
                 de.idLogin = user.id ;
                 de.NombreUsuario = LicenciaUsuarios.Nombre;
@@ -134,6 +159,18 @@ namespace CheckIn.API.Controllers
                 bl.Fecha = DateTime.Now;
                 db.BitacoraLogin.Add(bl);
                 db.SaveChanges();
+
+                if (SeguridadModulos.Where(a => a.CodModulo == 99).FirstOrDefault() != null)
+                {
+                    metodos met = new metodos();
+                    CorreoEnvio correo = db.CorreoEnvio.FirstOrDefault();
+                    if (!met.EnviarCorreo(user.Email, user.Codigo, correo))
+                    {
+                        G.GuardarTxt("ErrorEnviandoEmail.txt", user.Codigo + " => " + user.Email);
+                    }
+                }
+
+
 
                 return Request.CreateResponse(HttpStatusCode.OK, de);
 
@@ -276,7 +313,15 @@ namespace CheckIn.API.Controllers
                         db.SaveChanges();
 
                     }
-
+                    if (!string.IsNullOrEmpty(User.Clave))
+                    {
+                        HistoricoClaves historico = new HistoricoClaves();
+                        historico.idLogin = login.id;
+                        historico.Clave = login.Clave;
+                        historico.Fecha = DateTime.Now;
+                        db.HistoricoClaves.Add(historico);
+                        db.SaveChanges();
+                    }
                     d.Commit();
                     t.Commit();
                 }
@@ -324,15 +369,61 @@ namespace CheckIn.API.Controllers
 
                     if (!string.IsNullOrEmpty(usuario.Clave))
                     {
-                        if (BCrypt.Net.BCrypt.Verify(usuario.Clave, Usuario.Clave))
+                        var HistoricoClaves = db.HistoricoClaves.Where(a => a.idLogin == User.id).OrderByDescending(a => a.id).ToList();
+                        if (HistoricoClaves != null)
                         {
-                            throw new Exception("La clave a cambiar no debe ser igual a la anterior");
+                            foreach (var item in HistoricoClaves)
+                            {
+                                if (BCrypt.Net.BCrypt.Verify(usuario.Clave, item.Clave))
+                                {
+                                    throw new Exception("La clave a cambiar no debe ser igual a las anteriores");
+                                }
+                            }
                         }
                         Usuario.Clave = BCrypt.Net.BCrypt.HashPassword(usuario.Clave);
                         User.Clave = Usuario.Clave;
                         User.CambiarClave = false;
                         var Parametros = db.Parametros.FirstOrDefault();
                         User.FechaVencimientoClave = DateTime.Now.AddDays(Parametros.DiasVencimiento);
+                        if (!string.IsNullOrEmpty(User.Clave))
+                        {
+                            if (HistoricoClaves != null)
+                            {
+                                if (HistoricoClaves.Count() < 24)
+                                {
+                                    HistoricoClaves historico = new HistoricoClaves();
+                                    historico.idLogin = User.id;
+                                    historico.Clave = User.Clave;
+                                    historico.Fecha = DateTime.Now;
+                                    db.HistoricoClaves.Add(historico);
+                                    db.SaveChanges();
+                                }
+                                else
+                                {
+                                    var HistoricoEliminar = HistoricoClaves.LastOrDefault();
+                                    db.HistoricoClaves.Remove(HistoricoEliminar);
+                                    db.SaveChanges();
+                                    HistoricoClaves historico = new HistoricoClaves();
+                                    historico.idLogin = User.id;
+                                    historico.Clave = User.Clave;
+                                    historico.Fecha = DateTime.Now;
+                                    db.HistoricoClaves.Add(historico);
+                                    db.SaveChanges();
+                                }
+                            }
+                            else
+                            {
+                                HistoricoClaves historico = new HistoricoClaves();
+                                historico.idLogin = User.id;
+                                historico.Clave = User.Clave;
+                                historico.Fecha = DateTime.Now;
+                                db.HistoricoClaves.Add(historico);
+                                db.SaveChanges();
+                            }
+
+
+                        }
+
                     }
        
                     if (!string.IsNullOrEmpty(usuario.Nombre))
@@ -359,6 +450,10 @@ namespace CheckIn.API.Controllers
                     if(!string.IsNullOrEmpty(usuario.CardCode))
                     {
                         User.CardCode = usuario.CardCode;
+                    }
+                    if (usuario.CambiarClave)
+                    {
+                        User.CambiarClave = true;
                     }
                     User.CambioFecha = User.CambioFecha;
                     dbLogin.SaveChanges();

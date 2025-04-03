@@ -29,5 +29,7 @@ namespace CheckIn.API.Models.ModelCliente
         public bool CambiarClave { get; set; }
         public bool CambioFecha { get; set; }
         public DateTime FechaVencimientoClave { get; set; }
+        public int Contador { get; set; }
+        public string Codigo { get; set; }
     }
 }

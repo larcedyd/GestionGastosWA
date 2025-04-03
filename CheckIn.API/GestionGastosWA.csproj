@@ -69,10 +69,9 @@
     <Reference Include="HtmlRenderer.PdfSharp, Version=1.5.0.5, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlRenderer.PdfSharp.1.5.0.5\lib\net45\HtmlRenderer.PdfSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Interop.SAPbobsCOM, Version=10.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Interop.SAPbobsCOM">
+      <HintPath>..\..\..\..\OneDrive\Escritorio\Interop WMS Pruebas\Interop.SAPbobsCOM.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>..\..\..\..\OneDrive\Escritorio\interop prod\Interop.SAPbobsCOM.dll</HintPath>
     </Reference>
     <Reference Include="itextsharp, Version=5.5.13.2, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\iTextSharp.5.5.13.2\lib\itextsharp.dll</HintPath>
@@ -289,6 +288,7 @@
     <Compile Include="Controllers\GastosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\metodos.cs" />
     <Compile Include="Controllers\NormasRepartoController.cs" />
     <Compile Include="Controllers\ProveedoresController.cs" />
     <Compile Include="Controllers\ReportesController.cs" />
@@ -322,6 +322,7 @@
     <Compile Include="Models\ModelCliente\BitacoraErrores.cs" />
     <Compile Include="Models\ModelCliente\BitacoraLogin.cs" />
     <Compile Include="Models\ModelCliente\ConexionSAP.cs" />
+    <Compile Include="Models\ModelCliente\CorreoEnvio.cs" />
     <Compile Include="Models\ModelCliente\CorreosRecepcion.cs" />
     <Compile Include="Models\ModelCliente\CuentasContables.cs" />
     <Compile Include="Models\ModelCliente\DetCierre.cs" />
@@ -331,6 +332,7 @@
     <Compile Include="Models\ModelCliente\EncCompras.cs" />
     <Compile Include="Models\ModelCliente\EncComprasViewModel.cs" />
     <Compile Include="Models\ModelCliente\Gastos.cs" />
+    <Compile Include="Models\ModelCliente\HistoricoClaves.cs" />
     <Compile Include="Models\ModelCliente\Login.cs" />
     <Compile Include="Models\ModelCliente\ModelCliente.cs" />
     <Compile Include="Models\ModelCliente\NormasReparto.cs" />
