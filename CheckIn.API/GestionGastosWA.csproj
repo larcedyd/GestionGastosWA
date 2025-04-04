@@ -288,6 +288,7 @@
     <Compile Include="Controllers\GastosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\LogsUsuariosController.cs" />
     <Compile Include="Controllers\metodos.cs" />
     <Compile Include="Controllers\NormasRepartoController.cs" />
     <Compile Include="Controllers\ProveedoresController.cs" />
@@ -334,6 +335,7 @@
     <Compile Include="Models\ModelCliente\Gastos.cs" />
     <Compile Include="Models\ModelCliente\HistoricoClaves.cs" />
     <Compile Include="Models\ModelCliente\Login.cs" />
+    <Compile Include="Models\ModelCliente\LogsUsuarios.cs" />
     <Compile Include="Models\ModelCliente\ModelCliente.cs" />
     <Compile Include="Models\ModelCliente\NormasReparto.cs" />
     <Compile Include="Models\ModelCliente\Parametros.cs" />

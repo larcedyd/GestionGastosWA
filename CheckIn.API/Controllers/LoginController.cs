@@ -17,7 +17,7 @@ using Login = CheckIn.API.Models.ModelCliente.Login;
 namespace CheckIn.API.Controllers
 {
     [EnableCors("*", "*", "*")]
-    public class LoginController: ApiController
+    public class LoginController : ApiController
     {
         ModelLicencias dbLogin = new ModelLicencias();
         ModelCliente db;
@@ -41,7 +41,7 @@ namespace CheckIn.API.Controllers
                 }
                 List<LicEmpresas> empresas = new List<LicEmpresas>();
 
-                foreach(var item in LicenciaUsuarios)
+                foreach (var item in LicenciaUsuarios)
                 {
                     var emp = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == item.CedulaJuridica && a.Activo == true).FirstOrDefault();
                     empresas.Add(emp);
@@ -52,7 +52,7 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
-                 
+
 
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
@@ -64,37 +64,36 @@ namespace CheckIn.API.Controllers
         {
             try
             {
-                if(string.IsNullOrEmpty(CedulaJuridica))
+                if (string.IsNullOrEmpty(CedulaJuridica))
                 {
                     throw new Exception("Se debe indicar el número de compañía a la que perteneces");
                 }
 
                 var LicenciaUsuarios = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(email.ToUpper()) && a.CedulaJuridica == CedulaJuridica).FirstOrDefault();
-                if(LicenciaUsuarios == null)
+
+           
+                if (LicenciaUsuarios == null)
                 {
                     throw new Exception("Usuario no existe");
                 }
                 var Licencia = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == LicenciaUsuarios.CedulaJuridica).FirstOrDefault();
 
-                if(Licencia == null)
+                if (Licencia == null)
                 {
                     throw new Exception("Empresa no existe");
                 }
 
-                if(!Licencia.Activo.Value)
+                if (!Licencia.Activo.Value)
                 {
                     throw new Exception("Empresa no se encuentra activa");
                 }
-                
-                if(!LicenciaUsuarios.Activo)
+
+                if (!LicenciaUsuarios.Activo)
                 {
                     throw new Exception("Este usuario no esta activo");
                 }
 
-               if(! BCrypt.Net.BCrypt.Verify(clave, LicenciaUsuarios.Clave))
-                {
-                    throw new Exception("Clave o Usuario incorrectos");
-                }
+           
 
 
                 var BD = Licencia.CadenaConexionBD;
@@ -105,7 +104,7 @@ namespace CheckIn.API.Controllers
                 DevolucionLogin de = new DevolucionLogin();
                 var user = db.Login.Where(a => a.Email.ToUpper().Contains(LicenciaUsuarios.Email.ToUpper())).FirstOrDefault();
 
-                if(user == null)
+                if (user == null)
                 {
                     throw new Exception("Usuario no existe");
                 }
@@ -116,6 +115,17 @@ namespace CheckIn.API.Controllers
                     if (user.Contador > 3)
                     {
                         user.Activo = false;
+                        var BD2 = Licencia.CadenaConexionBD;
+
+                        db = new ModelCliente(BD2);
+                        var Usuario = db.Login.Where(a => a.Email.ToUpper().Contains(LicenciaUsuarios.Email.ToUpper())).FirstOrDefault();
+                        LogsUsuarios bm = new LogsUsuarios();
+                        bm.Descripcion = "El usuario " + Usuario.Nombre + " ha sido inactivado por ingresar mas de 3 veces la contraseña incorrecta a la hora correspondiente.";
+                        bm.idUsuario = Usuario.id;
+                        bm.Tipo = "X";
+                        bm.Fecha = DateTime.Now;
+                        db.LogsUsuarios.Add(bm);
+                        db.SaveChanges();
                     }
                     db.SaveChanges();
                     if (user.Contador > 3)
@@ -130,6 +140,14 @@ namespace CheckIn.API.Controllers
                         throw new Exception("Clave o Usuario incorrectos, se ha inactivado su usuario, favor contactar con el administrador del sistema");
 
                     }
+                    LogsUsuarios bmx = new LogsUsuarios();
+                    bmx.Descripcion = "El usuario " + LicenciaUsuarios.Nombre + " ha ingresado la contraseña incorrecta  a la hora correspondiente.";
+                    bmx.idUsuario = user.id;
+                    bmx.Tipo = "I";
+                    bmx.Fecha = DateTime.Now;
+                    db.LogsUsuarios.Add(bmx);
+                    db.SaveChanges();
+                    throw new Exception("Clave o Usuario incorrectos");
                     throw new Exception("Clave o Usuario incorrectos");
                 }
 
@@ -140,7 +158,7 @@ namespace CheckIn.API.Controllers
                 user.Codigo = G.GenerarCodigo();
                 db.SaveChanges();
 
-                de.idLogin = user.id ;
+                de.idLogin = user.id;
                 de.NombreUsuario = LicenciaUsuarios.Nombre;
                 de.Email = LicenciaUsuarios.Email;
                 de.CedulaJuridica = LicenciaUsuarios.CedulaJuridica;
@@ -154,7 +172,7 @@ namespace CheckIn.API.Controllers
 
                 BitacoraLogin bl = new BitacoraLogin();
                 bl.idUsuario = de.idLogin;
-                bl.IP =  HttpContext.Current.Request.UserHostAddress;
+                bl.IP = HttpContext.Current.Request.UserHostAddress;
                 bl.Detalle = "El usuario " + de.NombreUsuario + ", con el id: " + de.idLogin + " se ha logueado";
                 bl.Fecha = DateTime.Now;
                 db.BitacoraLogin.Add(bl);
@@ -201,7 +219,7 @@ namespace CheckIn.API.Controllers
                 {
                     Login = Login.Where(a => a.Nombre.ToUpper().Contains(filtro.Texto.ToUpper()) || a.Email.ToUpper().Contains(filtro.Texto.ToUpper())).ToList();
                 }
-                
+
 
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.OK, Login);
@@ -229,7 +247,7 @@ namespace CheckIn.API.Controllers
                 G.AbrirConexionAPP(out db);
                 var Login = db.Login.Where(a => a.id == id).FirstOrDefault();
 
-                if(Login == null)
+                if (Login == null)
                 {
                     throw new Exception("Usuario no existe");
                 }
@@ -259,7 +277,7 @@ namespace CheckIn.API.Controllers
             try
             {
                 var Empresa = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == usuario.CedulaJuridica).FirstOrDefault();
-                if(Empresa == null)
+                if (Empresa == null)
                 {
                     throw new Exception("Empresa no existe");
                 }
@@ -305,7 +323,7 @@ namespace CheckIn.API.Controllers
                     dbLogin.SaveChanges();
                     db.SaveChanges();
 
-                    if(login.idLoginAceptacion == 0)
+                    if (login.idLoginAceptacion == 0)
                     {
 
                         db.Entry(login).State = EntityState.Modified;
@@ -322,8 +340,16 @@ namespace CheckIn.API.Controllers
                         db.HistoricoClaves.Add(historico);
                         db.SaveChanges();
                     }
+                    LogsUsuarios bm = new LogsUsuarios();
+                    bm.Descripcion = "El usuario " + login.Nombre + " ha sido creado a la hora correspondiente";
+                    bm.idUsuario = login.id;
+                    bm.Tipo = "C";
+                    bm.Fecha = DateTime.Now;
+                    db.LogsUsuarios.Add(bm);
+                    db.SaveChanges();
                     d.Commit();
                     t.Commit();
+
                 }
                 else
                 {
@@ -336,7 +362,7 @@ namespace CheckIn.API.Controllers
             catch (Exception ex)
             {
                 BitacoraErrores be = new BitacoraErrores();
-                be.Descripcion = ex.Message ;
+                be.Descripcion = ex.Message;
                 be.StackTrace = ex.StackTrace;
                 be.Metodo = "Insercion de Usuario";
                 be.Fecha = DateTime.Now;
@@ -387,6 +413,13 @@ namespace CheckIn.API.Controllers
                         User.FechaVencimientoClave = DateTime.Now.AddDays(Parametros.DiasVencimiento);
                         if (!string.IsNullOrEmpty(User.Clave))
                         {
+                            LogsUsuarios bm = new LogsUsuarios();
+                            bm.Descripcion = "El usuario " + User.Nombre + " ha cambiado la contraseña a la hora correspondiente.";
+                            bm.idUsuario = User.id;
+                            bm.Tipo = "U";
+                            bm.Fecha = DateTime.Now;
+                            db.LogsUsuarios.Add(bm);
+                            db.SaveChanges();
                             if (HistoricoClaves != null)
                             {
                                 if (HistoricoClaves.Count() < 24)
@@ -425,7 +458,7 @@ namespace CheckIn.API.Controllers
                         }
 
                     }
-       
+
                     if (!string.IsNullOrEmpty(usuario.Nombre))
                     {
                         Usuario.Nombre = usuario.Nombre;
@@ -442,12 +475,22 @@ namespace CheckIn.API.Controllers
                     {
                         User.idRol = usuario.idRol;
                     }
-                    if(usuario.idLoginAceptacion > 0)
+                    if (usuario.idLoginAceptacion > 0)
                     {
+                        var UsuarioN = db.Login.Where(a => a.id == usuario.idLoginAceptacion).FirstOrDefault();
+                        var UsuarioA = db.Login.Where(a => a.id == User.idLoginAceptacion).FirstOrDefault();
+                        LogsUsuarios bm = new LogsUsuarios();
+                        bm.Descripcion = "El usuario " + User.Nombre + " ha cambiado al aprobador anterior, " + UsuarioA.Nombre + ", por el usuario " + UsuarioN.Nombre + ", a la hora correspondiente.";
+                        bm.idUsuario = User.id;
+                        bm.Tipo = "U";
+                        bm.Fecha = DateTime.Now;
+                        db.LogsUsuarios.Add(bm);
+                        db.SaveChanges();
                         User.idLoginAceptacion = usuario.idLoginAceptacion;
+                   
                     }
 
-                    if(!string.IsNullOrEmpty(usuario.CardCode))
+                    if (!string.IsNullOrEmpty(usuario.CardCode))
                     {
                         User.CardCode = usuario.CardCode;
                     }
@@ -502,16 +545,30 @@ namespace CheckIn.API.Controllers
                     db.Entry(User).State = EntityState.Modified;
                     dbLogin.Entry(Usuario).State = EntityState.Modified;
 
-                    if(Usuario.Activo)
+                    if (Usuario.Activo)
                     {
                         Usuario.Activo = false;
                         User.Activo = Usuario.Activo;
-
+                        User.Contador = 0;
+                        LogsUsuarios bm = new LogsUsuarios();
+                        bm.Descripcion = "El usuario " + User.Nombre + " ha sido inactivado por un administrador a la hora correspondiente.";
+                        bm.idUsuario = User.id;
+                        bm.Tipo = "X";
+                        bm.Fecha = DateTime.Now;
+                        db.LogsUsuarios.Add(bm);
+                        db.SaveChanges();
                     }
                     else
                     {
                         Usuario.Activo = true;
                         User.Activo = Usuario.Activo;
+                        LogsUsuarios bm = new LogsUsuarios();
+                        bm.Descripcion = "El usuario " + User.Nombre + " ha sido activado por un administrador a la hora correspondiente.";
+                        bm.idUsuario = User.id;
+                        bm.Tipo = "A";
+                        bm.Fecha = DateTime.Now;
+                        db.LogsUsuarios.Add(bm);
+                        db.SaveChanges();
                     }
 
 

@@ -198,3 +198,50 @@
    en System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\larce\Documents\GitHub\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 106
 ------------------------------------------
+04/04/2025 10:09 The 'Contador' property on 'Login' could not be set to a 'null' value. You must set this property to a non-null value of type 'System.Int32'.  =>    en System.Data.Entity.Core.Common.Internal.Materialization.Shaper.ErrorHandlingValueReader`1.GetValue(DbDataReader reader, Int32 ordinal)
+   en System.Data.Entity.Core.Common.Internal.Materialization.Shaper.GetPropertyValueWithErrorHandling[TProperty](Int32 ordinal, String propertyName, String typeName)
+   en lambda_method(Closure , Shaper )
+   en System.Data.Entity.Core.Common.Internal.Materialization.Shaper.HandleEntityAppendOnly[TEntity](Func`2 constructEntityDelegate, EntityKey entityKey, EntitySet entitySet)
+   en lambda_method(Closure , Shaper )
+   en System.Data.Entity.Core.Common.Internal.Materialization.Coordinator`1.ReadNextElement(Shaper shaper)
+   en System.Data.Entity.Core.Common.Internal.Materialization.Shaper`1.SimpleEnumerator.MoveNext()
+   en System.Data.Entity.Internal.LazyEnumerator`1.MoveNext()
+   en System.Linq.Enumerable.FirstOrDefault[TSource](IEnumerable`1 source)
+   en System.Data.Entity.Core.Objects.ELinq.ObjectQueryProvider.<>c__14`1.<GetElementFunction>b__14_1(IEnumerable`1 sequence)
+   en System.Data.Entity.Core.Objects.ELinq.ObjectQueryProvider.ExecuteSingle[TResult](IEnumerable`1 query, Expression queryRoot)
+   en System.Data.Entity.Core.Objects.ELinq.ObjectQueryProvider.System.Linq.IQueryProvider.Execute[TResult](Expression expression)
+   en System.Data.Entity.Internal.Linq.DbQueryProvider.Execute[TResult](Expression expression)
+   en System.Linq.Queryable.FirstOrDefault[TSource](IQueryable`1 source)
+   en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 106
+------------------------------------------
+04/04/2025 14:35 Referencia a objeto no establecida como instancia de un objeto. =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 74
+------------------------------------------
+04/04/2025 14:36 Referencia a objeto no establecida como instancia de un objeto. =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 74
+------------------------------------------
+04/04/2025 14:42 An error occurred while updating the entries. See the inner exception for details. =>    en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 109
+------------------------------------------
+04/04/2025 14:43 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:11 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:11 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:11 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:11 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:11 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:12 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 110
+------------------------------------------
+04/04/2025 15:16 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 150
+------------------------------------------
+04/04/2025 15:16 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 150
+------------------------------------------
+04/04/2025 15:16 Clave o Usuario incorrectos =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 150
+------------------------------------------
+04/04/2025 15:16 Clave o Usuario incorrectos, se ha inactivado su usuario, favor contactar con el administrador del sistema =>    en CheckIn.API.Controllers.LoginController.<GetLoginAsync>d__4.MoveNext() en C:\Users\Steven Rodriguez\Documents\Repositorios D&D\GestionGastosWA\CheckIn.API\Controllers\LoginController.cs:línea 140
+------------------------------------------

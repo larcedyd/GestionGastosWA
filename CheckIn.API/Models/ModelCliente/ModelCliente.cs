@@ -44,6 +44,7 @@ namespace CheckIn.API.Models.ModelCliente
         public virtual DbSet<BitacoraCierres> BitacoraCierres { get; set; }
         public virtual DbSet<HistoricoClaves> HistoricoClaves { get; set; }
         public virtual DbSet<CorreoEnvio> CorreoEnvio { get; set; }
+        public virtual DbSet<LogsUsuarios> LogsUsuarios { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
