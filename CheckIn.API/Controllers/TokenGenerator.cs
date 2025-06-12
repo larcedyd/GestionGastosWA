@@ -15,7 +15,7 @@ namespace CheckIn.API.Controllers
     internal static class TokenGenerator
     {
 
-        public static string GenerateTokenJwt(string username, string role)
+        public static string GenerateTokenJwt(string username, string role,string QAD)
         {
             // appsetting for Token JWT
             var secretKey = ConfigurationManager.AppSettings["JWT_SECRET_KEY"];
@@ -32,9 +32,10 @@ namespace CheckIn.API.Controllers
                 new Claim(ClaimTypes.Name, role),
                 new Claim(ClaimTypes.Role, username),
                 new Claim(ClaimTypes.Actor, username),
-                new Claim("Compania",username)
-       
-            });
+                new Claim("Compania",username),
+				new Claim("QAD",QAD)
+
+			});
 
             // create token to the user
             var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();

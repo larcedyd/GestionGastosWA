@@ -99,7 +99,7 @@ namespace CheckIn.API.Controllers
                 var BD = Licencia.CadenaConexionBD;
 
                 db = new ModelCliente(BD);
-                var token = TokenGenerator.GenerateTokenJwt(Licencia.CedulaJuridica, BD);
+                var token = TokenGenerator.GenerateTokenJwt(Licencia.CedulaJuridica, BD,Licencia.QAD == true ? "SI":"NO");
 
                 DevolucionLogin de = new DevolucionLogin();
                 var user = db.Login.Where(a => a.Email.ToUpper().Contains(LicenciaUsuarios.Email.ToUpper())).FirstOrDefault();

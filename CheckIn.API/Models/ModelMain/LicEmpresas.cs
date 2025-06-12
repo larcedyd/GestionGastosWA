@@ -22,5 +22,6 @@ namespace CheckIn.API.Models.ModelMain
         public string CadenaConexionBD { get; set; }
 
         public string CadenaConexionSAP { get; set; }
-    }
+		public bool QAD { get; set; }
+	}
 }
