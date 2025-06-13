@@ -310,8 +310,10 @@
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AsignacionViewModel.cs" />
+    <Compile Include="Models\CentroCostos.cs" />
     <Compile Include="Models\CierreViewModel.cs" />
     <Compile Include="Models\ComprasViewModel.cs" />
+    <Compile Include="Models\CuentasContablesQAD.cs" />
     <Compile Include="Models\DetCierreViewModel.cs" />
     <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\HeaderReportViewModel.cs" />
@@ -339,6 +341,7 @@
     <Compile Include="Models\ModelCliente\ModelCliente.cs" />
     <Compile Include="Models\ModelCliente\NormasReparto.cs" />
     <Compile Include="Models\ModelCliente\Parametros.cs" />
+    <Compile Include="Models\ModelCliente\ParametrosQAD.cs" />
     <Compile Include="Models\ModelCliente\Proveedores.cs" />
     <Compile Include="Models\ModelCliente\Roles.cs" />
     <Compile Include="Models\ModelCliente\SeguridadModulos.cs" />
@@ -346,6 +349,8 @@
     <Compile Include="Models\ModelMain\LicEmpresas.cs" />
     <Compile Include="Models\ModelMain\LicUsuarios.cs" />
     <Compile Include="Models\ModelMain\ModelLicencias.cs" />
+    <Compile Include="Models\PurchaseOrder.cs" />
+    <Compile Include="Models\TokenQAD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />

@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -78,6 +79,65 @@ namespace CheckIn.API.Controllers
                 db.BitacoraErrores.Add(be);
                 db.SaveChanges();
                 G.CerrarConexionAPP(db);
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+        [Route("api/CuentasContables/ConsultarQAD")]
+        public async Task<HttpResponseMessage> GetQADAsync()
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var ParametrosQAD = db.ParametrosQAD.FirstOrDefault();
+                HttpClient cliente = new HttpClient();
+                cliente.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response2 = await cliente.GetAsync(ParametrosQAD.UrlCuentasContablesQAD);
+
+
+                if (response2.IsSuccessStatusCode)
+                {
+                    response2.Content.Headers.ContentType.MediaType = "application/json";
+                    var resp2 = await response2.Content.ReadAsAsync<CuentasContablesQAD>();
+
+                    foreach (var item in resp2.dsgl.ttgl)
+                    {
+                        var CuentasContable = db.CuentasContables.Where(a => a.CodSAP == item.t_acct).FirstOrDefault();
+                        if (CuentasContable == null)
+                        {
+                            CuentasContable = new CuentasContables();
+                            CuentasContable.CodSAP = item.t_acct;
+                            CuentasContable.Nombre = item.t_desc;
+
+
+                            db.CuentasContables.Add(CuentasContable);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            db.Entry(CuentasContable).State = EntityState.Modified;
+                            CuentasContable.CodSAP = item.t_acct;
+                            CuentasContable.Nombre = item.t_desc;
+                            db.SaveChanges();
+                        }
+
+                    }
+
+
+                }
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, "Terminado con exito");
+            }
+            catch (Exception ex)
+            {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insertar Cuenta Contable desde QAD";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

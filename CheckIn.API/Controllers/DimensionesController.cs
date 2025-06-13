@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -63,6 +64,66 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [Route("api/Dimensiones/ConsultarQAD")]
+        public async Task<HttpResponseMessage> GetQADAsync()
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var ParametrosQAD = db.ParametrosQAD.FirstOrDefault();
+                HttpClient cliente = new HttpClient();
+                cliente.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response2 = await cliente.GetAsync(ParametrosQAD.UrlCentroCostosQAD);
+                
+
+                if (response2.IsSuccessStatusCode)
+                {
+                    response2.Content.Headers.ContentType.MediaType = "application/json";
+                    var resp2 = await response2.Content.ReadAsAsync<CentroCostos>();
+
+                    foreach(var item in resp2.dscc.ttcc)
+                    {
+                        var Dimension = db.Dimensiones.Where(a => a.codigoSAP == item.tc_cc).FirstOrDefault();
+                        if(Dimension == null)
+                        {
+                              Dimension = new Dimensiones();
+                            Dimension.codigoSAP = item.tc_cc;
+                            Dimension.Nombre = item.tc_description;
+
+
+                            db.Dimensiones.Add(Dimension);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            db.Entry(Dimension).State = EntityState.Modified;
+                            Dimension.codigoSAP = item.tc_cc;
+                            Dimension.Nombre = item.tc_description; 
+                            db.SaveChanges();
+                        }
+                       
+                    }
+
+
+                }
+
+                    G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, "Terminado con exito");
+            }
+            catch (Exception ex)
+            {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insertar Dimension desde QAD";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

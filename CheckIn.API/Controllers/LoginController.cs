@@ -169,7 +169,7 @@ namespace CheckIn.API.Controllers
                 de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
                 de.CambiarClave = user.FechaVencimientoClave.Date <= DateTime.Now.Date ? true : user.CambiarClave;
                 de.Pais = Licencia.CadenaConexionSAP;
-
+                de.QAD = Licencia.QAD ? "SI" : "NO";
                 BitacoraLogin bl = new BitacoraLogin();
                 bl.idUsuario = de.idLogin;
                 bl.IP = HttpContext.Current.Request.UserHostAddress;
@@ -562,6 +562,8 @@ namespace CheckIn.API.Controllers
                     {
                         Usuario.Activo = true;
                         User.Activo = Usuario.Activo;
+                        User.Contador = 0;
+
                         LogsUsuarios bm = new LogsUsuarios();
                         bm.Descripcion = "El usuario " + User.Nombre + " ha sido activado por un administrador a la hora correspondiente.";
                         bm.idUsuario = User.id;
@@ -618,6 +620,7 @@ namespace CheckIn.API.Controllers
         public string UrlLogo { get; set; }
         public bool CambiarClave { get; set; }
         public string Pais { get; set; }
+        public string QAD { get; set; }
         public List<SeguridadRolesModulos> Seguridad { get; set; }
     }
 }
