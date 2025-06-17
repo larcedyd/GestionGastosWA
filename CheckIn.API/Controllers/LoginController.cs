@@ -150,6 +150,12 @@ namespace CheckIn.API.Controllers
                     throw new Exception("Clave o Usuario incorrectos");
                     throw new Exception("Clave o Usuario incorrectos");
                 }
+                else
+                {
+                    db.Entry(user).State = EntityState.Modified;
+                    user.Contador = 0;
+                    db.SaveChanges();
+                }
 
                 var SeguridadModulos = db.SeguridadRolesModulos.Where(a => a.CodRol == user.idRol).ToList();
                 var param = db.Parametros.FirstOrDefault();
