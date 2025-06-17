@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -66,6 +67,68 @@ namespace CheckIn.API.Controllers
             }
             catch (Exception ex)
             {
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [Route("api/NormasReparto/ConsultarQAD")]
+        public async Task<HttpResponseMessage> GetQADAsync()
+        {
+            try
+            {
+                G.AbrirConexionAPP(out db);
+                var ParametrosQAD = db.ParametrosQAD.FirstOrDefault();
+                HttpClient cliente = new HttpClient();
+                cliente.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response2 = await cliente.GetAsync(ParametrosQAD.urlNormasRepartoQAD);
+
+
+                if (response2.IsSuccessStatusCode)
+                {
+                    response2.Content.Headers.ContentType.MediaType = "application/json";
+                    var resp2 = await response2.Content.ReadAsAsync<NormasRepartoQAD>();
+
+                    foreach (var item in resp2.dssub.ttsub)
+                    {
+                        var Norma = db.NormasReparto.Where(a => a.CodSAP == item.ts_sub).FirstOrDefault();
+                        if (Norma == null)
+                        {
+                            Norma = new NormasReparto();
+                            Norma.idLogin = db.Login.Where(a => a.Nombre.ToLower().Contains(item.ts_description.ToLower())).FirstOrDefault() == null ? 0 : db.Login.Where(a => a.Nombre.ToLower().Contains(item.ts_description.ToLower())).FirstOrDefault().id;
+                            Norma.CodSAP = item.ts_sub;
+                            Norma.Nombre = item.ts_description;
+                            Norma.idDimension = 0;
+
+
+                            db.NormasReparto.Add(Norma);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            db.Entry(Norma).State = EntityState.Modified;
+                            Norma.CodSAP = item.ts_sub;
+                            Norma.Nombre = item.ts_description;
+                            db.SaveChanges();
+                        }
+
+                    }
+
+
+                }
+
+                G.CerrarConexionAPP(db);
+                return Request.CreateResponse(HttpStatusCode.OK, "Terminado con exito");
+            }
+            catch (Exception ex)
+            {
+                BitacoraErrores be = new BitacoraErrores();
+                be.Descripcion = ex.Message;
+                be.StackTrace = ex.StackTrace;
+                be.Metodo = "Insertar Norma de Reparto desde QAD";
+                be.Fecha = DateTime.Now;
+                db.BitacoraErrores.Add(be);
+                db.SaveChanges();
                 G.CerrarConexionAPP(db);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }

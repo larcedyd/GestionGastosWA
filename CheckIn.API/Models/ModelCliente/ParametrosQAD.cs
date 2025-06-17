@@ -20,7 +20,7 @@ namespace CheckIn.API.Models.ModelCliente
         public string UrlProveedoresQAD { get; set; }
 
         public string UrlEnviarAsientoQAD { get; set; }
-
+        public string urlNormasRepartoQAD { get; set; }
         public string domainCode { get; set; }
         public string siteCode { get; set; }
         public string buyerCode { get; set; }

@@ -349,6 +349,7 @@
     <Compile Include="Models\ModelMain\LicEmpresas.cs" />
     <Compile Include="Models\ModelMain\LicUsuarios.cs" />
     <Compile Include="Models\ModelMain\ModelLicencias.cs" />
+    <Compile Include="Models\NormasRepartoQAD.cs" />
     <Compile Include="Models\PurchaseOrder.cs" />
     <Compile Include="Models\TokenQAD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
