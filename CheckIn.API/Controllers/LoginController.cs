@@ -150,7 +150,12 @@ namespace CheckIn.API.Controllers
                     throw new Exception("Clave o Usuario incorrectos");
                     throw new Exception("Clave o Usuario incorrectos");
                 }
-
+                else
+                {
+                    db.Entry(user).State = EntityState.Modified;
+                    user.Contador = 0;
+                    db.SaveChanges();
+                }
                 var SeguridadModulos = db.SeguridadRolesModulos.Where(a => a.CodRol == user.idRol).ToList();
                 var param = db.Parametros.FirstOrDefault();
 
@@ -562,6 +567,7 @@ namespace CheckIn.API.Controllers
                     {
                         Usuario.Activo = true;
                         User.Activo = Usuario.Activo;
+                        User.Contador = 0;
                         LogsUsuarios bm = new LogsUsuarios();
                         bm.Descripcion = "El usuario " + User.Nombre + " ha sido activado por un administrador a la hora correspondiente.";
                         bm.idUsuario = User.id;
