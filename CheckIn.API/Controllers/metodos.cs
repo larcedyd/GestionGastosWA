@@ -95,7 +95,7 @@ namespace CheckIn.API.Controllers
                 html += " <ul><li>Correo Electrónico: <b>" + correoElectronicoDestino + "</b></li> ";
                 html += " <li>Codigo de verificación: <b>" + codigo + " </b></li></ul></div></div></body></html> ";
 
-                var resp = SendV2(correoElectronicoDestino, "larce@dydconsultorescr.com", "", correo.RecepcionEmail, "Codigo de Verificacion WMS", "Codigo de Verificacion", html, correo.RecepcionHostName, correo.EnvioPort, correo.RecepcionUseSSL, correo.RecepcionEmail, correo.RecepcionPassword);
+                var resp = SendV2(correoElectronicoDestino, "larce@dydconsultorescr.com", "", correo.RecepcionEmail, "Codigo de Verificacion Gestión de Gastos", "Codigo de Verificacion", html, correo.RecepcionHostName, correo.EnvioPort, correo.RecepcionUseSSL, correo.RecepcionEmail, correo.RecepcionPassword);
 
                 return resp;
 
