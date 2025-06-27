@@ -114,7 +114,7 @@ namespace CheckIn.API.Controllers
                     user.Contador += 1;
                     if (user.Contador > 3)
                     {
-                        user.Activo = false;
+                        
                         var BD2 = Licencia.CadenaConexionBD;
 
                         db = new ModelCliente(BD2);
@@ -133,6 +133,9 @@ namespace CheckIn.API.Controllers
                         dbLogin.Entry(LicenciaUsuarios).State = EntityState.Modified;
                         LicenciaUsuarios.Activo = false;
                         dbLogin.SaveChanges();
+                        db.Entry(user).State = EntityState.Modified;
+                        user.Activo = false;
+                        db.SaveChanges();
                     }
 
                     if (!user.Activo.Value)
@@ -147,8 +150,7 @@ namespace CheckIn.API.Controllers
                     bmx.Fecha = DateTime.Now;
                     db.LogsUsuarios.Add(bmx);
                     db.SaveChanges();
-                    throw new Exception("Clave o Usuario incorrectos");
-                    throw new Exception("Clave o Usuario incorrectos");
+                    throw new Exception("Clave o Usuario incorrectos"); 
                 }
                 else
                 {
