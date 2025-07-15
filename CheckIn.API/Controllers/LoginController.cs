@@ -216,6 +216,114 @@ namespace CheckIn.API.Controllers
             }
         }
 
+        [Route("api/Login/Conectar365")]
+        public async Task<HttpResponseMessage> GetLogin365Async([FromUri] string email, string CedulaJuridica = "")
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(CedulaJuridica))
+                {
+                    throw new Exception("Se debe indicar el número de compañía a la que perteneces");
+                }
+
+                var LicenciaUsuarios = dbLogin.LicUsuarios.Where(a => a.Email.ToUpper().Contains(email.ToUpper()) && a.CedulaJuridica == CedulaJuridica).FirstOrDefault();
+
+
+                if (LicenciaUsuarios == null)
+                {
+                    throw new Exception("Usuario no existe");
+                }
+                var Licencia = dbLogin.LicEmpresas.Where(a => a.CedulaJuridica == LicenciaUsuarios.CedulaJuridica).FirstOrDefault();
+
+                if (Licencia == null)
+                {
+                    throw new Exception("Empresa no existe");
+                }
+
+                if (!Licencia.Activo.Value)
+                {
+                    throw new Exception("Empresa no se encuentra activa");
+                }
+
+                if (!LicenciaUsuarios.Activo)
+                {
+                    throw new Exception("Este usuario no esta activo");
+                }
+
+
+
+
+                var BD = Licencia.CadenaConexionBD;
+
+                db = new ModelCliente(BD);
+                var token = TokenGenerator.GenerateTokenJwt(Licencia.CedulaJuridica, BD);
+
+                DevolucionLogin de = new DevolucionLogin();
+                var user = db.Login.Where(a => a.Email.ToUpper().Contains(LicenciaUsuarios.Email.ToUpper())).FirstOrDefault();
+
+                if (user == null)
+                {
+                    throw new Exception("Usuario no existe");
+                }
+              
+                var SeguridadModulos = db.SeguridadRolesModulos.Where(a => a.CodRol == user.idRol).ToList();
+                var param = db.Parametros.FirstOrDefault();
+
+                db.Entry(user).State = EntityState.Modified;
+                user.Codigo = G.GenerarCodigo();
+                db.SaveChanges();
+
+                de.idLogin = user.id;
+                de.NombreUsuario = LicenciaUsuarios.Nombre;
+                de.Email = LicenciaUsuarios.Email;
+                de.CedulaJuridica = LicenciaUsuarios.CedulaJuridica;
+                de.FechaVencimiento = Licencia.FechaVencimiento.Value;
+                de.token = token;
+                de.idRol = user.idRol.Value;
+                de.Seguridad = SeguridadModulos;
+                de.UrlLogo = param.UrlImagenesApp + param.UrlLogo;
+                de.CambiarClave = user.FechaVencimientoClave.Date <= DateTime.Now.Date ? true : user.CambiarClave;
+                de.Pais = Licencia.CadenaConexionSAP;
+                de.Codigo = user.Codigo;
+
+                BitacoraLogin bl = new BitacoraLogin();
+                bl.idUsuario = de.idLogin;
+                bl.IP = HttpContext.Current.Request.UserHostAddress;
+                bl.Detalle = "El usuario " + de.NombreUsuario + ", con el id: " + de.idLogin + " se ha logueado";
+                bl.Fecha = DateTime.Now;
+                db.BitacoraLogin.Add(bl);
+                db.SaveChanges();
+
+                if (SeguridadModulos.Where(a => a.CodModulo == 99).FirstOrDefault() != null)
+                {
+                    metodos met = new metodos();
+                    CorreoEnvio correo = db.CorreoEnvio.FirstOrDefault();
+                    if (!met.EnviarCorreo(user.Email, user.Codigo, correo))
+                    {
+                        G.GuardarTxt("ErrorEnviandoEmail.txt", user.Codigo + " => " + user.Email);
+                    }
+                }
+
+
+
+                return Request.CreateResponse(HttpStatusCode.OK, de);
+
+            }
+            catch (Exception ex)
+            {
+                //BitacoraErrores be = new BitacoraErrores();
+                //be.Descripcion = ex.Message;
+                //be.StackTrace = ex.StackTrace;
+                //be.Metodo = "LOGIN de Usuario";
+                //be.Fecha = DateTime.Now;
+                //db.BitacoraErrores.Add(be);
+                //db.SaveChanges();
+                //G.CerrarConexionAPP(db);
+                G.GuardarTxt("ErrorLogin.txt", ex.Message + " => " + ex.StackTrace);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
         public async Task<HttpResponseMessage> Get([FromUri] Filtros filtro)
         {
             try
