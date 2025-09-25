@@ -384,7 +384,7 @@ namespace CheckIn.API.Controllers
                         }
 
                         factura.MedioPago = Pais == "E" ? "" : G.ExtraerValorDeNodoXml(xml, "MedioPago");
-                        if (attachmentBody.Contains("xml-schemas/v4.3"))
+                        if (attachmentBody.Contains("xml-schemas/v4.3") || attachmentBody.Contains("xml-schemas/v4.4"))
                         {
                             factura.CodMoneda = G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoTipoMoneda/CodigoMoneda");
 
@@ -817,7 +817,7 @@ namespace CheckIn.API.Controllers
                                 det.NomProveedor = NomProveedor;
                                 det.NumLinea = short.Parse(G.ExtraerValorDeNodoXml(item2, "NumeroLinea"));
 
-                                if (attachmentBody.Contains("xml-schemas/v4.3"))
+                                if (attachmentBody.Contains("xml-schemas/v4.3") || attachmentBody.Contains("xml-schemas/v4.4"))
                                 {
                                     det.CodPro = G.ExtraerValorDeNodoXml(item2, "CodigoComercial/Codigo");
                                     if (det.CodPro.Length > 20)
@@ -1172,7 +1172,7 @@ namespace CheckIn.API.Controllers
                         }
 
                         factura.MedioPago = Pais == "E" ? "" : G.ExtraerValorDeNodoXml(xml, "MedioPago");
-                        if (xmlBase64.Contains("xml-schemas/v4.3"))
+                        if (xmlBase64.Contains("xml-schemas/v4.3") || xmlBase64.Contains("xml-schemas/v4.4"))
                         {
                             factura.CodMoneda = G.ExtraerValorDeNodoXml(xml, "ResumenFactura/CodigoTipoMoneda/CodigoMoneda");
 
@@ -1650,7 +1650,7 @@ namespace CheckIn.API.Controllers
                                 det.NomProveedor = NomProveedor;
                                 det.NumLinea = short.Parse(G.ExtraerValorDeNodoXml(item2, "NumeroLinea"));
 
-                                if (xmlBase64.Contains("xml-schemas/v4.3"))
+                                if (xmlBase64.Contains("xml-schemas/v4.3") || xmlBase64.Contains("xml-schemas/v4.4"))
                                 {
                                     det.CodPro = G.ExtraerValorDeNodoXml(item2, "CodigoComercial/Codigo");
                                     if (det.CodPro.Length > 20)
